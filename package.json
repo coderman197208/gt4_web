@@ -1,0 +1,20 @@
+{
+  "name": "gt4_web",
+  "private": true,
+  "workspaces": ["frontend", "backend", "packages/shared"],
+  "scripts": {
+    "dev": "concurrently -n back,front -c green,blue \"npm:dev --workspace backend\" \"npm:dev --workspace frontend\"",
+    "build": "npm run build --workspace packages/shared; npm run build --workspace backend; npm run build --workspace frontend",
+    "typecheck": "npm run typecheck --workspace packages/shared; npm run typecheck --workspace backend; npm run typecheck --workspace frontend",
+    "lint": "npm run lint --workspace backend; npm run lint --workspace frontend",
+    "format": "prettier -w \"**/*.{js,ts,tsx,vue,json,md,yml,yaml,css,scss}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "concurrently": "^9.0.0",
+    "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

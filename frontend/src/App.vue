@@ -15,7 +15,10 @@ import { ref } from 'vue';
 const result = ref('');
 async function checkHealth() {
   try {
-    const res = await fetch('http://localhost:3000/health');
+    const res = await fetch('/api/health');
+    if (!res.ok) {
+      throw new Error(`Request failed: ${res.status}`);
+    }
     const data = await res.json();
     result.value = JSON.stringify(data);
   } catch (e) {

@@ -6,9 +6,10 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Example: frontend calls backend via http://localhost:3000
-      // Use /api when backend exposes prefixed routes
-      // '/api': 'http://localhost:3000'
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
+      }
     }
   }
 });

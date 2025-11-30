@@ -7,6 +7,6 @@
 
 ## 技术栈
 *   后端：Node.js + TypeScript + Fastify + Socket.IO + Prisma
-*   前端：Vue.js + TypeScript + Vite + Vue Router + Pinia + axios + Element Plus + Tailwind css
+*   前端：Vue.js + TypeScript + Vite + Vue Router + Pinia + axios + shadcn-vue + Tailwind css
 *   数据库：PostgreSQL + Redis
 *   数据模拟：使用mock-redis-server在开发时模拟Redis的功能，使用JSON Server模拟数据库CRUD操作

@@ -1,7 +1,11 @@
 {
   "name": "gt4_web",
   "private": true,
-  "workspaces": ["frontend", "backend", "packages/shared"],
+  "workspaces": [
+    "frontend",
+    "backend",
+    "packages/shared"
+  ],
   "scripts": {
     "dev": "concurrently -n back,front -c green,blue \"npm:dev --workspace backend\" \"npm:dev --workspace frontend\"",
     "build": "npm run build --workspace packages/shared; npm run build --workspace backend; npm run build --workspace frontend",
@@ -16,5 +20,9 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "tailwindcss": "^4.1.17"
   }
 }

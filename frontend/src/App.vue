@@ -1,7 +1,9 @@
 <template>
   <RouterView />
   <div>
-    <Button variant="destructive">Click me</Button>
+    <Button as-child>
+      <a href="https://www.google.com">Google</a>
+    </Button>
   </div>
 </template>
 

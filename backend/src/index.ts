@@ -5,7 +5,7 @@ const fastify = Fastify({ logger: true });
 
 fastify.register(cors, {
   origin: process.env.FRONTEND_ORIGIN || true,
-  credentials: true
+  credentials: true,
 });
 
 fastify.get('/api/health', async () => ({ status: 'ok' }));

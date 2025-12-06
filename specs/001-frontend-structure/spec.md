@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Input**: User description: "frontend\\src目录保存的是前端源码目录，但现在这个目录结构很单一，如果在此基础上进行前端功能扩展和完善的话，应该把不同的文件放在不同的目录里，比如页面、路由、组件、样式等，请帮我重构这个目录，且不影响现有功能"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Maintainable Source Layout (Priority: P1)
 
@@ -57,7 +57,7 @@ Design reviewers expect global styles and routing behavior to remain consistent 
 - If routing configuration is missing or corrupted, the application must still mount and render a helpful error state instead of a blank screen.
 - When backend health responses fail (network error or non-200 status), the reorganized component must continue surfacing a readable "error" state just as before the refactor.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -68,14 +68,14 @@ Design reviewers expect global styles and routing behavior to remain consistent 
 - **FR-005**: Shared UI logic (e.g., the health-check button) MUST live in the `components` directory and be referenced by pages via concise imports, eliminating duplicated fetch logic.
 - **FR-006**: Project documentation MUST describe where new pages, routes, shared components, and styles belong so future contributors can follow the structure without tribal knowledge.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Page Module**: Represents a top-level view (e.g., Landing page). Contains template copy, references to shared components, and page-scoped layout hooks.
 - **Route Definition**: Conceptual entity in the router module describing path, name, and linked page module; ensures navigation remains decoupled from bootstrap logic.
 - **Shared Component**: Reusable UI building block (e.g., health check panel) that encapsulates state, fetch behavior, and emit/prop contracts for reuse across pages.
 - **Style Layer**: Centralized set of base styles defining typography, colors, spacing, and layout constraints applied globally regardless of page.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -3,9 +3,7 @@
     <Card class="w-full max-w-md">
       <CardHeader class="space-y-1">
         <CardTitle class="text-2xl font-bold text-center">登录</CardTitle>
-        <CardDescription class="text-center">
-          输入您的账号信息以登录系统
-        </CardDescription>
+        <CardDescription class="text-center"> 输入您的账号信息以登录系统 </CardDescription>
       </CardHeader>
       <CardContent>
         <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -33,16 +31,10 @@
           </div>
           <div class="flex items-center justify-between text-sm">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                v-model="formData.rememberMe"
-                type="checkbox"
-                class="rounded border-input"
-              />
+              <input v-model="formData.rememberMe" type="checkbox" class="rounded border-input" />
               <span class="text-muted-foreground">记住我</span>
             </label>
-            <a href="#" class="text-primary hover:underline">
-              忘记密码？
-            </a>
+            <a href="#" class="text-primary hover:underline"> 忘记密码？ </a>
           </div>
           <Button type="submit" class="w-full" :disabled="isLoading">
             <span v-if="isLoading">登录中...</span>
@@ -56,16 +48,12 @@
             <span class="w-full border-t"></span>
           </div>
           <div class="relative flex justify-center text-xs uppercase">
-            <span class="bg-card px-2 text-muted-foreground">
-              或
-            </span>
+            <span class="bg-card px-2 text-muted-foreground"> 或 </span>
           </div>
         </div>
         <div class="text-center text-sm text-muted-foreground">
           还没有账号？
-          <a href="#" class="text-primary hover:underline font-medium">
-            立即注册
-          </a>
+          <a href="#" class="text-primary hover:underline font-medium"> 立即注册 </a>
         </div>
       </CardFooter>
     </Card>
@@ -99,17 +87,17 @@ const isLoading = ref(false);
 
 const handleSubmit = async () => {
   isLoading.value = true;
-  
+
   try {
     // TODO: 实现实际的登录逻辑
     // 示例：调用登录 API
     // await loginAPI(formData.email, formData.password);
-    
+
     // 模拟 API 调用
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     console.log('登录信息:', formData);
-    
+
     // 登录成功后跳转到首页
     router.push('/');
   } catch (error) {

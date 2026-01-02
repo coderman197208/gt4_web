@@ -1,7 +1,8 @@
-# Routing Specification
+# routing Specification
 
-## ADDED Requirements
-
+## Purpose
+TBD - created by archiving change refactor-homepage-to-app-container. Update Purpose after archive.
+## Requirements
 ### Requirement: 根路径路由配置
 系统 SHALL 将根路径 `/` 配置为应用容器组件，并支持嵌套子路由以实现多页面应用结构。
 
@@ -31,3 +32,4 @@
 - **WHEN** 用户点击"健康检查"菜单项
 - **THEN** 应用应导航到 `/health-check` 路径
 - **AND** 健康检查功能应正常可用
+

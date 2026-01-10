@@ -33,6 +33,10 @@
 
 ## Project Conventions
 
+### package management
+
+- 使用pnpm而不是npm安装依赖包
+
 ### Code Style
 
 [Describe your code style preferences, formatting rules, and naming conventions]

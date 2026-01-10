@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
 import LoginView from '../views/LoginView.vue';
 import HealthCheckView from '../views/HealthCheckView.vue';
+import ApiDemoView from '../views/ApiDemoView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,11 @@ const router = createRouter({
           path: 'health-check',
           name: 'health-check',
           component: HealthCheckView,
+        },
+        {
+          path: 'api-demo',
+          name: 'api-demo',
+          component: ApiDemoView,
         },
       ],
     },

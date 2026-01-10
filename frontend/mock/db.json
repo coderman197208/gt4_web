@@ -46,6 +46,14 @@
       "authorId": 3,
       "createdAt": "2026-01-07T09:15:00Z",
       "published": false
+    },
+    {
+      "title": "测试文章 2026/1/10 14:03:08",
+      "content": "这是一篇通过API创建的测试文章。",
+      "authorId": 1,
+      "published": true,
+      "createdAt": "2026-01-10T06:03:08.708Z",
+      "id": 4
     }
   ],
   "comments": [

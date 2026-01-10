@@ -18,6 +18,17 @@
         >
           健康检查
         </router-link>
+        <router-link
+          to="/api-demo"
+          :class="[
+            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            isActive('/api-demo')
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground'
+          ]"
+        >
+          API测试
+        </router-link>
       </nav>
     </div>
   </aside>

@@ -1,12 +1,13 @@
 <template>
   <div class="health-check">
-    <button @click="checkHealth">Check Backend Health</button>
+    <Button @click="checkHealth">Check Backend Health</Button>
     <p v-if="result" class="health-check__result">Backend: {{ result }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Button } from '@/components/ui/button';
 
 const result = ref('');
 

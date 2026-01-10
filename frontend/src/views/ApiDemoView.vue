@@ -5,12 +5,12 @@
     <!-- 健康检查 -->
     <section class="mb-8">
       <h2 class="text-2xl font-semibold mb-4">1. 健康检查</h2>
-      <button 
-        @click="testHealthCheck" 
-        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-2"
+      <Button 
+        @click="testHealthCheck"
+        class="mb-2"
       >
         测试健康检查
-      </button>
+      </Button>
       <pre v-if="healthStatus" class="bg-gray-100 p-4 rounded">{{ healthStatus }}</pre>
     </section>
 
@@ -18,18 +18,18 @@
     <section class="mb-8">
       <h2 class="text-2xl font-semibold mb-4">2. 用户管理</h2>
       <div class="space-x-2 mb-4">
-        <button 
-          @click="testGetUsers" 
-          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        <Button 
+          @click="testGetUsers"
+          variant="default"
         >
           获取所有用户
-        </button>
-        <button 
-          @click="testCreateUser" 
-          class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+        </Button>
+        <Button 
+          @click="testCreateUser"
+          variant="outline"
         >
           创建用户
-        </button>
+        </Button>
       </div>
       <div v-if="users.length > 0" class="bg-gray-100 p-4 rounded">
         <h3 class="font-semibold mb-2">用户列表 ({{ users.length }})</h3>
@@ -47,24 +47,24 @@
     <section class="mb-8">
       <h2 class="text-2xl font-semibold mb-4">3. 文章管理</h2>
       <div class="space-x-2 mb-4">
-        <button 
-          @click="testGetPosts" 
-          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        <Button 
+          @click="testGetPosts"
+          variant="default"
         >
           获取所有文章
-        </button>
-        <button 
-          @click="testGetPublishedPosts" 
-          class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+        </Button>
+        <Button 
+          @click="testGetPublishedPosts"
+          variant="secondary"
         >
           获取已发布文章
-        </button>
-        <button 
-          @click="testCreatePost" 
-          class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+        </Button>
+        <Button 
+          @click="testCreatePost"
+          variant="outline"
         >
           创建文章
-        </button>
+        </Button>
       </div>
       <div v-if="posts.length > 0" class="bg-gray-100 p-4 rounded">
         <h3 class="font-semibold mb-2">文章列表 ({{ posts.length }})</h3>
@@ -86,18 +86,18 @@
     <section class="mb-8">
       <h2 class="text-2xl font-semibold mb-4">4. 评论管理</h2>
       <div class="space-x-2 mb-4">
-        <button 
-          @click="testGetComments" 
-          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        <Button 
+          @click="testGetComments"
+          variant="default"
         >
           获取所有评论
-        </button>
-        <button 
-          @click="testGetPostComments" 
-          class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+        </Button>
+        <Button 
+          @click="testGetPostComments"
+          variant="secondary"
         >
           获取文章1的评论
-        </button>
+        </Button>
       </div>
       <div v-if="comments.length > 0" class="bg-gray-100 p-4 rounded">
         <h3 class="font-semibold mb-2">评论列表 ({{ comments.length }})</h3>
@@ -115,12 +115,13 @@
     <!-- 登录测试 -->
     <section class="mb-8">
       <h2 class="text-2xl font-semibold mb-4">5. 登录测试</h2>
-      <button 
-        @click="testLogin" 
-        class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 mb-2"
+      <Button 
+        @click="testLogin"
+        variant="default"
+        class="mb-2"
       >
         模拟登录
-      </button>
+      </Button>
       <pre v-if="loginResult" class="bg-gray-100 p-4 rounded">{{ loginResult }}</pre>
     </section>
 
@@ -133,6 +134,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Button } from '@/components/ui/button';
 import {
   healthCheck,
   getUsers,

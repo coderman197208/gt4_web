@@ -12,6 +12,7 @@
     "mock:server": "node mock/server.cjs"
   },
   "dependencies": {
+    "@gt4_web/shared": "workspace:*",
     "@tanstack/vue-table": "^8.21.3",
     "@vueuse/core": "^12.8.2",
     "axios": "^1.7.9",

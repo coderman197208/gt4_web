@@ -1,5 +1,5 @@
 import { request } from './client';
-import type { Comment, CreateCommentParams, UpdateCommentParams } from './types';
+import type { Comment, CreateCommentParams, UpdateCommentParams } from '@gt4_web/shared';
 
 /**
  * 评论相关API

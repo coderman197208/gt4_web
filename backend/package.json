@@ -11,6 +11,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@gt4_web/shared": "workspace:*",
     "fastify": "^4.26.2",
     "@fastify/cors": "^9.0.1"
   },

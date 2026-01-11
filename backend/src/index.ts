@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import type { HealthCheckResponse } from '@gt4_web/shared';
 
 const fastify = Fastify({ logger: true });
 
@@ -8,7 +9,11 @@ fastify.register(cors, {
   credentials: true,
 });
 
-fastify.get('/api/health', async () => ({ status: 'ok' }));
+fastify.get<{ Reply: HealthCheckResponse }>('/api/health', async () => ({
+  status: 'ok',
+  message: 'Backend server is running',
+  timestamp: new Date().toISOString(),
+}));
 
 const port = Number(process.env.PORT || 3000);
 const host = '0.0.0.0';

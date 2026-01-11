@@ -1,5 +1,5 @@
 import { request } from './client';
-import type { User, CreateUserParams, UpdateUserParams } from './types';
+import type { User, CreateUserParams, UpdateUserParams } from '@gt4_web/shared';
 
 /**
  * 用户相关API

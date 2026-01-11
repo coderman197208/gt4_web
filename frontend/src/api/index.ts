@@ -15,7 +15,7 @@
  */
 
 // 导出类型定义
-export * from './types';
+export * from '@gt4_web/shared';
 
 // 导出API客户端
 export { default as apiClient, request } from './client';

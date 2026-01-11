@@ -1,5 +1,5 @@
 import { request } from './client';
-import type { LoginParams, LoginResponse, HealthCheckResponse } from './types';
+import type { LoginParams, LoginResponse, HealthCheckResponse } from '@gt4_web/shared';
 
 /**
  * 认证相关API

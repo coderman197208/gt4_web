@@ -1,5 +1,5 @@
 import { request } from './client';
-import type { Post, CreatePostParams, UpdatePostParams } from './types';
+import type { Post, CreatePostParams, UpdatePostParams } from '@gt4_web/shared';
 
 /**
  * 文章相关API

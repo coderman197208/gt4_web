@@ -24,6 +24,7 @@
 - Vue Router、Pinia
 - axios（HTTP客户端）
 - shadcn-vue、Tailwind CSS
+- 前端页面必须首先使用shadcn-vue组件库里的组件（安装在frontend\src\components\ui目录下），如果需要的组件还没有下载到项目本地请下载安装
 
 ### 开发工具
 - TypeScript（类型检查）
@@ -75,7 +76,7 @@
 
 ##### 4. 实时数据更新
 - WebSocket推送实时数据到前端
-- Pinia store管理全局设备状态
+- Pinia store管理全局实时数据状态
 - Vue响应式自动更新SVG属性（颜色、数值、动画状态）
 
 ### Testing Strategy

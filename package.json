@@ -8,8 +8,6 @@
   ],
   "scripts": {
     "dev": "concurrently -n back,front -c green,blue \"npm:dev --workspace backend\" \"npm:dev --workspace frontend\"",
-    "dev:mock": "concurrently -n mock,front -c yellow,blue \"npm:mock:server\" \"npm:dev --workspace frontend\"",
-    "mock:server": "pnpm --filter @gt4_web/frontend mock:server",
     "build": "npm run build --workspace packages/shared; npm run build --workspace backend; npm run build --workspace frontend",
     "typecheck": "npm run typecheck --workspace packages/shared; npm run typecheck --workspace backend; npm run typecheck --workspace frontend",
     "lint": "npm run lint --workspace backend; npm run lint --workspace frontend",

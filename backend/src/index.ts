@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import type { HealthCheckResponse } from '@gt4_web/shared';
 import { initSocketServer } from './modules/websocket/socketServer.js';
 import { startMockDataGenerator } from './modules/websocket/mockDataGenerator.js';
+import { registerMockRoutes } from './modules/api/mockRoutes.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -11,11 +12,20 @@ fastify.register(cors, {
   credentials: true,
 });
 
+// 注册 HTTP Errors 插件以便使用 httpErrors
+import httpErrors from '@fastify/sensible';
+fastify.register(httpErrors);
+
 fastify.get<{ Reply: HealthCheckResponse }>('/api/health', async () => ({
   status: 'ok',
   message: 'Backend server is running',
   timestamp: new Date().toISOString(),
 }));
+
+// 在开发环境中注册 Mock API 路由
+if (process.env.NODE_ENV !== 'production') {
+  fastify.register(registerMockRoutes);
+}
 
 const port = Number(process.env.PORT || 3000);
 const host = '0.0.0.0';

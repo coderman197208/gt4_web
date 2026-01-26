@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -106,6 +106,12 @@ async function checkHealth() {
 onMounted(() => {
   subscribe(['tag1', 'tag2', 'tag3']);
   console.log('[HealthCheckView] 已订阅 tag1, tag2, tag3');
+});
+
+// 在组件卸载时取消所有订阅
+onUnmounted(() => {
+  subscribe([]);
+  console.log('[HealthCheckView] 已取消所有订阅');
 });
 </script>
 

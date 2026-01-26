@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import {
@@ -74,6 +74,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useWebSocket } from '@/services/websocket';
 
 const router = useRouter();
 
@@ -84,6 +85,13 @@ const formData = reactive({
 });
 
 const isLoading = ref(false);
+
+// LoginView不需要订阅WebSocket数据，在挂载时清空订阅
+const { subscribe } = useWebSocket();
+onMounted(() => {
+  subscribe([]);
+  console.log('[LoginView] 已清空所有订阅');
+});
 
 const handleSubmit = async () => {
   isLoading.value = true;

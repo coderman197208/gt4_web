@@ -198,9 +198,13 @@ export interface DataPushMessage {
 - 指数退避策略（初始1s，最大5s）
 - 重连成功后触发 `connect` 事件
 
-**订阅恢复**:
+**订阅恢复与清理**:
 - 每次连接成功后，前端重新发送当前订阅列表
 - 后端收到订阅请求后全量替换订阅列表
+- **页面切换时清理订阅**：
+  - 需要订阅的页面（如 HealthCheckView）在 `onMounted` 时订阅，在 `onUnmounted` 时取消订阅（发送空数组）
+  - 不需要订阅的页面（如 ApiDemoView、LoginView）在 `onMounted` 时发送空数组清空订阅
+  - 这样确保切换到不需要订阅的页面时，后端停止推送数据
 
 ## Data Flow Sequence
 
@@ -225,6 +229,26 @@ SubscriptionManager.updateSubscriptions(socketId, tags)
     │ 替换订阅列表
     ▼
 Map { socketId => Set(['tag1', 'tag2', 'tag3']) }
+```
+
+### 取消订阅流程（页面切换时）
+```
+HealthCheckView (onUnmounted) / ApiDemoView (onMounted)
+    │
+    │ subscribe([])  // 发送空数组清空订阅
+    ▼
+WebSocket Service
+    │
+    │ emit('subscribe', { tags: [] })
+    ▼
+Backend Socket.IO Handler
+    │
+    ▼
+SubscriptionManager.updateSubscriptions(socketId, [])
+    │
+    │ 清空订阅列表
+    ▼
+Map { socketId => Set() }  // 空集合，不再接收任何推送
 ```
 
 ### 推送流程

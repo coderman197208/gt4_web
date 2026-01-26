@@ -133,8 +133,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
+import { useWebSocket } from '@/services/websocket';
 import {
   healthCheck,
   getUsers,
@@ -155,6 +156,13 @@ const posts = ref<Post[]>([]);
 const comments = ref<Comment[]>([]);
 const loginResult = ref<any>(null);
 const error = ref<string>('');
+
+// ApiDemoView不需要订阅WebSocket数据，在挂载时清空订阅
+const { subscribe } = useWebSocket();
+onMounted(() => {
+  subscribe([]);
+  console.log('[ApiDemoView] 已清空所有订阅');
+});
 
 async function testHealthCheck() {
   try {

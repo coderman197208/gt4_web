@@ -29,6 +29,17 @@
         >
           API测试
         </router-link>
+        <router-link
+          to="/tube-edit-ndt"
+          :class="[
+            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            isActive('/tube-edit-ndt')
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground'
+          ]"
+        >
+          NDT管捆编辑
+        </router-link>
       </nav>
     </div>
   </aside>

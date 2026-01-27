@@ -1,78 +1,81 @@
 <template>
-  <div class="health-check">
-    <!-- 原有的健康检查按钮 -->
-    <div class="mb-6">
-      <Button @click="checkHealth">Check Backend Health</Button>
-      <p v-if="result" class="health-check__result">Backend: {{ result }}</p>
-    </div>
-
-    <!-- WebSocket连接状态 -->
-    <div class="mb-6">
-      <div class="flex items-center gap-2">
-        <span class="font-semibold">WebSocket状态:</span>
-        <span :class="isConnected ? 'text-green-600' : 'text-red-600'">
-          {{ isConnected ? '已连接' : '未连接' }}
-        </span>
+  <div class="health-check h-full flex flex-col overflow-hidden">
+    <!-- 顶部状态栏 -->
+    <div class="flex-shrink-0 grid grid-cols-2 gap-2 mb-2">
+      <div class="border rounded p-2">
+        <Button @click="checkHealth" size="sm" class="w-full mb-1">Check Backend Health</Button>
+        <p v-if="result" class="text-xs">Backend: {{ result }}</p>
       </div>
-      <p v-if="error" class="text-red-600 text-sm mt-1">{{ error }}</p>
+      <div class="border rounded p-2">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-semibold text-sm">WebSocket状态:</span>
+          <span :class="isConnected ? 'text-green-600' : 'text-red-600'" class="text-sm">
+            {{ isConnected ? '已连接' : '未连接' }}
+          </span>
+        </div>
+        <p v-if="error" class="text-red-600 text-xs">{{ error }}</p>
+      </div>
     </div>
 
     <!-- Tag1 数据展示（表格，一行6列） -->
-    <div class="mb-6">
-      <h3 class="text-lg font-semibold mb-2">Tag1 数据</h3>
-      <Table v-if="realtimeStore.tag1">
+    <div class="flex-shrink-0 border rounded p-2 mb-2">
+      <h3 class="text-sm font-semibold mb-1">Tag1 数据</h3>
+      <Table v-if="realtimeStore.tag1" class="text-xs">
         <TableHeader>
           <TableRow>
-            <TableHead>批号 (ph)</TableHead>
-            <TableHead>炉号 (lh)</TableHead>
-            <TableHead>车组号 (czh)</TableHead>
-            <TableHead>拖链序号 (tlxh)</TableHead>
-            <TableHead>轧制温度 (zzwj)</TableHead>
-            <TableHead>轧制编号 (zzbh)</TableHead>
+            <TableHead class="p-1 h-auto">批号</TableHead>
+            <TableHead class="p-1 h-auto">炉号</TableHead>
+            <TableHead class="p-1 h-auto">车组号</TableHead>
+            <TableHead class="p-1 h-auto">拖链序号</TableHead>
+            <TableHead class="p-1 h-auto">轧制温度</TableHead>
+            <TableHead class="p-1 h-auto">轧制编号</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow>
-            <TableCell>{{ realtimeStore.tag1.ph }}</TableCell>
-            <TableCell>{{ realtimeStore.tag1.lh }}</TableCell>
-            <TableCell>{{ realtimeStore.tag1.czh }}</TableCell>
-            <TableCell>{{ realtimeStore.tag1.tlxh }}</TableCell>
-            <TableCell>{{ realtimeStore.tag1.zzwj }}</TableCell>
-            <TableCell>{{ realtimeStore.tag1.zzbh }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.tag1.ph }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.tag1.lh }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.tag1.czh }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.tag1.tlxh }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.tag1.zzwj }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.tag1.zzbh }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
-      <p v-else class="text-gray-500">等待数据...</p>
+      <p v-else class="text-gray-500 text-xs">等待数据...</p>
     </div>
 
-    <!-- Tag2 数据展示（单个数字，只读输入框） -->
-    <div class="mb-6">
-      <h3 class="text-lg font-semibold mb-2">Tag2 数据</h3>
-      <Input 
-        v-if="realtimeStore.tag2 !== null" 
-        :model-value="String(realtimeStore.tag2)" 
-        readonly 
-        class="max-w-xs"
-      />
-      <p v-else class="text-gray-500">等待数据...</p>
-    </div>
+    <!-- Tag2 和 Tag3 数据并排展示 -->
+    <div class="flex-1 grid grid-cols-2 gap-2 overflow-hidden">
+      <!-- Tag2 数据展示（单个数字，只读输入框） -->
+      <div class="border rounded p-2 flex flex-col">
+        <h3 class="text-sm font-semibold mb-1 flex-shrink-0">Tag2 数据</h3>
+        <Input 
+          v-if="realtimeStore.tag2 !== null" 
+          :model-value="String(realtimeStore.tag2)" 
+          readonly 
+          class="text-xs h-8"
+        />
+        <p v-else class="text-gray-500 text-xs">等待数据...</p>
+      </div>
 
-    <!-- Tag3 数据展示（6行1列表格） -->
-    <div class="mb-6">
-      <h3 class="text-lg font-semibold mb-2">Tag3 数据</h3>
-      <Table v-if="realtimeStore.tag3" class="max-w-xs">
-        <TableHeader>
-          <TableRow>
-            <TableHead>值</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow v-for="(value, index) in realtimeStore.tag3" :key="index">
-            <TableCell>{{ value }}</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-      <p v-else class="text-gray-500">等待数据...</p>
+      <!-- Tag3 数据展示（6行1列表格） -->
+      <div class="border rounded p-2 flex flex-col overflow-hidden">
+        <h3 class="text-sm font-semibold mb-1 flex-shrink-0">Tag3 数据</h3>
+        <Table v-if="realtimeStore.tag3" class="text-xs">
+          <TableHeader>
+            <TableRow>
+              <TableHead class="p-1 h-auto">值</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-for="(value, index) in realtimeStore.tag3" :key="index">
+              <TableCell class="p-1">{{ value }}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        <p v-else class="text-gray-500 text-xs">等待数据...</p>
+      </div>
     </div>
   </div>
 </template>
@@ -116,11 +119,5 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.health-check {
-  margin-top: 12px;
-}
-
-.health-check__result {
-  margin-top: 8px;
-}
+/* 工业界面样式 - 固定布局，无滚动 */
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background p-4">
+  <div class="h-full flex items-center justify-center bg-background">
     <Card class="w-full max-w-md">
       <CardHeader class="space-y-1">
         <CardTitle class="text-2xl font-bold text-center">登录</CardTitle>

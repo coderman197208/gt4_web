@@ -25,6 +25,7 @@
 - axios（HTTP客户端）
 - shadcn-vue、Tailwind CSS
 - 前端页面必须首先使用shadcn-vue组件库里的组件（安装在frontend\src\components\ui目录下），如果需要的组件还没有下载到项目本地请下载安装
+- 固定布局，全屏应用，不仅不能滚动，而且要填满屏幕
 
 ### 开发工具
 - TypeScript（类型检查）

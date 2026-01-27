@@ -1,7 +1,7 @@
 <template>
   <aside
     :class="[
-      'app-sidebar border-r bg-background transition-all duration-300 ease-in-out',
+      'app-sidebar absolute left-0 top-0 bottom-0 z-50 border-r bg-background transition-all duration-300 ease-in-out shadow-lg',
       isOpen ? 'w-60' : 'w-0 border-0'
     ]"
   >

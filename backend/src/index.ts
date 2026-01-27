@@ -27,7 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
   fastify.register(registerMockRoutes);
 }
 
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.PORT || 5001);
 const host = '0.0.0.0';
 
 const start = async () => {

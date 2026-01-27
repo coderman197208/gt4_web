@@ -24,7 +24,7 @@ function initSocket() {
     return socket;
   }
 
-  const serverUrl = import.meta.env.VITE_WS_URL || 'http://localhost:3000';
+  const serverUrl = import.meta.env.VITE_WS_URL || 'http://localhost:5001';
   
   socket = io(serverUrl, {
     reconnection: true,           // 启用自动重连

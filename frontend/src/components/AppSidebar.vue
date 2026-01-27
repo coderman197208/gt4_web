@@ -15,6 +15,7 @@
               ? 'bg-accent text-accent-foreground'
               : 'hover:bg-accent hover:text-accent-foreground'
           ]"
+          @click="handleNavClick"
         >
           健康检查
         </router-link>
@@ -26,6 +27,7 @@
               ? 'bg-accent text-accent-foreground'
               : 'hover:bg-accent hover:text-accent-foreground'
           ]"
+          @click="handleNavClick"
         >
           API测试
         </router-link>
@@ -37,6 +39,7 @@
               ? 'bg-accent text-accent-foreground'
               : 'hover:bg-accent hover:text-accent-foreground'
           ]"
+          @click="handleNavClick"
         >
           NDT管捆编辑
         </router-link>
@@ -52,9 +55,17 @@ defineProps<{
   isOpen: boolean;
 }>();
 
+const emit = defineEmits<{
+  close: [];
+}>();
+
 const route = useRoute();
 
 function isActive(path: string): boolean {
   return route.path === path;
+}
+
+function handleNavClick() {
+  emit('close');
 }
 </script>

@@ -1,59 +1,73 @@
 # app-layout Specification
 
 ## Purpose
+
 TBD - created by archiving change refactor-homepage-to-app-container. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: 应用容器布局
+
 系统 SHALL 提供统一的应用容器布局，包含页头、侧边栏和内容区域，为所有应用页面提供一致的用户界面框架。
 
 #### Scenario: 用户访问应用主页
+
 - **GIVEN** 用户已通过身份验证（或应用不需要验证）
 - **WHEN** 用户导航到应用根路径 `/`
 - **THEN** 系统应显示包含页头、侧边栏和主内容区的完整布局
 - **AND** 侧边栏应处于默认状态（展开或收起取决于设备类型）
 
 #### Scenario: 布局在不同视口尺寸下自适应
+
 - **GIVEN** 应用容器布局已渲染
 - **WHEN** 浏览器窗口大小改变
 - **THEN** 布局应响应式调整，保持可用性
 - **AND** 在小屏幕设备上，侧边栏应默认收起
 
 ### Requirement: 系统页头
+
 系统 SHALL 在应用顶部显示固定的页头栏，包含导航控制、系统标题和实时信息。
 
 #### Scenario: 页头显示系统标题
+
 - **GIVEN** 应用已加载
 - **WHEN** 用户查看页面顶部
 - **THEN** 页头中间应显示文本"管体4号线L2过程机系统"
 
 #### Scenario: 页头显示实时时钟
+
 - **GIVEN** 应用已加载
 - **WHEN** 用户查看页头右侧
 - **THEN** 应显示当前时间，格式为 `YYYY-MM-DD HH:mm:ss`
 - **AND** 时钟应每秒自动刷新
 
 #### Scenario: 页头提供菜单切换控制
+
 - **GIVEN** 应用已加载
 - **WHEN** 用户查看页头左侧
 - **THEN** 应显示一个汉堡菜单图标（三条横线）
 - **AND** 该图标应可点击以控制侧边栏的展开/收起
 
 ### Requirement: 侧边栏导航
+
 系统 SHALL 提供可展开和收起的侧边栏，包含导航菜单项，用于在不同功能页面间切换。
 
 #### Scenario: 切换侧边栏展开状态
+
 - **GIVEN** 应用已加载
 - **WHEN** 用户点击页头左侧的汉堡菜单图标
 - **THEN** 侧边栏应切换展开/收起状态
 - **AND** 切换应有平滑的过渡动画
 
 #### Scenario: 侧边栏显示导航菜单
+
 - **GIVEN** 侧边栏处于展开状态
 - **WHEN** 用户查看侧边栏内容
 - **THEN** 应显示可用的导航菜单项列表
 - **AND** 当前所在页面的菜单项应有高亮显示
 
 #### Scenario: 通过侧边栏导航到功能页面
+
 - **GIVEN** 侧边栏处于展开状态
 - **WHEN** 用户点击侧边栏中的某个菜单项（如"健康检查"）
 - **THEN** 应用应导航到对应的功能页面
@@ -61,16 +75,18 @@ TBD - created by archiving change refactor-homepage-to-app-container. Update Pur
 - **AND** 该菜单项应变为高亮状态
 
 ### Requirement: 主内容区域
+
 系统 SHALL 在页头和侧边栏之外提供主内容区域，用于显示当前活动页面的内容。
 
 #### Scenario: 内容区域显示当前路由页面
+
 - **GIVEN** 用户已导航到某个功能页面
 - **WHEN** 路由发生变化
 - **THEN** 主内容区域应更新并显示对应页面的组件
 - **AND** 页头和侧边栏保持不变
 
 #### Scenario: 内容区域自适应剩余空间
+
 - **GIVEN** 应用容器布局已渲染
 - **WHEN** 侧边栏展开或收起
 - **THEN** 主内容区域应自动调整宽度以占据剩余空间
-

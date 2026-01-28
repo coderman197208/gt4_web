@@ -50,10 +50,10 @@
       <!-- Tag2 数据展示（单个数字，只读输入框） -->
       <div class="border rounded p-2 flex flex-col">
         <h3 class="text-sm font-semibold mb-1 flex-shrink-0">Tag2 数据</h3>
-        <Input 
-          v-if="realtimeStore.tag2 !== null" 
-          :model-value="String(realtimeStore.tag2)" 
-          readonly 
+        <Input
+          v-if="realtimeStore.tag2 !== null"
+          :model-value="String(realtimeStore.tag2)"
+          readonly
           class="text-xs h-8"
         />
         <p v-else class="text-gray-500 text-xs">等待数据...</p>
@@ -84,7 +84,14 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 

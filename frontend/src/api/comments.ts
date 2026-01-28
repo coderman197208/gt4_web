@@ -11,10 +11,10 @@ import type { Comment, CreateCommentParams, UpdateCommentParams } from '@gt4_web
  * @example
  * // 获取特定文章的评论
  * getComments({ postId: 1 })
- * 
+ *
  * // 包含文章信息
  * getComments({ _expand: 'post' })
- * 
+ *
  * // 包含用户信息
  * getComments({ _expand: 'user' })
  */

@@ -1,16 +1,19 @@
 # Design: NDT管捆编辑页面
 
 ## 概述
+
 本设计文档描述如何将 C# WinForms NDT 管捆编辑界面转换为基于 Vue 3 + shadcn-vue + Tailwind CSS 的 Web 页面。
 
 ## 布局架构
 
 ### 整体布局策略
+
 - **全屏固定布局**：页面填满屏幕，禁止滚动
 - **容器样式**：`h-full w-full flex flex-col overflow-hidden`
 - **内部区域可滚动**：仅表单详情区域和表格区域允许内部滚动
 
 ### 页面区域划分
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      查询区域 (约 80px)                          │
@@ -38,6 +41,7 @@
 ## 组件结构
 
 ### Vue 组件树
+
 ```
 TubeEditNDT.vue
 ├── QuerySection (查询区域)
@@ -54,6 +58,7 @@ TubeEditNDT.vue
 ```
 
 ### 响应式数据结构
+
 ```typescript
 interface BundleData {
   // 生产信息
@@ -62,13 +67,13 @@ interface BundleData {
   produceClsNo: string;
   produceGrpNo: string;
   produceJobPoint: string;
-  
+
   // 订单信息
   orderNo: string;
   bundleNo: string;
   roomNo: string;
   directionCode: string;
-  
+
   // 材质规格
   matNo: string;
   matText: string;
@@ -76,9 +81,9 @@ interface BundleData {
   wallThick: string;
   height: string;
   heatTreatStatusCode: string;
-  
+
   // ... 更多字段
-  
+
   // 单管明细 (1-30)
   tubes: Array<{
     tubeNo: string;
@@ -91,25 +96,30 @@ interface BundleData {
 ## 样式规范
 
 ### 颜色映射
+
 - 可编辑字段背景色 (LightSeaGreen)：`bg-teal-200`
 - 只读字段背景色：默认 Input 背景
 
 ### 间距规范
+
 - 区域间距：`gap-4` (16px)
 - 表单字段间距：`gap-2` (8px)
 - 内边距：`p-4` (16px)
 
 ### 边框样式
+
 - GroupBox 替代：`border rounded-lg p-4`
 - 带标题的分组：使用 `<fieldset>` 和 `<legend>` 或自定义样式
 
 ## 性能考虑
 
 ### 表单字段优化
+
 - 单管明细区域包含 90 个输入框 (30管 × 3字段)
 - 使用 `v-for` 循环渲染，避免重复代码
 - 考虑使用 `v-memo` 优化不常变化的字段
 
 ### 表格虚拟滚动
+
 - 如果管捆列表数据量大，可考虑使用虚拟滚动
 - 当前阶段使用标准 Table 组件即可

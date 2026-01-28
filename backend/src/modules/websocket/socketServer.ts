@@ -31,14 +31,14 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
   // 监听连接事件
   io.on('connection', (socket) => {
     console.log(`[SocketServer] 新连接建立: ${socket.id}`);
-    
+
     // 添加到订阅管理器
     subscriptionManager.addConnection(socket.id);
 
     // 监听订阅事件
     socket.on('subscribe', (data: SubscribeRequest) => {
       console.log(`[SocketServer] 收到订阅请求:`, data);
-      
+
       if (Array.isArray(data.tags)) {
         subscriptionManager.updateSubscriptions(socket.id, data.tags);
       } else {

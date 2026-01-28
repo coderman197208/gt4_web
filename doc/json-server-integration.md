@@ -34,11 +34,13 @@ frontend/
 **位置：** `frontend/mock/`
 
 **文件：**
+
 - `db.json` - 包含所有Mock数据（users、posts、comments等）
 - `server.js` - JSON Server自定义配置（路由、中间件、延迟模拟）
 - `README.md` - Mock数据使用说明文档
 
 **特点：**
+
 - 数据独立于源代码，易于维护
 - 支持自定义路由和业务逻辑
 - 可模拟网络延迟，接近真实环境
@@ -48,11 +50,13 @@ frontend/
 **位置：** `frontend/src/api/types.ts`
 
 **内容：**
+
 - API请求/响应的TypeScript类型定义
 - 数据模型接口（User、Post、Comment等）
 - 通用类型（ApiResponse、PaginationParams等）
 
 **示例：**
+
 ```typescript
 export interface User {
   id: number;
@@ -74,6 +78,7 @@ export interface ApiResponse<T = any> {
 **位置：** `frontend/src/api/`
 
 **文件组织：**
+
 ```
 api/
 ├── client.ts          # axios实例和请求封装
@@ -86,12 +91,14 @@ api/
 ```
 
 **设计原则：**
+
 - **模块化**：按业务领域分文件（users、posts、comments）
 - **类型安全**：所有函数都有完整的TypeScript类型
 - **统一封装**：通过client.ts统一处理请求/响应
 - **易于使用**：通过index.ts统一导出，支持按需导入
 
 **使用示例：**
+
 ```typescript
 // 方式1：导入所有API
 import * as api from '@/api';
@@ -107,12 +114,14 @@ const users = await getUsers();
 ### 1. axios客户端配置（client.ts）
 
 **功能：**
+
 - 创建axios实例，配置baseURL为`/api`
 - 请求拦截器：自动添加token、防缓存参数
 - 响应拦截器：统一错误处理、token过期处理
 - 封装通用请求方法（get、post、put、patch、delete）
 
 **关键代码：**
+
 ```typescript
 const apiClient = axios.create({
   baseURL: '/api',
@@ -137,7 +146,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('auth_token');
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -146,6 +155,7 @@ apiClient.interceptors.response.use(
 **位置：** `frontend/vite.config.ts`
 
 **配置：**
+
 ```typescript
 server: {
   port: 5173,
@@ -160,6 +170,7 @@ server: {
 ```
 
 **说明：**
+
 - 前端请求`/api/users` → 代理到 `http://localhost:3001/users`
 - 通过环境变量`VITE_API_TARGET`控制代理目标
 - `rewrite`规则：移除`/api`前缀，直接访问JSON Server资源
@@ -167,16 +178,19 @@ server: {
 ### 3. 环境切换
 
 **开发环境（.env.development）：**
+
 ```
 VITE_API_TARGET=http://localhost:3001  # JSON Server
 ```
 
 **生产环境（.env.production）：**
+
 ```
 VITE_API_TARGET=http://localhost:3000  # 真实后端
 ```
 
 **切换方式：**
+
 - 开发时默认使用JSON Server
 - 构建生产版本时自动切换到真实后端
 - 也可手动修改`.env.development`临时切换
@@ -259,11 +273,13 @@ onMounted(() => {
 ### 启动JSON Server
 
 **方式1：在项目根目录启动**
+
 ```bash
 pnpm mock:server
 ```
 
 **方式2：在frontend目录启动**
+
 ```bash
 cd frontend
 pnpm mock:server
@@ -284,21 +300,25 @@ pnpm dev
 ### 同时启动两个服务
 
 **方式1：一键启动（推荐）**
+
 ```bash
 # 在项目根目录
 pnpm dev:mock
 ```
+
 这会同时启动Mock服务器(3001端口)和前端开发服务器(5173端口)。
 
 **方式2：分别启动**
 在两个终端窗口分别运行：
 
 **终端1：**
+
 ```bash
 pnpm mock:server
 ```
 
 **终端2：**
+
 ```bash
 cd frontend
 pnpm dev
@@ -307,6 +327,7 @@ pnpm dev
 ## 测试
 
 访问 `http://localhost:5173/api-demo` 查看API使用示例页面，包含：
+
 - 健康检查测试
 - 用户CRUD操作
 - 文章CRUD操作
@@ -329,6 +350,7 @@ pnpm dev
 ### 自定义端点
 
 在`mock/server.js`中定义：
+
 - `GET /health` - 健康检查
 - `POST /auth/login` - 模拟登录
 - `GET /users/:id/posts` - 获取用户的文章

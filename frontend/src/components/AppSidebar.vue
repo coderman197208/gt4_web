@@ -2,7 +2,7 @@
   <aside
     :class="[
       'app-sidebar absolute left-0 top-0 bottom-0 z-50 border-r bg-background transition-all duration-300 ease-in-out shadow-lg',
-      isOpen ? 'w-60' : 'w-0 border-0'
+      isOpen ? 'w-60' : 'w-0 border-0',
     ]"
   >
     <div v-if="isOpen" class="p-4">
@@ -13,7 +13,7 @@
             'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
             isActive('/health-check')
               ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
           ]"
           @click="handleNavClick"
         >
@@ -25,7 +25,7 @@
             'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
             isActive('/api-demo')
               ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
           ]"
           @click="handleNavClick"
         >
@@ -37,7 +37,7 @@
             'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
             isActive('/tube-edit-ndt')
               ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
           ]"
           @click="handleNavClick"
         >

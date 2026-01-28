@@ -25,13 +25,13 @@ function initSocket() {
   }
 
   const serverUrl = import.meta.env.VITE_WS_URL || 'http://localhost:5001';
-  
+
   socket = io(serverUrl, {
-    reconnection: true,           // 启用自动重连
+    reconnection: true, // 启用自动重连
     reconnectionAttempts: Infinity, // 无限次重连尝试
-    reconnectionDelay: 1000,      // 初始重连延迟1秒
-    reconnectionDelayMax: 5000,   // 最大重连延迟5秒
-    timeout: 20000,               // 连接超时20秒
+    reconnectionDelay: 1000, // 初始重连延迟1秒
+    reconnectionDelayMax: 5000, // 最大重连延迟5秒
+    timeout: 20000, // 连接超时20秒
   });
 
   // 监听连接成功事件
@@ -45,7 +45,7 @@ function initSocket() {
   socket.on('disconnect', (reason) => {
     console.log('[WebSocket] 连接已断开:', reason);
     isConnected.value = false;
-    
+
     if (reason === 'io server disconnect') {
       // 服务端主动断开，需要手动重连
       socket?.connect();
@@ -89,10 +89,10 @@ function setupDataPushHandler() {
   socket.on('data:push', (message: DataPushMessage) => {
     try {
       console.log('[WebSocket] 收到数据推送:', message);
-      
+
       // 解析JSON数据
       const parsedValue = JSON.parse(message.value);
-      
+
       // 更新Pinia store
       const store = useRealtimeDataStore();
       store.updateData(message.tag, parsedValue);

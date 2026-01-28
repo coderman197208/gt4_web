@@ -84,7 +84,7 @@ export async function registerMockRoutes(fastify: FastifyInstance) {
           role: user.role,
         },
       };
-    }
+    },
   );
 
   fastify.log.info('Mock API routes registered');

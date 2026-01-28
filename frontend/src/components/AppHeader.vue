@@ -1,12 +1,7 @@
 <template>
   <header class="app-header flex items-center justify-between px-4 h-14 border-b bg-background">
     <!-- 左侧：汉堡菜单按钮 -->
-    <Button
-      @click="$emit('toggle-sidebar')"
-      variant="ghost"
-      size="icon"
-      aria-label="切换侧边栏"
-    >
+    <Button @click="$emit('toggle-sidebar')" variant="ghost" size="icon" aria-label="切换侧边栏">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"

@@ -1,19 +1,24 @@
 # 问题修复说明
 
 ## 问题
+
 运行 `pnpm mock:server` 时遇到错误：
+
 ```
 Command "mock:server" not found
 ```
 
 ## 原因
+
 1. `mock:server` 脚本只在 `frontend/package.json` 中定义
 2. `server.js` 使用CommonJS语法，但frontend的 `"type": "module"` 导致Node.js将其作为ES模块处理
 
 ## 解决方案
 
 ### 1. 添加根目录脚本
+
 在 `package.json` 中添加：
+
 ```json
 "scripts": {
   "mock:server": "pnpm --filter @gt4_web/frontend mock:server",
@@ -22,11 +27,13 @@ Command "mock:server" not found
 ```
 
 ### 2. 修复ES模块问题
+
 将 `server.js` 重命名为 `server.cjs`，并更新相关引用。
 
 ## 现在可以使用
 
 ### 方式1：在项目根目录运行（推荐）
+
 ```bash
 # 只启动Mock服务器
 pnpm mock:server
@@ -36,6 +43,7 @@ pnpm dev:mock
 ```
 
 ### 方式2：在frontend目录运行
+
 ```bash
 cd frontend
 pnpm mock:server
@@ -44,6 +52,7 @@ pnpm mock:server
 ## 验证
 
 Mock服务器启动后会显示：
+
 ```
 JSON Server is running on http://localhost:3001
 Resources available at:
@@ -54,6 +63,7 @@ Resources available at:
 ```
 
 可以访问：
+
 - http://localhost:3001/users - 获取用户列表
 - http://localhost:3001/health - 健康检查
 - http://localhost:5173/api-demo - 前端测试页面（需先启动前端）

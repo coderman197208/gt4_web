@@ -1,9 +1,11 @@
 # Change: 重构 HomePage 为应用容器页面
 
 ## Why
+
 当前 HomePage.vue 仅作为简单的欢迎页面。随着应用功能的扩展，需要一个统一的应用容器页面来承载导航、页头信息和页面路由，提供一致的用户体验。
 
 ## What Changes
+
 - 将 HomePage.vue 重构为应用的主容器布局页面
 - 添加顶部页头，包含：
   - 左侧：汉堡菜单图标（三条横线），点击展开/收起侧边栏
@@ -17,6 +19,7 @@
 - 添加默认子路由指向健康检查页面
 
 ## Impact
+
 - **受影响的文件**：
   - `frontend/src/views/HomePage.vue` - 完全重构
   - `frontend/src/components/HealthCheckPanel.vue` → `frontend/src/views/HealthCheckView.vue` - 移动并重命名

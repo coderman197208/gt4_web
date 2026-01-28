@@ -3,6 +3,7 @@
 ## 概述
 
 本项目使用 [shadcn-vue](https://www.shadcn-vue.com/) 作为UI组件库，基于以下技术栈：
+
 - **Vue 3** - Composition API
 - **TypeScript** - 类型安全
 - **Tailwind CSS** - 样式系统
@@ -14,24 +15,24 @@
 
 ### ✅ 已使用的组件
 
-| 组件 | 状态 | 使用场景 | 文档 |
-|------|------|----------|------|
-| Button | 🟢 活跃 | 所有交互按钮 | [查看](#button-按钮) |
-| Card | 🟢 活跃 | 登录表单容器 | [查看](#card-卡片) |
-| Input | 🟢 活跃 | 表单输入 | [查看](#input-输入框) |
-| Label | 🟢 活跃 | 表单标签 | [查看](#label-标签) |
-| Sheet | 🟢 活跃 | Sidebar弹出层 | [查看](#sheet-弹出层) |
-| Separator | 🟢 使用 | 内容分隔 | [查看](#separator-分隔线) |
-| Tooltip | 🟢 使用 | 提示信息 | [查看](#tooltip-提示) |
-| Skeleton | 🟢 使用 | 加载骨架 | [查看](#skeleton-骨架屏) |
+| 组件      | 状态    | 使用场景      | 文档                      |
+| --------- | ------- | ------------- | ------------------------- |
+| Button    | 🟢 活跃 | 所有交互按钮  | [查看](#button-按钮)      |
+| Card      | 🟢 活跃 | 登录表单容器  | [查看](#card-卡片)        |
+| Input     | 🟢 活跃 | 表单输入      | [查看](#input-输入框)     |
+| Label     | 🟢 活跃 | 表单标签      | [查看](#label-标签)       |
+| Sheet     | 🟢 活跃 | Sidebar弹出层 | [查看](#sheet-弹出层)     |
+| Separator | 🟢 使用 | 内容分隔      | [查看](#separator-分隔线) |
+| Tooltip   | 🟢 使用 | 提示信息      | [查看](#tooltip-提示)     |
+| Skeleton  | 🟢 使用 | 加载骨架      | [查看](#skeleton-骨架屏)  |
 
 ### 🟡 已安装未使用的组件
 
-| 组件 | 推荐场景 | 优先级 |
-|------|----------|--------|
-| Table | 数据列表展示 | 高 |
-| Menubar | 应用菜单栏 | 中 |
-| NavigationMenu | 顶部导航 | 中 |
+| 组件           | 推荐场景     | 优先级 |
+| -------------- | ------------ | ------ |
+| Table          | 数据列表展示 | 高     |
+| Menubar        | 应用菜单栏   | 中     |
+| NavigationMenu | 顶部导航     | 中     |
 
 ### 🔧 Sidebar复合组件
 
@@ -99,9 +100,7 @@ import { Button } from '@/components/ui/button';
 </script>
 
 <template>
-  <Button @click="handleClick">
-    点击我
-  </Button>
+  <Button @click="handleClick"> 点击我 </Button>
 </template>
 ```
 
@@ -170,6 +169,7 @@ import { Button } from '@/components/ui/button';
 #### 实际案例
 
 参考文件：
+
 - [ApiDemoView.vue](../frontend/src/views/ApiDemoView.vue) - 各种变体使用
 - [LoginView.vue](../frontend/src/views/LoginView.vue) - 表单提交按钮
 - [AppHeader.vue](../frontend/src/components/AppHeader.vue) - 图标按钮
@@ -188,7 +188,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter
+  CardFooter,
 } from '@/components/ui/card';
 </script>
 
@@ -247,11 +247,7 @@ const email = ref('');
 </script>
 
 <template>
-  <Input
-    v-model="email"
-    type="email"
-    placeholder="请输入邮箱"
-  />
+  <Input v-model="email" type="email" placeholder="请输入邮箱" />
 </template>
 ```
 
@@ -434,12 +430,7 @@ import { Separator } from '@/components/ui/separator';
 
 ```vue
 <script setup lang="ts">
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 </script>
 
 <template>
@@ -612,12 +603,8 @@ const emit = defineEmits<{
     <CardContent>
       <p>{{ user.email }}</p>
       <div class="mt-4 space-x-2">
-        <Button @click="emit('edit', user.id)" variant="outline" size="sm">
-          编辑
-        </Button>
-        <Button @click="emit('delete', user.id)" variant="destructive" size="sm">
-          删除
-        </Button>
+        <Button @click="emit('edit', user.id)" variant="outline" size="sm"> 编辑 </Button>
+        <Button @click="emit('delete', user.id)" variant="destructive" size="sm"> 删除 </Button>
       </div>
     </CardContent>
   </Card>
@@ -759,11 +746,7 @@ onMounted(async () => {
 ### 确认操作
 
 ```vue
-<Button
-  variant="destructive"
-  @click="handleDelete"
-  :disabled="isDeleting"
->
+<Button variant="destructive" @click="handleDelete" :disabled="isDeleting">
   <Trash v-if="!isDeleting" class="mr-2 h-4 w-4" />
   <Loader v-else class="mr-2 h-4 w-4 animate-spin" />
   {{ isDeleting ? '删除中...' : '删除' }}
@@ -895,4 +878,4 @@ const props = defineProps<Props>();
 
 ---
 
-*最后更新：2026年1月10日*
+_最后更新：2026年1月10日_

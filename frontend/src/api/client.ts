@@ -21,7 +21,7 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // 添加时间戳防止缓存
     if (config.method === 'get') {
       config.params = {
@@ -29,13 +29,13 @@ apiClient.interceptors.request.use(
         _t: Date.now(),
       };
     }
-    
+
     return config;
   },
   (error: AxiosError) => {
     console.error('Request error:', error);
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -51,7 +51,7 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // 服务器响应错误
       const { status, data } = error.response;
-      
+
       switch (status) {
         case 400:
           console.error('请求参数错误:', data);
@@ -81,9 +81,9 @@ apiClient.interceptors.response.use(
       // 请求配置出错
       console.error('请求配置错误:', error.message);
     }
-    
+
     return Promise.reject(error);
-  }
+  },
 );
 
 /**
@@ -94,35 +94,35 @@ export const request = {
    * GET请求
    */
   get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    return apiClient.get<T>(url, config).then(res => res.data);
+    return apiClient.get<T>(url, config).then((res) => res.data);
   },
 
   /**
    * POST请求
    */
   post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return apiClient.post<T>(url, data, config).then(res => res.data);
+    return apiClient.post<T>(url, data, config).then((res) => res.data);
   },
 
   /**
    * PUT请求（全量更新）
    */
   put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return apiClient.put<T>(url, data, config).then(res => res.data);
+    return apiClient.put<T>(url, data, config).then((res) => res.data);
   },
 
   /**
    * PATCH请求（部分更新）
    */
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return apiClient.patch<T>(url, data, config).then(res => res.data);
+    return apiClient.patch<T>(url, data, config).then((res) => res.data);
   },
 
   /**
    * DELETE请求
    */
   delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    return apiClient.delete<T>(url, config).then(res => res.data);
+    return apiClient.delete<T>(url, config).then((res) => res.data);
   },
 };
 

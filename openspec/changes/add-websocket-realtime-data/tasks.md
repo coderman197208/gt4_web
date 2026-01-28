@@ -65,7 +65,7 @@
     tag1: null as Tag1Data | null,
     tag2: null as number | null,
     tag3: null as number[] | null,
-  })
+  });
   ```
 - [x] 实现 `updateData(tag: string, value: any): void` action:
   - 根据tag名称更新对应字段（tag1/tag2/tag3）
@@ -133,6 +133,7 @@
 ## Validation Points
 
 每个Phase完成后，运行相应的验证步骤确保功能正确。关键验证点：
+
 1. Phase 1后运行typecheck
 2. Phase 3后测试后端推送
 3. Phase 5后测试前端store

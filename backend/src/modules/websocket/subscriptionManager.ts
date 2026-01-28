@@ -27,11 +27,11 @@ export class SubscriptionManager {
     if (!this.subscriptions.has(socketId)) {
       this.addConnection(socketId);
     }
-    
+
     // 全量替换订阅列表
     const tagSet = new Set(tags);
     this.subscriptions.set(socketId, tagSet);
-    
+
     console.log(`[SubscriptionManager] 连接 ${socketId} 订阅已更新:`, Array.from(tagSet));
   }
 
@@ -53,13 +53,13 @@ export class SubscriptionManager {
    */
   getSubscribers(tag: string): string[] {
     const subscribers: string[] = [];
-    
+
     for (const [socketId, tags] of this.subscriptions.entries()) {
       if (tags.has(tag)) {
         subscribers.push(socketId);
       }
     }
-    
+
     return subscribers;
   }
 

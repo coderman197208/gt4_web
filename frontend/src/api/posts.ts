@@ -11,13 +11,13 @@ import type { Post, CreatePostParams, UpdatePostParams } from '@gt4_web/shared';
  * @example
  * // 获取已发布的文章
  * getPosts({ published: true })
- * 
+ *
  * // 分页查询
  * getPosts({ _page: 1, _limit: 10 })
- * 
+ *
  * // 排序
  * getPosts({ _sort: 'createdAt', _order: 'desc' })
- * 
+ *
  * // 包含评论
  * getPosts({ _embed: 'comments' })
  */

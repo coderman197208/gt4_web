@@ -117,7 +117,7 @@
           <!-- 管捆信息表单 -->
           <div class="border rounded-lg p-4">
             <div class="text-sm font-medium mb-4">管捆信息</div>
-            
+
             <!-- 生产信息 -->
             <div class="grid grid-cols-6 gap-3 mb-4">
               <div class="space-y-1">
@@ -332,13 +332,11 @@
           <!-- 单管明细区域 -->
           <div class="border rounded-lg p-4">
             <div class="text-sm font-medium mb-4">单管明细</div>
-            
+
             <!-- 表头 -->
             <div class="grid grid-cols-10 gap-2 mb-2">
               <template v-for="i in 10" :key="`header-${i}`">
-                <div class="text-xs text-center font-medium text-muted-foreground">
-                  管{{ i }}
-                </div>
+                <div class="text-xs text-center font-medium text-muted-foreground">管{{ i }}</div>
               </template>
             </div>
 

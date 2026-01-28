@@ -1,14 +1,14 @@
 /**
  * API模块统一导出
- * 
+ *
  * @example
  * // 导入所有API
  * import * as api from '@/api';
- * 
+ *
  * // 使用API
  * const users = await api.getUsers();
  * const post = await api.createPost({ title: 'Hello', ... });
- * 
+ *
  * @example
  * // 按需导入
  * import { getUsers, createPost, login } from '@/api';
@@ -56,11 +56,4 @@ export {
 } from './comments';
 
 // 导出认证相关API
-export {
-  login,
-  logout,
-  saveAuthInfo,
-  getCurrentUser,
-  isAuthenticated,
-  healthCheck,
-} from './auth';
+export { login, logout, saveAuthInfo, getCurrentUser, isAuthenticated, healthCheck } from './auth';

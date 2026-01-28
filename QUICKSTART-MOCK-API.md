@@ -43,7 +43,7 @@ const posts = await getPosts({
   _page: 1,
   _limit: 10,
   _sort: 'createdAt',
-  _order: 'desc'
+  _order: 'desc',
 });
 ```
 
@@ -56,7 +56,7 @@ const newPost = await createPost({
   title: '我的新文章',
   content: '文章内容...',
   authorId: 1,
-  published: true
+  published: true,
 });
 ```
 
@@ -80,6 +80,7 @@ await deletePost(1);
 ## 5. 可用的API端点
 
 ### 用户 (Users)
+
 - `getUsers()` - 获取所有用户
 - `getUserById(id)` - 获取单个用户
 - `createUser(data)` - 创建用户
@@ -88,6 +89,7 @@ await deletePost(1);
 - `deleteUser(id)` - 删除用户
 
 ### 文章 (Posts)
+
 - `getPosts(params?)` - 获取所有文章
 - `getPostById(id, params?)` - 获取单个文章
 - `createPost(data)` - 创建文章
@@ -98,6 +100,7 @@ await deletePost(1);
 - `unpublishPost(id)` - 取消发布文章
 
 ### 评论 (Comments)
+
 - `getComments(params?)` - 获取所有评论
 - `getCommentById(id)` - 获取单个评论
 - `createComment(data)` - 创建评论
@@ -108,6 +111,7 @@ await deletePost(1);
 - `getUserComments(userId)` - 获取用户的所有评论
 
 ### 认证 (Auth)
+
 - `login({ username, password })` - 登录
 - `logout()` - 登出
 - `healthCheck()` - 健康检查
@@ -115,13 +119,17 @@ await deletePost(1);
 ## 6. 环境切换
 
 ### 使用Mock数据（默认）
+
 `.env.development`:
+
 ```
 VITE_API_TARGET=http://localhost:3001
 ```
 
 ### 切换到真实后端
+
 修改 `.env.development`:
+
 ```
 VITE_API_TARGET=http://localhost:3000
 ```
@@ -132,37 +140,40 @@ VITE_API_TARGET=http://localhost:3000
 
 ```typescript
 // 过滤
-getPosts({ published: true, authorId: 1 })
+getPosts({ published: true, authorId: 1 });
 
 // 分页
-getPosts({ _page: 1, _limit: 10 })
+getPosts({ _page: 1, _limit: 10 });
 
 // 排序
-getPosts({ _sort: 'createdAt', _order: 'desc' })
+getPosts({ _sort: 'createdAt', _order: 'desc' });
 
 // 范围
-getPosts({ _start: 0, _end: 20 })
+getPosts({ _start: 0, _end: 20 });
 
 // 全文搜索
-getPosts({ q: 'Vue' })
+getPosts({ q: 'Vue' });
 
 // 包含关联数据
-getPosts({ _embed: 'comments' })  // 包含评论
-getComments({ _expand: 'post' })  // 包含所属文章
+getPosts({ _embed: 'comments' }); // 包含评论
+getComments({ _expand: 'post' }); // 包含所属文章
 ```
 
 ## 故障排除
 
 ### 问题1：Mock服务器启动失败
+
 - 检查3001端口是否被占用
 - 检查`db.json`文件格式是否正确
 
 ### 问题2：API调用失败
+
 - 确认Mock服务器正在运行
 - 检查浏览器控制台的网络请求
 - 检查Vite代理配置是否正确
 
 ### 问题3：数据修改后丢失
+
 - JSON Server会持久化修改到`db.json`
 - 如需恢复，手动编辑`frontend/mock/db.json`
 

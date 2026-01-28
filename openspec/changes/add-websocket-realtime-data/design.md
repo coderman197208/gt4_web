@@ -62,6 +62,7 @@
 **决策**: 使用Socket.IO而非原生WebSocket
 
 **理由**:
+
 - 项目已在project.md中明确要求使用Socket.IO
 - 自动处理重连、心跳检测
 - 支持事件驱动编程模型，简化订阅-推送逻辑
@@ -72,20 +73,22 @@
 **决策**: 创建 `useWebSocket` composable提供全局单例连接
 
 **理由**:
+
 - 符合Vue 3 Composition API最佳实践
 - 便于在任意组件中使用（如HealthCheckView）
 - 提供响应式连接状态（connected, error）
 - 封装重连逻辑和订阅API
 
 **接口设计**:
+
 ```typescript
 export function useWebSocket() {
   const isConnected = ref(false);
   const error = ref<string | null>(null);
-  
+
   function subscribe(tags: string[]): void;
   function onDataPush(callback: (data: DataPushMessage) => void): void;
-  
+
   return { isConnected, error, subscribe, onDataPush };
 }
 ```
@@ -95,12 +98,14 @@ export function useWebSocket() {
 **决策**: 创建 `useRealtimeDataStore` 管理推送数据
 
 **理由**:
+
 - 集中管理所有tag的实时数据
 - 响应式更新，自动同步到UI
 - 便于跨组件共享数据
 - 支持类型安全的数据访问
 
 **状态结构**:
+
 ```typescript
 interface RealtimeDataState {
   tag1: Tag1Data | null;
@@ -114,16 +119,18 @@ interface RealtimeDataState {
 **决策**: 使用 `Map<string, Set<string>>` 保存订阅关系
 
 **理由**:
+
 - 简单高效，适合MVP阶段
 - 连接断开时自动清理
 - 支持快速查询某个tag的订阅者
 - 后期可扩展为Redis存储
 
 **接口设计**:
+
 ```typescript
 class SubscriptionManager {
   private subscriptions = new Map<string, Set<string>>();
-  
+
   addConnection(socketId: string): void;
   updateSubscriptions(socketId: string, tags: string[]): void; // 全量替换
   removeConnection(socketId: string): void;
@@ -136,20 +143,22 @@ class SubscriptionManager {
 **决策**: 使用 `setInterval` 每秒更新数据并推送
 
 **理由**:
+
 - 满足测试需求，无需外部数据源
 - 简单直观，便于调试
 - 推送前查询订阅列表，避免无效推送
 
 **推送逻辑**:
+
 ```typescript
 setInterval(() => {
   // 更新tag1, tag2, tag3数据
   updateMockData();
-  
+
   // 对每个tag，查询订阅者并推送
-  ['tag1', 'tag2', 'tag3'].forEach(tag => {
+  ['tag1', 'tag2', 'tag3'].forEach((tag) => {
     const subscribers = subscriptionManager.getSubscribers(tag);
-    subscribers.forEach(socketId => {
+    subscribers.forEach((socketId) => {
       io.to(socketId).emit('data:push', { tag, value: getData(tag) });
     });
   });
@@ -161,11 +170,13 @@ setInterval(() => {
 **决策**: 在 `packages/shared/src/types.ts` 中定义所有WebSocket消息类型
 
 **理由**:
+
 - 前后端类型一致，避免不匹配
 - TypeScript类型检查提高可靠性
 - 便于维护和扩展
 
 **类型定义**:
+
 ```typescript
 // Tag数据类型
 export interface Tag1Data {
@@ -194,11 +205,13 @@ export interface DataPushMessage {
 ## Reconnection Strategy
 
 **前端重连机制** (Socket.IO默认提供):
+
 - 断开后自动尝试重连
 - 指数退避策略（初始1s，最大5s）
 - 重连成功后触发 `connect` 事件
 
 **订阅恢复与清理**:
+
 - 每次连接成功后，前端重新发送当前订阅列表
 - 后端收到订阅请求后全量替换订阅列表
 - **页面切换时清理订阅**：
@@ -209,6 +222,7 @@ export interface DataPushMessage {
 ## Data Flow Sequence
 
 ### 订阅流程
+
 ```
 HealthCheckView
     │
@@ -232,6 +246,7 @@ Map { socketId => Set(['tag1', 'tag2', 'tag3']) }
 ```
 
 ### 取消订阅流程（页面切换时）
+
 ```
 HealthCheckView (onUnmounted) / ApiDemoView (onMounted)
     │
@@ -252,6 +267,7 @@ Map { socketId => Set() }  // 空集合，不再接收任何推送
 ```
 
 ### 推送流程
+
 ```
 Mock Data Generator (定时器)
     │

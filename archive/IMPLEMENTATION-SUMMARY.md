@@ -1,6 +1,7 @@
 # JSON Server集成实施总结
 
 ## 实施完成时间
+
 2026年1月10日
 
 ## 实施内容
@@ -43,11 +44,13 @@ gt4_web/
 ### 1. Mock数据服务 (frontend/mock/)
 
 **db.json** - 包含3个资源：
+
 - users (3条记录)
 - posts (3条记录)
 - comments (3条记录)
 
 **server.cjs** - 配置：
+
 - 自定义路由（健康检查、登录、用户文章）
 - 300ms网络延迟模拟
 - CORS支持
@@ -55,18 +58,21 @@ gt4_web/
 ### 2. API客户端封装 (frontend/src/api/)
 
 **client.ts**：
+
 - axios实例配置（baseURL: /api, timeout: 10s）
 - 请求拦截器（自动添加token、防缓存）
 - 响应拦截器（统一错误处理、401处理）
 - 封装5个请求方法（get, post, put, patch, delete）
 
 **types.ts**：
+
 - 定义10+个TypeScript接口
 - 通用类型（ApiResponse, PaginationParams等）
 - 业务类型（User, Post, Comment等）
 - 参数类型（CreateUserParams, UpdatePostParams等）
 
 **业务模块**：
+
 - users.ts: 7个函数
 - posts.ts: 9个函数（含快捷方法publishPost/unpublishPost）
 - comments.ts: 8个函数
@@ -75,17 +81,21 @@ gt4_web/
 ### 3. 配置文件
 
 **vite.config.ts**：
+
 - 代理 `/api` 到 `process.env.VITE_API_TARGET`
 - 支持通过环境变量切换Mock/真实后端
 - 自动移除 `/api` 前缀
 
 **.env.development**：
+
 - `VITE_API_TARGET=http://localhost:3001` (JSON Server)
 
 **.env.production**：
+
 - `VITE_API_TARGET=http://localhost:3000` (真实后端)
 
 **package.json**：
+
 - 新增依赖：axios ^1.13.2
 - 新增开发依赖：json-server ^0.17.4
 - 新增脚本：`mock:server`
@@ -93,12 +103,14 @@ gt4_web/
 ### 4. 测试页面
 
 **ApiDemoView.vue**：
+
 - 5个测试区域（健康检查、用户、文章、评论、登录）
 - 完整的CRUD操作演示
 - 错误处理示例
 - 响应数据展示
 
 **路由**：
+
 - 新增路由：`/api-demo`
 
 ## 使用方式
@@ -106,11 +118,13 @@ gt4_web/
 ### 启动服务
 
 **方式1：一键启动（推荐）**
+
 ```bash
 pnpm dev:mock
 ```
 
 **方式2：分别启动**
+
 ```bash
 # 终端1：启动Mock服务器
 pnpm mock:server
@@ -132,7 +146,7 @@ const post = await createPost({
   title: '新文章',
   content: '内容',
   authorId: 1,
-  published: true
+  published: true,
 });
 
 // 登录
@@ -206,6 +220,7 @@ const result = await login({ username: 'admin', password: '123' });
 ## 总结
 
 已成功实现完整的JSON Server Mock数据集成方案：
+
 - ✅ Mock数据存放：`frontend/mock/`
 - ✅ REST API定义：`frontend/src/api/types.ts`
 - ✅ API函数封装：`frontend/src/api/*.ts`

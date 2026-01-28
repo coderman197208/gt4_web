@@ -21,6 +21,7 @@ HomePage (容器)
 ## Technical Decisions
 
 ### 1. 组件复用策略
+
 - **使用现有 shadcn-vue 组件**：
   - Sidebar 系列组件用于侧边栏
   - Sheet 组件作为移动端抽屉式菜单的备选方案
@@ -30,11 +31,14 @@ HomePage (容器)
   - LiveClock: 实时时钟组件（新建）
 
 ### 2. 状态管理
+
 - **侧边栏状态**：使用 Vue ref 在 HomePage 本地管理，无需引入 Pinia
 - **当前路由高亮**：通过 Vue Router 的 `useRoute()` 和动态 class 实现
 
 ### 3. 路由设计
+
 采用嵌套路由模式：
+
 ```typescript
 {
   path: '/',
@@ -55,18 +59,21 @@ HomePage (容器)
 ```
 
 ### 4. 布局方案
+
 - 使用 CSS Flexbox 进行主布局
 - 页头固定高度（如 60px）
 - 侧边栏固定宽度（如 240px），可折叠
 - 内容区域自适应剩余空间
 
 ### 5. 实时时钟实现
+
 - 使用 `setInterval` 每秒更新时间
 - 在组件 `onMounted` 时启动定时器
 - 在组件 `onUnmounted` 时清理定时器，防止内存泄漏
 - 格式：`YYYY-MM-DD HH:mm:ss`
 
 ### 6. 响应式设计考虑
+
 - 在移动设备上，侧边栏默认折叠
 - 可考虑使用 Sheet 组件替代 Sidebar 以提供更好的移动体验
 - 页头布局需要适配小屏幕（标题可适当缩短或隐藏）
@@ -74,6 +81,7 @@ HomePage (容器)
 ## File Movement Rationale
 
 将 `HealthCheckPanel.vue` 从 `components/` 移至 `views/`：
+
 - **理由**：该组件现在作为独立页面存在，而非可复用的 UI 组件
 - **命名变更**：`HealthCheckPanel.vue` → `HealthCheckView.vue`，符合 views 目录下的命名约定
 - **导入路径**：所有引用需更新

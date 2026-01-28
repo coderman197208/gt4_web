@@ -34,10 +34,10 @@ const start = async () => {
   try {
     const address = await fastify.listen({ port, host });
     fastify.log.info(`server listening at ${address}`);
-    
+
     // 初始化Socket.IO服务器
     initSocketServer(fastify);
-    
+
     // 启动模拟数据生成器
     startMockDataGenerator();
   } catch (err) {

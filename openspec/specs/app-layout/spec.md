@@ -3,9 +3,7 @@
 ## Purpose
 
 TBD - created by archiving change refactor-homepage-to-app-container. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: 应用容器布局
 
 系统 SHALL 提供统一的应用容器布局，包含页头、侧边栏和内容区域，为所有应用页面提供一致的用户界面框架。
@@ -52,27 +50,15 @@ TBD - created by archiving change refactor-homepage-to-app-container. Update Pur
 
 系统 SHALL 提供可展开和收起的侧边栏，包含导航菜单项，用于在不同功能页面间切换。
 
-#### Scenario: 切换侧边栏展开状态
-
-- **GIVEN** 应用已加载
-- **WHEN** 用户点击页头左侧的汉堡菜单图标
-- **THEN** 侧边栏应切换展开/收起状态
-- **AND** 切换应有平滑的过渡动画
-
-#### Scenario: 侧边栏显示导航菜单
+#### Scenario: 侧边栏显示导航菜单（更新）
 
 - **GIVEN** 侧边栏处于展开状态
 - **WHEN** 用户查看侧边栏内容
-- **THEN** 应显示可用的导航菜单项列表
+- **THEN** 应显示可用的导航菜单项列表，包括：
+  - 健康检查
+  - API测试
+  - NDT管捆编辑
 - **AND** 当前所在页面的菜单项应有高亮显示
-
-#### Scenario: 通过侧边栏导航到功能页面
-
-- **GIVEN** 侧边栏处于展开状态
-- **WHEN** 用户点击侧边栏中的某个菜单项（如"健康检查"）
-- **THEN** 应用应导航到对应的功能页面
-- **AND** 主内容区应显示该页面的内容
-- **AND** 该菜单项应变为高亮状态
 
 ### Requirement: 主内容区域
 
@@ -90,3 +76,45 @@ TBD - created by archiving change refactor-homepage-to-app-container. Update Pur
 - **GIVEN** 应用容器布局已渲染
 - **WHEN** 侧边栏展开或收起
 - **THEN** 主内容区域应自动调整宽度以占据剩余空间
+
+### Requirement: NDT管捆编辑页面布局
+
+系统 SHALL 提供 NDT 管捆编辑页面，实现管捆数据的查询、显示和编辑功能，页面采用固定全屏布局。
+
+#### Scenario: NDT管捆编辑页面显示查询区域
+
+- **GIVEN** 用户导航到 NDT 管捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面顶部应显示查询区域
+- **AND** 查询区域应包含合同号和管捆号下拉选择框
+- **AND** 查询区域应包含查询按钮
+
+#### Scenario: NDT管捆编辑页面显示管捆列表
+
+- **GIVEN** 用户导航到 NDT 管捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面左侧应显示管捆列表表格
+- **AND** 表格应包含合同号和管捆号两列
+
+#### Scenario: NDT管捆编辑页面显示管捆详情表单
+
+- **GIVEN** 用户导航到 NDT 管捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面右侧应显示管捆信息详情表单
+- **AND** 表单应包含生产信息、订单信息、材质规格等字段分组
+
+#### Scenario: NDT管捆编辑页面显示单管明细
+
+- **GIVEN** 用户导航到 NDT 管捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面应显示单管明细区域
+- **AND** 单管明细应包含30个管号及对应的长度、重量输入框
+
+#### Scenario: NDT管捆编辑页面固定布局不滚动
+
+- **GIVEN** 用户导航到 NDT 管捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面应填满屏幕可用空间
+- **AND** 页面整体不可滚动
+- **AND** 仅表单区域内部可以有滚动条（如内容超出）
+

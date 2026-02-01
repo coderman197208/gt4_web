@@ -67,32 +67,49 @@
 
     <!-- 主内容区域 -->
     <div class="flex-1 flex overflow-hidden">
-      <div class="border rounded-lg p-4 space-y-3">
-        <!-- 左侧面板：管捆列表 + 操作按钮 -->
-        <div class="w-[350px] flex-shrink-0 flex flex-col">
-          <div class="text-sm font-medium mb-2">投料信息查询</div>
+      <!-- 左侧面板：投料信息查询 + 管捆列表 + 操作按钮 -->
+      <div class="w-[450px] flex-shrink-0 flex flex-col p-4 space-y-4">
+        <!-- 投料信息查询 -->
+        <div class="border rounded-lg p-4">
+          <div class="text-sm font-medium mb-4">投料信息查询</div>
+
           <div class="grid grid-cols-2 gap-2">
-            <Label class="whitespace-nowrap">管捆号</Label>
-            <Select v-model="query2.bundleNo">
-              <SelectTrigger class="w-40">
-                <SelectValue placeholder="选择管捆号" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="item in bundleNoOptions" :key="item" :value="item">
-                  {{ item }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="default" class="w-full">保存</Button>
-            <Button variant="destructive" class="w-full">删除</Button>
-            <Button variant="outline" class="w-full">打印标签</Button>
-            <Button variant="outline" class="w-full">编捆</Button>
-            <Button variant="outline" class="w-full">发送增加电报</Button>
+            <div class="flex items-center gap-4">
+              <Label class="whitespace-nowrap">合同号</Label>
+              <Select v-model="query1.orderNo">
+                <SelectTrigger class="w-40">
+                  <SelectValue placeholder="选择合同号" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="item in orderNoOptions" :key="item" :value="item">
+                    {{ item }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button variant="default" @click="handleQuery1">查询</Button>
+
+            <div class="flex items-center gap-4">
+              <Label class="whitespace-nowrap">管捆号</Label>
+              <Select v-model="query1.bundleNo">
+                <SelectTrigger class="w-40">
+                  <SelectValue placeholder="选择管捆号" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="item in bundleNoOptions" :key="item" :value="item">
+                    {{ item }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button variant="destructive" class="w-full">成捆</Button>
           </div>
         </div>
 
         <!-- 管捆列表表格 -->
-        <div class="flex-1 overflow-auto p-4">
+        <div class="p-0">
           <div class="border rounded-lg">
             <Table>
               <TableHeader>

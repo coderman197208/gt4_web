@@ -60,35 +60,13 @@
 
 - RESTFUL API : 用于数据库CRUD操作
 - WebSocket : 用于实时数据推送和命令传输，实时数据从Redis主题订阅获取
-- Pinia store : 管理全局设备状态
+- Pinia store : 管理全局实时数据状态
 
 #### 工业界面布局架构（HMI Layout）
-
-本项目包含大量工业SCADA/HMI风格的界面，采用以下架构模式：
-
-##### 1. 总体布局策略
-
-- **全屏固定布局**：工业界面填满屏幕，禁止滚动
-- **容器样式**：`h-screen w-full flex overflow-hidden`
-- **布局原则**：
-  - 表格、表单等传统UI区域：可内部滚动
-  - 工艺图形区域：相对定位画布
-
-##### 2. 图形元素实现方案：SVG + Vue组件
-
-**核心原则：SVG为王，分层解耦**
-
-##### 3. 坐标系统设计
 
 - **使用SVG viewBox**：建立虚拟坐标系（如 `viewBox="0 0 1920 1080"`）
 - **数据点定位**：使用虚拟坐标或百分比，避免硬编码像素值
 - **响应式处理**：通过 `preserveAspectRatio` 控制缩放行为
-
-##### 4. 实时数据更新
-
-- WebSocket推送实时数据到前端
-- Pinia store管理全局实时数据状态
-- Vue响应式自动更新SVG属性（颜色、数值、动画状态）
 
 ### Testing Strategy
 

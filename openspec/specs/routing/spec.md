@@ -3,7 +3,9 @@
 ## Purpose
 
 TBD - created by archiving change refactor-homepage-to-app-container. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: 根路径路由配置
 
 系统 SHALL 将根路径 `/` 配置为应用容器组件，并支持嵌套子路由以实现多页面应用结构。
@@ -57,4 +59,3 @@ TBD - created by archiving change refactor-homepage-to-app-container. Update Pur
 - **WHEN** 用户点击"NDT管捆编辑"菜单项
 - **THEN** 应用应导航到 `/tube-edit-ndt` 路径
 - **AND** NDT 管捆编辑功能应正常可用
-

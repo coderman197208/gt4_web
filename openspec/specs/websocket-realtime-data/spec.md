@@ -1,8 +1,11 @@
 # websocket-realtime-data Specification
 
 ## Purpose
+
 TBD - created by archiving change add-websocket-realtime-data. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: WebSocket连接建立与生命周期管理
 
 系统 SHALL 支持前端与后端之间建立WebSocket连接，并在连接断开时自动重连，确保实时数据通道的持久性。
@@ -220,4 +223,3 @@ export interface DataPushMessage {
   value: string; // JSON字符串
 }
 ```
-

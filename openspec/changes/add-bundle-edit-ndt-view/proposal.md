@@ -55,14 +55,14 @@
 
 ## 组件映射规则
 
-| C# WinForms 控件 | Shadcn-vue 组件 |
-|-----------------|-----------------|
-| Button | `<Button>` |
-| TextBox | `<Input>` |
-| Label | `<Label>` 或 `<span>` |
-| ComboBox | `<Select>` 系列 |
-| DataGridView | `<Table>` 系列 |
-| GroupBox | `<Card>` 或带标题的 `<div>` |
+| C# WinForms 控件 | Shadcn-vue 组件             |
+| ---------------- | --------------------------- |
+| Button           | `<Button>`                  |
+| TextBox          | `<Input>`                   |
+| Label            | `<Label>` 或 `<span>`       |
+| ComboBox         | `<Select>` 系列             |
+| DataGridView     | `<Table>` 系列              |
+| GroupBox         | `<Card>` 或带标题的 `<div>` |
 
 ### 忽略的控件
 

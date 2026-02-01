@@ -3,7 +3,9 @@
 ## Purpose
 
 TBD - created by archiving change refactor-homepage-to-app-container. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: 应用容器布局
 
 系统 SHALL 提供统一的应用容器布局，包含页头、侧边栏和内容区域，为所有应用页面提供一致的用户界面框架。
@@ -117,4 +119,3 @@ TBD - created by archiving change refactor-homepage-to-app-container. Update Pur
 - **THEN** 页面应填满屏幕可用空间
 - **AND** 页面整体不可滚动
 - **AND** 仅表单区域内部可以有滚动条（如内容超出）
-

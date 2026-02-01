@@ -67,8 +67,30 @@
 
     <!-- 主内容区域 -->
     <div class="flex-1 flex overflow-hidden">
-      <!-- 左侧面板：管捆列表 + 操作按钮 -->
-      <div class="w-[350px] flex-shrink-0 flex flex-col border-r">
+      <div class="border rounded-lg p-4 space-y-3">
+        <!-- 左侧面板：管捆列表 + 操作按钮 -->
+        <div class="w-[350px] flex-shrink-0 flex flex-col">
+          <div class="text-sm font-medium mb-2">投料信息查询</div>
+          <div class="grid grid-cols-2 gap-2">
+            <Label class="whitespace-nowrap">管捆号</Label>
+            <Select v-model="query2.bundleNo">
+              <SelectTrigger class="w-40">
+                <SelectValue placeholder="选择管捆号" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="item in bundleNoOptions" :key="item" :value="item">
+                  {{ item }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="default" class="w-full">保存</Button>
+            <Button variant="destructive" class="w-full">删除</Button>
+            <Button variant="outline" class="w-full">打印标签</Button>
+            <Button variant="outline" class="w-full">编捆</Button>
+            <Button variant="outline" class="w-full">发送增加电报</Button>
+          </div>
+        </div>
+
         <!-- 管捆列表表格 -->
         <div class="flex-1 overflow-auto p-4">
           <div class="border rounded-lg">
@@ -96,19 +118,19 @@
         </div>
 
         <!-- 操作按钮区域 -->
-        <div class="flex-shrink-0 border-t p-4">
-          <div class="border rounded-lg p-4 space-y-3">
-            <div class="text-sm font-medium mb-2">操作</div>
-            <div class="grid grid-cols-2 gap-2">
-              <Button variant="default" class="w-full">保存</Button>
-              <Button variant="destructive" class="w-full">删除</Button>
-              <Button variant="outline" class="w-full">打印标签</Button>
-              <Button variant="outline" class="w-full">编捆</Button>
-              <Button variant="outline" class="w-full">发送增加电报</Button>
-              <Button variant="outline" class="w-full">发送删除电报</Button>
-            </div>
+        <!-- <div class="flex-shrink-0 border-t p-4"> -->
+        <div class="border rounded-lg p-4 space-y-3">
+          <div class="text-sm font-medium mb-2">操作</div>
+          <div class="grid grid-cols-2 gap-2">
+            <Button variant="default" class="w-full">保存</Button>
+            <Button variant="destructive" class="w-full">删除</Button>
+            <Button variant="outline" class="w-full">打印标签</Button>
+            <Button variant="outline" class="w-full">编捆</Button>
+            <Button variant="outline" class="w-full">发送增加电报</Button>
+            <Button variant="outline" class="w-full">发送删除电报</Button>
           </div>
         </div>
+        <!-- </div> -->
       </div>
 
       <!-- 右侧面板：管捆信息详情 -->
@@ -342,7 +364,7 @@
 
             <!-- 管号 1-10 -->
             <div class="space-y-1 mb-3">
-              <div class="text-xs text-muted-foreground">管号</div>
+              <!-- <div class="text-xs text-muted-foreground">管号</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -351,7 +373,7 @@
                   class="text-xs h-8"
                 />
               </div>
-              <div class="text-xs text-muted-foreground mt-1">长度</div>
+              <!-- <div class="text-xs text-muted-foreground mt-1">长度</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -360,7 +382,7 @@
                   class="text-xs h-8"
                 />
               </div>
-              <div class="text-xs text-muted-foreground mt-1">重量</div>
+              <!-- <div class="text-xs text-muted-foreground mt-1">重量</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -382,7 +404,7 @@
 
             <!-- 管号 11-20 -->
             <div class="space-y-1 mb-3">
-              <div class="text-xs text-muted-foreground">管号</div>
+              <!-- <div class="text-xs text-muted-foreground">管号</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -391,7 +413,7 @@
                   class="text-xs h-8"
                 />
               </div>
-              <div class="text-xs text-muted-foreground mt-1">长度</div>
+              <!-- <div class="text-xs text-muted-foreground mt-1">长度</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -400,7 +422,7 @@
                   class="text-xs h-8"
                 />
               </div>
-              <div class="text-xs text-muted-foreground mt-1">重量</div>
+              <!-- <div class="text-xs text-muted-foreground mt-1">重量</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -422,7 +444,7 @@
 
             <!-- 管号 21-30 -->
             <div class="space-y-1">
-              <div class="text-xs text-muted-foreground">管号</div>
+              <!-- <div class="text-xs text-muted-foreground">管号</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -431,7 +453,7 @@
                   class="text-xs h-8"
                 />
               </div>
-              <div class="text-xs text-muted-foreground mt-1">长度</div>
+              <!-- <div class="text-xs text-muted-foreground mt-1">长度</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"
@@ -440,7 +462,7 @@
                   class="text-xs h-8"
                 />
               </div>
-              <div class="text-xs text-muted-foreground mt-1">重量</div>
+              <!-- <div class="text-xs text-muted-foreground mt-1">重量</div> -->
               <div class="grid grid-cols-10 gap-2">
                 <Input
                   v-for="i in 10"

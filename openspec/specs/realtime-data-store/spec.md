@@ -1,8 +1,11 @@
 # realtime-data-store Specification
 
 ## Purpose
+
 TBD - created by archiving change add-websocket-realtime-data. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Pinia Store状态结构
 
 系统 SHALL 提供名为 `useRealtimeDataStore` 的Pinia store，包含tag1、tag2、tag3的状态字段。
@@ -70,4 +73,3 @@ TBD - created by archiving change add-websocket-realtime-data. Update Purpose af
 - **WHEN** 组件尝试访问 `store.tag1?.ph`
 - **THEN** 应返回 `undefined` 而不抛出异常
 - **AND** 组件可选显示占位符或"等待数据"提示
-

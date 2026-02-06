@@ -16,6 +16,12 @@ export const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
+        success:
+          'bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500/20 dark:focus-visible:ring-green-500/40 dark:bg-green-700/60',
+        warning:
+          'bg-amber-600 text-white hover:bg-amber-700 focus-visible:ring-amber-500/20 dark:focus-visible:ring-amber-500/40 dark:bg-amber-700/60',
+        info: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500/20 dark:focus-visible:ring-blue-500/40 dark:bg-blue-700/60',
+        primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

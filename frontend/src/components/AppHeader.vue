@@ -22,14 +22,18 @@
     <!-- 中间：系统标题 -->
     <h1 class="text-lg font-semibold">管体4号线L2过程机系统</h1>
 
-    <!-- 右侧：实时时钟 -->
-    <LiveClock />
+    <!-- 右侧：全屏按钮 + 实时时钟 -->
+    <div class="flex items-center gap-2">
+      <FullscreenToggle />
+      <LiveClock />
+    </div>
   </header>
 </template>
 
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import LiveClock from './LiveClock.vue';
+import FullscreenToggle from './FullscreenToggle.vue';
 
 defineEmits<{
   'toggle-sidebar': [];

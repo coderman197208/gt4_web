@@ -60,6 +60,7 @@ TBD - created by archiving change refactor-homepage-to-app-container. Update Pur
   - 健康检查
   - API测试
   - NDT管捆编辑
+  - NDT成捆画面
 - **AND** 当前所在页面的菜单项应有高亮显示
 
 ### Requirement: 主内容区域
@@ -115,6 +116,54 @@ TBD - created by archiving change refactor-homepage-to-app-container. Update Pur
 #### Scenario: NDT管捆编辑页面固定布局不滚动
 
 - **GIVEN** 用户导航到 NDT 管捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面应填满屏幕可用空间
+- **AND** 页面整体不可滚动
+- **AND** 仅表单区域内部可以有滚动条（如内容超出）
+
+### Requirement: NDT成捆编辑页面布局
+
+系统 SHALL 提供 NDT 成捆编辑页面，实现管捆数据的查询、显示和编辑功能，页面采用固定全屏布局。
+
+#### Scenario: NDT成捆编辑页面显示查询区域
+
+- **GIVEN** 用户导航到 NDT 成捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面顶部应显示查询区域
+- **AND** 查询区域应包含两组合同号和管捆号下拉选择框
+- **AND** 每组查询条件应包含查询按钮
+
+#### Scenario: NDT成捆编辑页面显示管捆列表
+
+- **GIVEN** 用户导航到 NDT 成捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面左侧应显示管捆列表表格
+- **AND** 表格应包含合同号和管捆号两列
+
+#### Scenario: NDT成捆编辑页面显示操作按钮
+
+- **GIVEN** 用户导航到 NDT 成捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面应显示操作按钮区域
+- **AND** 操作按钮应包含：保存、删除、打印标签、编捆、发送增加电报、发送删除电报
+
+#### Scenario: NDT成捆编辑页面显示管捆详情表单
+
+- **GIVEN** 用户导航到 NDT 成捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面右侧应显示管捆信息详情表单
+- **AND** 表单应包含生产信息、订单信息、材质规格、管端螺纹、标准钢级、批次信息、汇总数据等字段分组
+
+#### Scenario: NDT成捆编辑页面显示单管明细
+
+- **GIVEN** 用户导航到 NDT 成捆编辑页面
+- **WHEN** 页面加载完成
+- **THEN** 页面应显示单管明细区域
+- **AND** 单管明细应包含30个管号及对应的长度、重量输入框
+
+#### Scenario: NDT成捆编辑页面固定布局不滚动
+
+- **GIVEN** 用户导航到 NDT 成捆编辑页面
 - **WHEN** 页面加载完成
 - **THEN** 页面应填满屏幕可用空间
 - **AND** 页面整体不可滚动

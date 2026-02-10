@@ -150,7 +150,7 @@ packages:
 
 ### Directory Organization
 
-```
+````
 frontend/
 ├── src/
 │   ├── api/           # API client layer (organized by resource)
@@ -222,7 +222,7 @@ npm run build      # Build all: shared → backend → frontend
 npm run typecheck  # Type check all packages
 npm run lint       # Lint backend and frontend
 npm run format     # Format all files with Prettier
-```
+````
 
 ### Individual Package Commands
 
@@ -532,7 +532,7 @@ npm run dev
 | Code Formatting Config       | [.prettierrc](.prettierrc)                                                                                   |
 | Frontend Config              | [frontend/vite.config.ts](frontend/vite.config.ts)                                                           |
 | Workspace Config             | [pnpm-workspace.yaml](pnpm-workspace.yaml)                                                                   |
-| UI 组件指南                 | [doc/ui-components-guide.md](doc/ui-components-guide.md)                                                     |
+| UI 组件指南                  | [doc/ui-components-guide.md](doc/ui-components-guide.md)                                                     |
 
 ---
 

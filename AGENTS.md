@@ -38,17 +38,24 @@ GT4 Web 是一个全栈 TypeScript 项目，采用 pnpm monorepo 结构。本指
 ```
 frontend/
   ├── api/              # axios 客户端 + 资源模块
-  ├── components/ui/    # Reka UI + Tailwind 组件
+  ├── components/ui/    # Reka UI + Tailwind 组件 (shadcn-vue)
+  ├── views/            # 页面级组件 (*View.vue)
   ├── stores/           # Pinia (realtimeData.ts)
   ├── router/           # Vue Router 路由
   ├── services/         # WebSocket 服务
+  ├── lib/              # 工具函数 (cn() 等)
+  └── assets/           # 静态资源与样式
 
 backend/
-  ├── modules/api/      # HTTP 路由 (mockRoutes.ts)
+  ├── modules/api/      # HTTP 路由 (mockRoutes.ts, mockData.ts)
   ├── modules/websocket/ # Socket.IO 服务器
 
 packages/shared/
   ├── types.ts          # 前后端共享接口
+  └── index.ts          # 统一导出
+
+view_sample/            # WinForms 界面参考截图（用于 HMI 页面转换）
+doc/mytasks/            # 页面转换任务规格说明
 ```
 
 **关键集成**:
@@ -58,6 +65,14 @@ packages/shared/
    - 前端: [useWebSocket().subscribe(tags)](frontend/src/services/websocket.ts)
    - 后端: [subscriptionManager](backend/src/modules/websocket/subscriptionManager.ts) 管理订阅
 3. **共享类型**: [packages/shared/src/types.ts](packages/shared/src/types.ts) 防止不匹配
+
+**HMI 布局架构**:
+
+本项目为工业监控界面（HMI），采用固定全屏布局，不能滚动且要填满屏幕：
+
+- 使用 SVG `viewBox` 建立虚拟坐标系（如 `viewBox="0 0 1920 1080"`）
+- 数据点定位使用虚拟坐标或百分比，避免硬编码像素值
+- 通过 `preserveAspectRatio` 控制缩放行为
 
 **响应格式**:
 
@@ -125,15 +140,27 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
 
 **组件引用 UI 库**:
 
-- 所有 UI 组件: [frontend/src/components/ui/](frontend/src/components/ui/) (Button, Card, Input 等)
+- 所有 UI 组件: [frontend/src/components/ui/](frontend/src/components/ui/) (Button, Card, Input, Table, Chart 等)
+- 优先使用 shadcn-vue 组件库，缺失组件需先下载安装到 `components/ui/`
 - Reka UI primitives + Tailwind CSS (`cn()` 合并类)
+- 图标: lucide-vue-next
+- 表格: @tanstack/vue-table
+- 工具库: @vueuse/core
 
 **添加新资源步骤**:
 
 1. 在 `packages/shared/src/types.ts` 定义类型
 2. 创建 `frontend/src/api/[resource].ts`
-3. 在 `backend/src/modules/api/mockRoutes.ts` 添加路由
-4. 前端组件使用: `import { getResource } from '@/api'`
+3. 在 `frontend/src/api/index.ts` 中统一导出
+4. 在 `backend/src/modules/api/mockRoutes.ts` 添加路由
+5. 前端组件使用: `import { getResource } from '@/api'`
+
+**添加新页面步骤**:
+
+1. 创建 `frontend/src/views/[FeatureName]View.vue`
+2. 在 `frontend/src/router/index.ts` 中作为 `HomePage` 的子路由添加
+3. 从 `@/components/ui/[component]` 导入 UI 组件
+4. 按需使用 Store: `const store = use[Feature]Store()`
 
 ## Integration Points
 
@@ -154,9 +181,12 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
 interface DataPushMessage {
   tag: string; // 'tag1' | 'tag2' | 'tag3'
   value: string; // JSON 字符串（客户端自动解析）
-  timestamp?: string;
 }
 ```
+
+- 前端使用: `const { isConnected, error, subscribe, onDataPush } = useWebSocket()`
+- 取消订阅: 调用 `subscribe([])` 传入空数组
+- 调试日志: 前端 `[WebSocket]` 前缀，后端 `[SocketServer]` 前缀
 
 ## Key Reference Files
 
@@ -171,6 +201,10 @@ interface DataPushMessage {
 | 后端 API 路由    | [backend/src/modules/api/mockRoutes.ts](backend/src/modules/api/mockRoutes.ts)                               |
 | 后端 WebSocket   | [backend/src/modules/websocket/socketServer.ts](backend/src/modules/websocket/socketServer.ts)               |
 | 订阅管理器       | [backend/src/modules/websocket/subscriptionManager.ts](backend/src/modules/websocket/subscriptionManager.ts) |
+| UI 组件指南      | [doc/ui-components-guide.md](doc/ui-components-guide.md)                                                     |
+| Prettier 配置    | [.prettierrc](.prettierrc)                                                                                   |
+| Vite 配置        | [frontend/vite.config.ts](frontend/vite.config.ts)                                                           |
+| Workspace 配置   | [pnpm-workspace.yaml](pnpm-workspace.yaml)                                                                   |
 
 ## Additional Resources
 

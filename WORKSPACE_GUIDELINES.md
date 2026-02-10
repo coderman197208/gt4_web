@@ -52,8 +52,9 @@ npm run format  # prettier -w "**/*.{js,ts,tsx,vue,json,md,yml,yaml,css,scss}"
 
 **ESLint setup:**
 
-- No `.eslintrc` files found; projects use `@typescript-eslint/eslint-plugin` and `eslint-plugin-vue`
-- Each package runs: `npm run lint` (backend has ESLint, frontend has ESLint with Vue support)
+- Backend: [backend/.eslintrc.cjs](backend/.eslintrc.cjs) with `@typescript-eslint/eslint-plugin`
+- Frontend: [frontend/.eslintrc.cjs](frontend/.eslintrc.cjs) with `eslint-plugin-vue` + `@typescript-eslint/eslint-plugin`
+- Each package runs: `npm run lint` (ESLint 9.x)
 - Ignored patterns: node_modules, dist, build ([.eslintignore](.eslintignore))
 
 ### Code Patterns Observed
@@ -137,6 +138,7 @@ packages:
 - Styling: Tailwind CSS 4.1.17, Reka UI 2.6.1
 - Tables: @tanstack/vue-table 8.21.3
 - Icons: lucide-vue-next 0.555.0
+- Utilities: @vueuse/core 12.8.2
 - Build tool: Vite 5.4.0
 
 **Backend** ([backend/package.json](backend/package.json)):
@@ -174,7 +176,10 @@ packages/shared/
 ├── src/
 │   ├── types.ts       # Shared TypeScript interfaces
 │   ├── index.ts       # Public exports
-```
+view_sample/             # WinForms 界面参考截图（用于 HMI 页面转换）
+doc/
+├── mytasks/           # 页面转换任务规格说明
+└── ui-components-guide.md  # shadcn-vue 组件使用指南```
 
 ### Service Interactions
 
@@ -375,7 +380,8 @@ request.delete<T>(url, config)      // DELETE
 
 - Global singleton Socket.IO connection
 - Auto-reconnect enabled (1-5 second delays)
-- Composable `useWebSocket()` returns: `isConnected`, `error`, `subscribe()`, `unsubscribe()`
+- Composable `useWebSocket()` returns: `isConnected`, `error`, `subscribe()`, `onDataPush()`, `offDataPush()`
+- 取消订阅通过 `subscribe([])` 传入空数组实现
 - Data push handler auto-parses JSON and updates Pinia store
 
 **Server Push** ([backend/src/modules/websocket/socketServer.ts](backend/src/modules/websocket/socketServer.ts)):
@@ -391,7 +397,6 @@ request.delete<T>(url, config)      // DELETE
 interface DataPushMessage {
   tag: string; // 'tag1', 'tag2', 'tag3'
   value: string; // JSON string (auto-parsed on client)
-  timestamp?: string;
 }
 ```
 
@@ -448,6 +453,20 @@ server: {
 - Configured via `components.json` with shadowcn settings
 - CSS variables for theming (baseColor: neutral)
 - Path aliases preconfigured for easy imports
+
+### HMI 布局架构
+
+本项目为工业监控界面（HMI），采用固定全屏布局，不能滚动且要填满屏幕：
+
+- **SVG viewBox 坐标系**: 使用 `viewBox="0 0 1920 1080"` 建立虚拟坐标
+- **数据点定位**: 使用虚拟坐标或百分比，避免硬编码像素值
+- **缩放控制**: 通过 `preserveAspectRatio` 控制响应式行为
+- **布局规则**: 禁止页面级滚动，使用 Flex/Grid 布局填充可用空间
+
+**参考目录**:
+
+- `view_sample/` — WinForms 原始界面参考截图
+- `doc/mytasks/` — 界面转换任务和映射规则
 
 ---
 
@@ -513,6 +532,7 @@ npm run dev
 | Code Formatting Config       | [.prettierrc](.prettierrc)                                                                                   |
 | Frontend Config              | [frontend/vite.config.ts](frontend/vite.config.ts)                                                           |
 | Workspace Config             | [pnpm-workspace.yaml](pnpm-workspace.yaml)                                                                   |
+| UI 组件指南                 | [doc/ui-components-guide.md](doc/ui-components-guide.md)                                                     |
 
 ---
 

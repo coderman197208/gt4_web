@@ -1,5 +1,7 @@
 # Project Guidelines for AI Agents
 
+> 本文件聚焦 AI agent 开发时需要的代码示例和约定。高层规则见 `CLAUDE.md`（简洁入口），完整参考见 `WORKSPACE_GUIDELINES.md`。
+
 GT4 Web 是一个全栈 TypeScript 项目，采用 pnpm monorepo 结构。本指南帮助 AI agent 在开发中遵循项目约定。
 
 ## Code Style
@@ -21,7 +23,7 @@ GT4 Web 是一个全栈 TypeScript 项目，采用 pnpm monorepo 结构。本指
 
 **命名约定**:
 
-- 组件: PascalCase (Views 后缀 `View.vue`)
+- 组件: PascalCase (Views 后缀 `View.vue`，例外: `HomePage.vue` 作为布局容器)
 - API 函数: `[verb][Resource]()` 如 `getUsers()`, `createPost()`
 - Store: `use[Feature]Store()` (Pinia composition API)
 - 业务逻辑注释: 中文; 技术代码: 英文
@@ -117,12 +119,14 @@ npm run dev
 **API 模块模式** ([frontend/src/api/users.ts](frontend/src/api/users.ts)):
 
 ```typescript
-const request = createAxiosInstance();
-export async function getUsers(params?: Record<string, any>): Promise<User[]> {
-  return (await request.get('/users', { params })).data;
+import { request } from './client';
+import type { User, CreateUserParams } from '@gt4_web/shared';
+
+export function getUsers(params?: Record<string, any>): Promise<User[]> {
+  return request.get<User[]>('/users', { params });
 }
-export async function createUser(data: CreateUserParams): Promise<User> {
-  return (await request.post('/users', data)).data;
+export function createUser(data: CreateUserParams): Promise<User> {
+  return request.post<User>('/users', data);
 }
 ```
 
@@ -172,14 +176,14 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
 **后端路由** ([backend/src/modules/api/mockRoutes.ts](backend/src/modules/api/mockRoutes.ts)):
 
 - `/api/` 命名空间下所有端点
-- 返回 `ApiResponse<T>` 类型的响应
+- Mock 路由直接返回数据对象（未使用 `ApiResponse<T>` 信封包装，仅 login 返回含 `success` 字段的结构）
 - 非生产环境加载 mock 路由
 
 **WebSocket 消息**:
 
 ```typescript
 interface DataPushMessage {
-  tag: string; // 'tag1' | 'tag2' | 'tag3'
+  tag: string; // 当前使用: 'tag1', 'tag2', 'tag3'
   value: string; // JSON 字符串（客户端自动解析）
 }
 ```

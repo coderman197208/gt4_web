@@ -1,5 +1,7 @@
 # GT4 Web Project - Workspace Guidelines for AI Agents
 
+> 本文件是最详细的参考文档，包含完整示例、环境变量配置和调试技巧。高层规则见 `CLAUDE.md`，简洁代码示例见 `AGENTS.md`。
+
 **Document Date:** 2026-02-10  
 **Project Structure:** Monorepo with pnpm workspaces  
 **Primary Tech Stack:** TypeScript, Vue 3, Fastify, Socket.IO, Tailwind CSS
@@ -371,7 +373,7 @@ request.delete<T>(url, config)      // DELETE
 **Backend Route Registration** ([backend/src/modules/api/mockRoutes.ts](backend/src/modules/api/mockRoutes.ts)):
 
 - All routes under `/api/` namespace
-- Returns typed responses matching shared types
+- Mock routes return data objects directly (not wrapped in `ApiResponse<T>`; only login returns a structure with `success` field)
 - Uses Fastify `httpErrors` for proper HTTP error codes
 
 #### WebSocket Real-Time Data

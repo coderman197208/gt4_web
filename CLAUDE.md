@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GT4 Web is a **full-stack TypeScript monorepo** for an industrial HMI (Human Machine Interface) — a fixed-fullscreen monitoring system that displays real-time sensor data. Uses pnpm workspaces with three packages: `frontend`, `backend`, `packages/shared`.
 
-> For deeper reference, see `AGENTS.md` (concise guide) and `WORKSPACE_GUIDELINES.md` (comprehensive guide with full examples).
+> For deeper reference, see `AGENTS.md` (AI agent conventions with code examples) and `WORKSPACE_GUIDELINES.md` (comprehensive reference with full examples and environment details). **CLAUDE.md is the single source of truth for high-level rules**; the other two files elaborate but should not contradict it.
 
 ## Commands
 
@@ -17,7 +17,7 @@ pnpm install
 # Development (frontend :5173 + backend :5001 concurrently)
 npm run dev
 
-# Build all packages (shared → backend → frontend)
+# Build all packages (shared ; backend ; frontend — uses `;` so each runs regardless of prior exit code)
 npm run build
 
 # Type check all packages
@@ -46,6 +46,8 @@ frontend/src/
   stores/       # Pinia stores (realtimeData.ts)
   services/     # websocket.ts (Socket.IO client singleton)
   router/       # Vue Router (nested routes under HomePage)
+  lib/          # Utility functions (cn() etc.)
+  assets/       # Static resources and styles
 
 backend/src/
   index.ts      # Fastify setup, CORS, route/WebSocket registration
@@ -58,9 +60,9 @@ packages/shared/src/
 
 ### Communication Patterns
 
-**HTTP API**: Frontend axios (`/api` proxied by Vite to `:5001`) → Fastify routes → `ApiResponse<T>` response
+**HTTP API**: Frontend axios (`/api` proxied by Vite to `:5001`) → Fastify routes → direct data response (mock routes do not use `ApiResponse<T>` envelope)
 
-**WebSocket**: `useWebSocket().subscribe(['tag1','tag2','tag3'])` → backend `subscriptionManager` → `socket.emit('data:push', { tag, value })` → Pinia store update
+**WebSocket**: `useWebSocket().subscribe(['tag1','tag2','tag3'])` → backend `subscriptionManager` → `socket.emit('data:push', { tag, value })` → Pinia store update. Vite also proxies `/socket.io` to `:5001` with `ws: true`.
 
 **Shared types**: Both frontend and backend import from `@gt4_web/shared` — always define new types there first.
 
@@ -74,12 +76,14 @@ All pages use **fixed fullscreen layout with no scroll**. SVG panels use `viewBo
 
 **Naming**:
 
-- Components: `PascalCase`; pages: `*View.vue`
+- Components: `PascalCase`; pages: `*View.vue` (exception: `HomePage.vue` as layout container)
 - API functions: `[verb][Resource]()` e.g. `getUsers()`, `createPost()`
 - Pinia stores: `use[Feature]Store()` (composition API style)
 - Services: expose as `use[Service]()` composable
 
 **Vue 3**: Always use `<script setup lang="ts">` + Composition API. `ref<T>()` for state, `computed()` for derived values.
+
+**Path alias**: Frontend uses `@` → `src/` (configured in both `tsconfig.json` and `vite.config.ts`). Import as `@/api`, `@/components/ui`, etc.
 
 **UI components**: Use existing components from `frontend/src/components/ui/`. Install missing ones (shadcn-vue CLI) before building new ones. Use `cn()` for class merging, `lucide-vue-next` for icons.
 

@@ -43,6 +43,18 @@
         >
           NDT管捆编辑
         </router-link>
+        <router-link
+          to="/bundle-manage"
+          :class="[
+            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            isActive('/bundle-manage')
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
+          ]"
+          @click="handleNavClick"
+        >
+          管捆编辑
+        </router-link>
       </nav>
     </div>
   </aside>

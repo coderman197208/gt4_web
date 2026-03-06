@@ -74,7 +74,3 @@ const sizeValue = computed(() => {
     />
   </svg>
 </template>
-
-<script setup lang="ts">
-import { Tube } from '@/components/ui/tube';
-</script>

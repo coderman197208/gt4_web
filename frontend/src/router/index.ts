@@ -5,6 +5,7 @@ import HealthCheckView from '../views/HealthCheckView.vue';
 import ApiDemoView from '../views/ApiDemoView.vue';
 import TubeEditNDTView from '../views/TubeEditNDTView.vue';
 import BundleManageView from '../views/BundleManageView.vue';
+import ComponentTestView from '../views/ComponentTestView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,11 @@ const router = createRouter({
           path: 'bundle-manage',
           name: 'bundle-manage',
           component: BundleManageView,
+        },
+        {
+          path: 'component-test',
+          name: 'component-test',
+          component: ComponentTestView,
         },
       ],
     },

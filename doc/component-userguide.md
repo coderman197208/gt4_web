@@ -23,3 +23,13 @@ import { Tube } from '@/components/ui/tube';
   <!-- 运行状态，红色，string 尺寸 -->
   <Tube :active="true" color="red" size="3rem" />
 </template>
+
+Props：
+Prop 类型 默认值 说明
+active boolean false 开关状态
+color SelectSwitchColor 'green' 开启颜色
+offColor SelectSwitchColor | 'gray' 'gray' 关闭颜色
+size number | string 48 尺寸（高度=宽度，正方形）
+class HTMLAttributes['class'] — 自定义 CSS 类
+<SelectSwitch :active="true" color="green" :size="64" />
+<SelectSwitch :active="false" offColor="gray" :size="48" />

@@ -6,6 +6,7 @@ import ApiDemoView from '../views/ApiDemoView.vue';
 import TubeEditNDTView from '../views/TubeEditNDTView.vue';
 import BundleManageView from '../views/BundleManageView.vue';
 import ComponentTestView from '../views/ComponentTestView.vue';
+import ContractEditingView from '../views/ContractEditingView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,6 +44,11 @@ const router = createRouter({
           path: 'component-test',
           name: 'component-test',
           component: ComponentTestView,
+        },
+        {
+          path: 'contract-editing',
+          name: 'contract-editing',
+          component: ContractEditingView,
         },
       ],
     },

@@ -1,0 +1,11 @@
+Iocomp.Instrumentation.Standard.Led类型的控件映射为IndicatorLight组件
+
+Iocomp.Instrumentation.Standard.SwitchPanel类型的控件映射为SelectSwitch组件
+
+name属性值为wasteRoller，axSFStandard1，axSFStandard4，axSFStandard5，axSFStandard6，axSFStandard7的控件映射为ConveyorRoller组件
+
+name属性值为tubeLength，tubeWeight，tubeCarve，tubeSpray，tubeCircle，tubeScraptRoller的控件映射为Tube组件
+
+name属性值为buffer的控件映射为SVG矢量图`doc\mytasks\appendix\tube-conveyor-chain.svg`
+
+name属性值为basket，scrapt的控件映射为TubeBasket组件

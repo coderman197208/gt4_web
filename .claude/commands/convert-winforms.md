@@ -90,6 +90,10 @@ Form (顶层)
 | `TabControl` / `TabPage`     | `<Tabs>` 系列                                                                              | 如果已安装 tabs 组件                                                                                                        |
 | 其他未列出                   | `<div>` + `<!-- 原控件: XxxType -->` 注释                                                  | 注明原控件类型                                                                                                              |
 
+### 映射关系补充说明
+
+**参考`doc\mytasks\appendix\additional_notes.md `，理解C# WinForms某些特定控件的映射关系**
+
 ### 忽略的控件（不生成对应元素）
 
 - `BindingNavigator` 及其所有子项（`ToolStripButton`, `ToolStripSeparator`, `ToolStripTextBox`, `ToolStripLabel`）
@@ -364,3 +368,4 @@ function handleQuery() {
 - 不要遗漏表单的 v-model 绑定
 - 所有组件导入使用 `@/components/ui/xxx` 路径
 - 生成代码要符合项目的 Prettier 配置：单引号、100 字符行宽、末尾逗号
+- 如有不明白的地方务必用AskUserQuestion工具向用户提问予以澄清

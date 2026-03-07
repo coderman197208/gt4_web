@@ -55,6 +55,18 @@
         >
           管捆编辑
         </router-link>
+        <router-link
+          to="/contract-editing"
+          :class="[
+            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            isActive('/contract-editing')
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
+          ]"
+          @click="handleNavClick"
+        >
+          合同数据编辑
+        </router-link>
       </nav>
     </div>
   </aside>

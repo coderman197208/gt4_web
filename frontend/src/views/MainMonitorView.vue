@@ -228,21 +228,20 @@ function handleAction(action: string) {
 </script>
 
 <template>
-  <div class="h-full w-full overflow-hidden bg-slate-100 p-3 text-slate-900">
-    <div class="grid h-full grid-rows-[minmax(0,3fr)_minmax(0,2.2fr)_auto_minmax(0,3fr)] gap-3">
-      <div class="border rounded-lg p-3 relative bg-white shadow-sm min-h-0">
-        <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-          主控信息
-        </div>
+  <div
+    class="main-monitor-view h-full w-full overflow-hidden bg-[#c8c8c8] p-2 text-slate-900"
+    style="font-family: SimSun, NSimSun, 'Microsoft YaHei', serif"
+  >
+    <div class="grid h-full grid-rows-[minmax(0,3fr)_minmax(0,2.2fr)_auto_minmax(0,3fr)] gap-2">
+      <div class="win-group">
+        <div class="win-group__title">主控信息</div>
         <div
-          class="grid h-full min-h-0 grid-cols-[1.1fr_1fr_0.8fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_1.3fr] gap-3"
+          class="grid h-full min-h-0 grid-cols-[1.1fr_1fr_0.8fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_1.3fr] gap-2"
         >
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
+          <div class="win-panel flex min-h-0 flex-col">
             <div class="flex items-center justify-between">
-              <Label class="font-bold">料筐</Label>
-              <span class="rounded bg-sky-100 px-2 py-1 text-sm font-bold text-sky-700">
-                {{ mainForm.feedCount }} 支
-              </span>
+              <Label class="win-panel__title">料筐</Label>
+              <span class="win-value text-sm"> 料筐支数 {{ mainForm.feedCount }} </span>
             </div>
             <div class="flex flex-1 items-center justify-center">
               <TubeBasket active color="cyan" :top-width="72" :bottom-width="98" :height="96" />
@@ -250,33 +249,40 @@ function handleAction(action: string) {
             <div class="grid gap-2 text-xs">
               <div class="flex items-center justify-between">
                 <span>合同号</span>
-                <span class="font-semibold text-blue-700">{{ mainForm.basketOrderNo }}</span>
+                <span class="win-value">{{ mainForm.basketOrderNo }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span>炉号</span>
-                <span class="font-semibold text-blue-700">{{ mainForm.basketMeltNo }}</span>
+                <span class="win-value">{{ mainForm.basketMeltNo }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span>试批号</span>
-                <span class="font-semibold text-blue-700">{{ mainForm.basketLotNo }}</span>
+                <span class="win-value">{{ mainForm.basketLotNo }}</span>
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">成捆支数设定</Label>
-                <Input v-model="mainForm.basketBundleCount" class="h-8 bg-teal-200 text-center" />
+                <Input
+                  v-model="mainForm.basketBundleCount"
+                  class="win-input-edit h-7 text-center"
+                />
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" @click="handleAction('bundle-once')"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('bundle-once')"
                   >&lt;&lt;</Button
                 >
-                <Button size="sm" @click="handleAction('bundle')">打捆</Button>
+                <Button size="sm" class="win-button" @click="handleAction('bundle')">打捆</Button>
               </div>
             </div>
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
+          <div class="win-panel flex min-h-0 flex-col">
             <div class="flex items-center justify-between">
-              <Label class="font-bold">缓冲区</Label>
-              <span class="text-sm font-bold text-blue-700">{{ mainForm.bundleFlowNo }}</span>
+              <Label class="win-panel__title">缓冲区</Label>
+              <span class="win-value text-sm">{{ mainForm.bundleFlowNo }}</span>
             </div>
             <div class="flex flex-1 items-center justify-center px-2">
               <svg
@@ -291,21 +297,21 @@ function handleAction(action: string) {
             <div class="grid gap-2 text-xs">
               <div class="flex items-center justify-between">
                 <span>缓冲支数</span>
-                <span class="font-semibold text-blue-700">0</span>
+                <span class="win-value">0</span>
               </div>
               <div class="flex items-center justify-between">
                 <span>最近成捆管捆号</span>
-                <span class="font-semibold text-blue-700">{{ mainForm.lastBundleNo }}</span>
+                <span class="win-value">{{ mainForm.lastBundleNo }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span>下一管捆流水号</span>
-                <span class="font-semibold text-blue-700">{{ mainForm.bundleFlowNo }}</span>
+                <span class="win-value">{{ mainForm.bundleFlowNo }}</span>
               </div>
             </div>
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
-            <Label class="font-bold">废料辊道</Label>
+          <div class="win-panel flex min-h-0 flex-col">
+            <Label class="win-panel__title">废料辊道</Label>
             <div class="flex flex-1 items-center justify-center gap-3">
               <TubeBasket
                 :active="false"
@@ -319,82 +325,130 @@ function handleAction(action: string) {
                 <ConveyorRoller :active="processRunning.waste" color="amber" :size="62" />
               </div>
             </div>
-            <Button size="sm" variant="secondary" @click="handleAction('waste-basket')"
+            <Button
+              size="sm"
+              variant="outline"
+              class="win-button"
+              @click="handleAction('waste-basket')"
               >入废料筐</Button
             >
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
-            <Label class="font-bold">色环</Label>
+          <div class="win-panel flex min-h-0 flex-col">
+            <Label class="win-panel__title">色环</Label>
             <div class="flex flex-1 flex-col items-center justify-center gap-3">
               <Tube :active="processRunning.circle" color="blue" :size="44" />
               <ConveyorRoller :active="processRunning.circle" color="blue" :size="66" />
               <IndicatorLight :active="processRunning.circle" color="red" :size="18" glow />
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline" @click="handleAction('circle-back')">&lt;</Button>
-              <Button size="sm" variant="outline" @click="handleAction('circle-forward')"
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('circle-back')"
+                >&lt;</Button
+              >
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('circle-forward')"
                 >&gt;</Button
               >
             </div>
-            <Button size="sm" @click="handleAction('circle')">色环</Button>
+            <Button size="sm" class="win-button" @click="handleAction('circle')">色环</Button>
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
-            <Label class="font-bold">喷印</Label>
+          <div class="win-panel flex min-h-0 flex-col">
+            <Label class="win-panel__title">喷印</Label>
             <div class="flex flex-1 flex-col items-center justify-center gap-3">
               <Tube :active="processRunning.spray" color="green" :size="44" />
               <ConveyorRoller :active="processRunning.spray" color="green" :size="66" />
               <IndicatorLight :active="processRunning.spray" color="red" :size="18" glow />
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline" @click="handleAction('spray-back')">&lt;</Button>
-              <Button size="sm" variant="outline" @click="handleAction('spray-forward')"
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('spray-back')"
+                >&lt;</Button
+              >
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('spray-forward')"
                 >&gt;</Button
               >
             </div>
-            <Button size="sm" @click="handleAction('spray')">喷印</Button>
+            <Button size="sm" class="win-button" @click="handleAction('spray')">喷印</Button>
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
-            <Label class="font-bold">刻印</Label>
+          <div class="win-panel flex min-h-0 flex-col">
+            <Label class="win-panel__title">刻印</Label>
             <div class="flex flex-1 flex-col items-center justify-center gap-3">
               <Tube :active="processRunning.carve" color="amber" :size="44" />
               <ConveyorRoller :active="processRunning.carve" color="amber" :size="66" />
               <IndicatorLight :active="processRunning.carve" color="red" :size="18" glow />
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline" @click="handleAction('carve-back')">&lt;</Button>
-              <Button size="sm" variant="outline" @click="handleAction('carve-forward')"
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('carve-back')"
+                >&lt;</Button
+              >
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('carve-forward')"
                 >&gt;</Button
               >
             </div>
-            <Button size="sm" @click="handleAction('carve')">刻印</Button>
+            <Button size="sm" class="win-button" @click="handleAction('carve')">刻印</Button>
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
-            <Label class="font-bold">称重</Label>
+          <div class="win-panel flex min-h-0 flex-col">
+            <Label class="win-panel__title">称重</Label>
             <div class="flex flex-1 flex-col items-center justify-center gap-3">
               <Tube :active="processRunning.weight" color="orange" :size="44" />
               <ConveyorRoller :active="processRunning.weight" color="orange" :size="66" />
               <IndicatorLight :active="processRunning.weight" color="red" :size="18" glow />
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline" @click="handleAction('weight-back')">&lt;</Button>
-              <Button size="sm" variant="outline" @click="handleAction('weight-forward')"
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('weight-back')"
+                >&lt;</Button
+              >
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('weight-forward')"
                 >&gt;</Button
               >
             </div>
             <div class="grid grid-cols-1 gap-2">
-              <Button size="sm" @click="handleAction('weight')">称重</Button>
-              <Button size="sm" variant="secondary" @click="handleAction('weight-stop')"
+              <Button size="sm" class="win-button" @click="handleAction('weight')">称重</Button>
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('weight-stop')"
                 >停止称重</Button
               >
             </div>
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
-            <Label class="font-bold">定位</Label>
+          <div class="win-panel flex min-h-0 flex-col">
+            <Label class="win-panel__title">定位</Label>
             <div class="flex flex-1 flex-col items-center justify-center gap-3">
               <Tube :active="processRunning.length" color="cyan" :size="44" />
               <ConveyorRoller :active="processRunning.length" color="cyan" :size="66" />
@@ -404,57 +458,65 @@ function handleAction(action: string) {
               </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline" @click="handleAction('length-back')">&lt;</Button>
-              <Button size="sm" variant="outline" @click="handleAction('length-forward')"
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('length-back')"
+                >&lt;</Button
+              >
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('length-forward')"
                 >&gt;</Button
               >
             </div>
-            <Button size="sm" @click="handleAction('length')">测长</Button>
+            <Button size="sm" class="win-button" @click="handleAction('length')">测长</Button>
           </div>
 
-          <div class="flex min-h-0 flex-col rounded-md border bg-slate-50 p-3">
-            <Label class="font-bold">投料区</Label>
+          <div class="win-panel flex min-h-0 flex-col">
+            <Label class="win-panel__title">投料区</Label>
             <div class="grid flex-1 gap-2 text-xs">
               <div class="space-y-1">
                 <Label class="text-xs">合同号</Label>
-                <Input v-model="mainForm.orderNo" class="h-8 bg-teal-200 text-center" />
+                <Input v-model="mainForm.orderNo" class="win-input-edit h-7 text-center" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">备用代码</Label>
-                <Input v-model="mainForm.spareCode" class="h-8 bg-teal-200 text-center" />
+                <Input v-model="mainForm.spareCode" class="win-input-edit h-7 text-center" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">支数</Label>
-                <Input v-model="mainForm.feedCount" class="h-8 bg-teal-200 text-center" />
+                <Input v-model="mainForm.feedCount" class="win-input-edit h-7 text-center" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">轧批号</Label>
-                <Input v-model="mainForm.feedRollNo" class="h-8 bg-teal-200 text-center" />
+                <Input v-model="mainForm.feedRollNo" class="win-input-edit h-7 text-center" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">试批号</Label>
-                <Input v-model="mainForm.feedLotNo" class="h-8 bg-teal-200 text-center" />
+                <Input v-model="mainForm.feedLotNo" class="win-input-edit h-7 text-center" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">炉号</Label>
-                <Input v-model="mainForm.feedMeltNo" class="h-8 bg-teal-200 text-center" />
+                <Input v-model="mainForm.feedMeltNo" class="win-input-edit h-7 text-center" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">下一根流水号</Label>
-                <Input v-model="mainForm.flowNo" class="h-8 bg-teal-200 text-center" />
+                <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center" />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="grid min-h-0 grid-cols-[minmax(0,4fr)_minmax(250px,1fr)] gap-3">
-        <div class="border rounded-lg p-3 relative bg-white shadow-sm min-h-0">
-          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-            测量点料流详细信息
-          </div>
-          <div class="h-full min-h-0 border rounded-md overflow-hidden">
-            <div class="border-b bg-slate-50">
+      <div class="grid min-h-0 grid-cols-[minmax(0,4fr)_minmax(250px,1fr)] gap-2">
+        <div class="win-group">
+          <div class="win-group__title">测量点料流详细信息</div>
+          <div class="win-table-shell h-full min-h-0 overflow-hidden">
+            <div class="win-table-head border-b border-[#8b8b8b]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -491,7 +553,7 @@ function handleAction(action: string) {
                       <IndicatorLight
                         :active="row.lengthOk"
                         color="green"
-                        :off-color="red"
+                        off-color="red"
                         :size="14"
                       />
                     </TableCell>
@@ -500,7 +562,7 @@ function handleAction(action: string) {
                       <IndicatorLight
                         :active="row.weightOk"
                         color="green"
-                        :off-color="red"
+                        off-color="red"
                         :size="14"
                       />
                     </TableCell>
@@ -513,45 +575,49 @@ function handleAction(action: string) {
           </div>
         </div>
 
-        <div class="border rounded-lg p-3 relative bg-white shadow-sm min-h-0">
-          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-            工位备妥状态
-          </div>
-          <div class="flex h-full flex-col gap-4">
-            <div class="flex items-start justify-between rounded-md border bg-slate-50 p-3">
-              <div class="space-y-2">
-                <Label class="font-bold">抱闸锁定</Label>
-                <p class="text-xs text-muted-foreground">封锁 / 释放</p>
+        <div class="win-group">
+          <div class="win-group__title">工位备妥状态</div>
+          <div class="flex h-full flex-col gap-3">
+            <div class="win-panel flex items-start justify-between">
+              <div class="space-y-1">
+                <Label class="win-panel__title">抱闸锁定</Label>
+                <p class="text-xs font-bold text-[#7a1212]">封锁 / 释放</p>
               </div>
               <SelectSwitch :active="stationReady.release" color="red" :size="64" />
             </div>
             <div class="grid grid-cols-2 gap-3">
-              <div class="flex items-center justify-between rounded-md border p-2 text-sm">
+              <div class="win-status-row flex items-center justify-between text-sm">
                 <span>释放</span>
                 <div class="flex items-center gap-2">
-                  <Button size="icon-sm" variant="outline" @click="handleAction('position-release')"
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    class="win-button"
+                    @click="handleAction('position-release')"
                     >●</Button
                   >
                   <IndicatorLight :active="stationReady.release" color="green" :size="18" />
                 </div>
               </div>
-              <div class="flex items-center justify-between rounded-md border p-2 text-sm">
+              <div class="win-status-row flex items-center justify-between text-sm">
                 <span>内保</span>
                 <div class="flex items-center gap-2">
-                  <Button size="icon-sm" variant="outline" @click="handleAction('inner-protect')"
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    class="win-button"
+                    @click="handleAction('inner-protect')"
                     >●</Button
                   >
                   <IndicatorLight :active="stationReady.innerProtect" color="green" :size="18" />
                 </div>
               </div>
-              <div
-                class="flex items-center justify-between rounded-md border p-2 text-sm col-span-2"
-              >
+              <div class="win-status-row col-span-2 flex items-center justify-between text-sm">
                 <span>步进梁原位</span>
                 <IndicatorLight :active="stationReady.beamHome" color="green" :size="18" />
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-2 rounded-md border bg-slate-50 p-3 text-sm">
+            <div class="win-panel grid grid-cols-2 gap-2 text-sm">
               <div
                 v-for="item in stationIndicators"
                 :key="item.key"
@@ -565,35 +631,35 @@ function handleAction(action: string) {
         </div>
       </div>
 
-      <div class="border rounded-lg p-3 relative bg-white shadow-sm">
-        <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-          喷印字符串
-        </div>
-        <div class="rounded-md border bg-slate-50 px-3 py-2 font-mono text-sm text-slate-700">
+      <div class="win-group">
+        <div class="win-group__title">喷印字符串</div>
+        <div class="win-spray-string px-3 py-2 font-mono text-sm text-slate-700">
           {{ sprayString }}
         </div>
       </div>
 
-      <div class="grid min-h-0 grid-cols-[minmax(0,3.4fr)_minmax(420px,2fr)] gap-3">
-        <div class="border rounded-lg p-3 relative bg-white shadow-sm min-h-0">
-          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-            管子详细信息
-          </div>
+      <div class="grid min-h-0 grid-cols-[minmax(0,3.4fr)_minmax(420px,2fr)] gap-2">
+        <div class="win-group">
+          <div class="win-group__title">管子详细信息</div>
           <Tabs default-value="basket" class="flex h-full min-h-0 flex-col gap-3">
-            <TabsList class="grid w-full grid-cols-3">
-              <TabsTrigger value="basket">料筐</TabsTrigger>
-              <TabsTrigger value="buffer">缓冲区</TabsTrigger>
-              <TabsTrigger value="scrapt">废料筐</TabsTrigger>
+            <TabsList class="win-tabs-list grid w-full grid-cols-3">
+              <TabsTrigger value="basket" class="win-tab-trigger">料筐</TabsTrigger>
+              <TabsTrigger value="buffer" class="win-tab-trigger">缓冲区</TabsTrigger>
+              <TabsTrigger value="scrapt" class="win-tab-trigger">废料筐</TabsTrigger>
             </TabsList>
 
             <TabsContent value="basket" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
               <div class="flex items-center justify-end gap-2">
-                <Button size="sm" variant="outline" @click="handleAction('basket-refresh')"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('basket-refresh')"
                   >刷新</Button
                 >
               </div>
-              <div class="min-h-0 flex-1 rounded-md border overflow-hidden">
-                <div class="border-b bg-slate-50">
+              <div class="win-table-shell min-h-0 flex-1 overflow-hidden">
+                <div class="win-table-head border-b border-[#8b8b8b]">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -632,7 +698,7 @@ function handleAction(action: string) {
                   </Table>
                 </div>
               </div>
-              <div class="flex items-center justify-end gap-6 text-sm font-semibold text-blue-700">
+              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
                 <span>总重 28.88</span>
                 <span>总长 120.118</span>
               </div>
@@ -640,18 +706,30 @@ function handleAction(action: string) {
 
             <TabsContent value="buffer" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
               <div class="flex items-center justify-end gap-2">
-                <Button size="sm" variant="outline" @click="handleAction('insert-tube-head')"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('insert-tube-head')"
                   >插入头部</Button
                 >
-                <Button size="sm" variant="outline" @click="handleAction('insert-tube')"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('insert-tube')"
                   >插入钢管</Button
                 >
-                <Button size="sm" variant="destructive" @click="handleAction('delete-tube')"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button win-button--danger"
+                  @click="handleAction('delete-tube')"
                   >删除钢管</Button
                 >
               </div>
-              <div class="min-h-0 flex-1 rounded-md border overflow-hidden">
-                <div class="border-b bg-slate-50">
+              <div class="win-table-shell min-h-0 flex-1 overflow-hidden">
+                <div class="win-table-head border-b border-[#8b8b8b]">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -690,7 +768,7 @@ function handleAction(action: string) {
                   </Table>
                 </div>
               </div>
-              <div class="flex items-center justify-end gap-6 text-sm font-semibold text-blue-700">
+              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
                 <span>总重 12.95</span>
                 <span>总长 120.118</span>
               </div>
@@ -698,13 +776,19 @@ function handleAction(action: string) {
 
             <TabsContent value="scrapt" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
               <div class="flex items-center justify-end gap-2">
-                <Button size="sm" variant="outline" @click="handleAction('manual-waste')"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('manual-waste')"
                   >手动入筐</Button
                 >
-                <Button size="sm" @click="handleAction('bundle-waste')">废料成筐</Button>
+                <Button size="sm" class="win-button" @click="handleAction('bundle-waste')"
+                  >废料成筐</Button
+                >
               </div>
-              <div class="min-h-0 flex-1 rounded-md border overflow-hidden">
-                <div class="border-b bg-slate-50">
+              <div class="win-table-shell min-h-0 flex-1 overflow-hidden">
+                <div class="win-table-head border-b border-[#8b8b8b]">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -737,7 +821,7 @@ function handleAction(action: string) {
                   </Table>
                 </div>
               </div>
-              <div class="flex items-center justify-end gap-6 text-sm font-semibold text-blue-700">
+              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
                 <span>总重 0.52</span>
                 <span>总长 120.118</span>
               </div>
@@ -745,14 +829,12 @@ function handleAction(action: string) {
           </Tabs>
         </div>
 
-        <div class="grid min-h-0 grid-rows-[minmax(0,2fr)_minmax(0,1fr)] gap-3">
-          <div class="border rounded-lg p-3 relative bg-white shadow-sm min-h-0">
-            <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-              生产统计信息
-            </div>
+        <div class="grid min-h-0 grid-rows-[minmax(0,2fr)_minmax(0,1fr)] gap-2">
+          <div class="win-group">
+            <div class="win-group__title">生产统计信息</div>
             <div class="grid h-full min-h-0 gap-3 grid-rows-[auto_auto_auto]">
-              <div class="rounded-md border bg-slate-50 p-3">
-                <div class="mb-2 flex items-center gap-4 text-sm font-semibold text-blue-700">
+              <div class="win-stat-block p-3">
+                <div class="mb-2 flex items-center gap-4 text-sm font-semibold text-[#1d47a4]">
                   <span>合同号 {{ productionStats.statOrderNo }}</span>
                   <span>炉号 {{ productionStats.statMeltNo }}</span>
                   <span>试批号 {{ productionStats.statLotNo }}</span>
@@ -762,19 +844,23 @@ function handleAction(action: string) {
                     <Label class="text-xs">当前合同已完成 吨</Label>
                     <Input
                       v-model="productionStats.orderWeight"
-                      class="h-8 bg-teal-200 text-right"
+                      class="win-input-edit h-7 text-right"
                     />
                   </div>
                   <div class="space-y-1">
                     <Label class="text-xs">当前合同已完成 米</Label>
                     <Input
                       v-model="productionStats.orderLength"
-                      class="h-8 bg-teal-200 text-right"
+                      class="win-input-edit h-7 text-right"
                     />
                   </div>
                   <div class="space-y-1">
                     <Label class="text-xs">当前合同已完成 支</Label>
-                    <Input v-model="productionStats.orderCount" readonly class="h-8 text-right" />
+                    <Input
+                      v-model="productionStats.orderCount"
+                      readonly
+                      class="win-input-readonly h-7 text-right"
+                    />
                   </div>
                 </div>
                 <div class="mt-3 grid grid-cols-2 gap-3">
@@ -783,7 +869,7 @@ function handleAction(action: string) {
                     <Input
                       v-model="productionStats.orderWeightEng"
                       readonly
-                      class="h-8 text-right"
+                      class="win-input-readonly h-7 text-right"
                     />
                   </div>
                   <div class="space-y-1">
@@ -791,63 +877,91 @@ function handleAction(action: string) {
                     <Input
                       v-model="productionStats.orderLengthEng"
                       readonly
-                      class="h-8 text-right"
+                      class="win-input-readonly h-7 text-right"
                     />
                   </div>
                 </div>
               </div>
 
-              <div class="grid grid-cols-3 gap-3 rounded-md border bg-slate-50 p-3">
+              <div class="win-stat-block grid grid-cols-3 gap-3 p-3">
                 <div class="space-y-1">
                   <Label class="text-xs">当前炉批已完成 吨</Label>
-                  <Input v-model="productionStats.lotWeight" readonly class="h-8 text-right" />
+                  <Input
+                    v-model="productionStats.lotWeight"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
                 </div>
                 <div class="space-y-1">
                   <Label class="text-xs">当前炉批已完成 米</Label>
-                  <Input v-model="productionStats.lotLength" readonly class="h-8 text-right" />
+                  <Input
+                    v-model="productionStats.lotLength"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
                 </div>
                 <div class="space-y-1">
                   <Label class="text-xs">当前炉批已完成 支</Label>
-                  <Input v-model="productionStats.lotCount" readonly class="h-8 text-right" />
+                  <Input
+                    v-model="productionStats.lotCount"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
                 </div>
               </div>
 
-              <div class="grid grid-cols-3 gap-3 rounded-md border bg-slate-50 p-3">
+              <div class="win-stat-block grid grid-cols-3 gap-3 p-3">
                 <div class="space-y-1">
                   <Label class="text-xs">班产量 吨</Label>
-                  <Input v-model="productionStats.shiftWeight" readonly class="h-8 text-right" />
+                  <Input
+                    v-model="productionStats.shiftWeight"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
                 </div>
                 <div class="space-y-1">
                   <Label class="text-xs">班产量 米</Label>
-                  <Input v-model="productionStats.shiftLength" readonly class="h-8 text-right" />
+                  <Input
+                    v-model="productionStats.shiftLength"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
                 </div>
                 <div class="space-y-1">
                   <Label class="text-xs">班产量 支</Label>
-                  <Input v-model="productionStats.shiftCount" readonly class="h-8 text-right" />
+                  <Input
+                    v-model="productionStats.shiftCount"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="border rounded-lg p-3 relative bg-white shadow-sm min-h-0">
-            <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-              进程工作状态
-            </div>
+          <div class="win-group">
+            <div class="win-group__title">进程工作状态</div>
             <div class="grid h-full grid-cols-5 gap-2 pt-2">
               <div
                 v-for="item in processStatusCards"
                 :key="item.key"
-                class="flex flex-col items-center justify-between rounded-md border bg-slate-50 p-2 text-center"
+                class="win-process-item flex flex-col items-center justify-between text-center"
               >
                 <IndicatorLight
                   :active="processStatus[item.key]"
                   color="green"
                   off-color="red"
-                  :size="20"
+                  :size="22"
                   glow
                 />
-                <span class="text-xs leading-4">{{ item.label }}</span>
-                <Button size="sm" variant="outline" @click="handleAction(item.key)">启动</Button>
+                <span class="text-xs font-bold leading-4 text-slate-800">{{ item.label }}</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction(item.key)"
+                  >启动</Button
+                >
               </div>
             </div>
           </div>
@@ -856,3 +970,187 @@ function handleAction(action: string) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.main-monitor-view {
+  background: #c8c8c8;
+}
+
+.win-group {
+  position: relative;
+  min-height: 0;
+  border: 1px solid #868686;
+  border-radius: 3px;
+  background: #d3d3d3;
+  padding: 14px 8px 8px;
+  box-shadow: inset 0 1px 0 #f7f7f7;
+}
+
+.win-group__title {
+  position: absolute;
+  top: -11px;
+  left: 12px;
+  padding: 0 6px;
+  background: #c8c8c8;
+  color: #6f1616;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.win-panel,
+.win-stat-block,
+.win-status-row,
+.win-spray-string {
+  border: 1px solid #8a8a8a;
+  border-radius: 2px;
+  background: #d8d8d8;
+  box-shadow: inset 0 1px 0 #f4f4f4;
+}
+
+.win-panel {
+  padding: 8px;
+}
+
+.win-panel__title {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.win-value {
+  color: #1d47a4;
+  font-weight: 700;
+}
+
+.win-input-edit,
+.win-input-readonly {
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.win-input-edit {
+  border-color: #4a7471;
+  background: #20b2aa;
+  color: #111827;
+}
+
+.win-input-readonly {
+  border-color: #8b8b8b;
+  background: #c0c0c0;
+  color: #1d47a4;
+}
+
+.win-button {
+  border-color: #8a8a8a;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, #ffffff, #d9d9d9);
+  color: #111827;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.win-button:hover {
+  background: linear-gradient(to bottom, #ffffff, #cecece);
+}
+
+.win-button--danger {
+  color: #8b0000;
+}
+
+.win-status-row {
+  padding: 6px 8px;
+}
+
+.win-spray-string {
+  background: #c0c0c0;
+  color: #3f3f46;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.win-table-shell {
+  border: 1px solid #8a8a8a;
+  background: #c0c0c0;
+}
+
+.win-table-head {
+  background: #dcdcdc;
+}
+
+.win-table-shell :deep(table) {
+  width: 100%;
+}
+
+.win-table-shell :deep(th) {
+  height: 30px;
+  border-right: 1px solid #8a8a8a;
+  padding: 4px 8px;
+  background: #dcdcdc;
+  color: #1d47a4;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.win-table-shell :deep(td) {
+  border-right: 1px solid #9d9d9d;
+  border-bottom: 1px solid #9d9d9d;
+  padding: 4px 8px;
+  color: #262626;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.win-table-shell :deep(th:last-child),
+.win-table-shell :deep(td:last-child) {
+  border-right: 0;
+}
+
+.win-table-shell :deep(tbody tr:nth-child(odd) td) {
+  background: #ececec;
+}
+
+.win-table-shell :deep(tbody tr:nth-child(even) td) {
+  background: #d7d7d7;
+}
+
+.win-tabs-list {
+  gap: 0;
+  border-bottom: 1px solid #8a8a8a;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.win-tab-trigger {
+  border: 1px solid #8a8a8a;
+  border-bottom: 0;
+  border-radius: 2px 2px 0 0;
+  background: #d0d0d0;
+  color: #333;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.win-tab-trigger[data-state='active'] {
+  background: #ededed;
+  color: #6f1616;
+}
+
+.win-totals {
+  color: #1d47a4;
+}
+
+.win-process-item {
+  gap: 6px;
+  padding: 4px 0;
+}
+</style>

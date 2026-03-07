@@ -67,6 +67,18 @@
         >
           合同数据编辑
         </router-link>
+        <router-link
+          to="/main-monitor"
+          :class="[
+            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            isActive('/main-monitor')
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
+          ]"
+          @click="handleNavClick"
+        >
+          主监控
+        </router-link>
       </nav>
     </div>
   </aside>

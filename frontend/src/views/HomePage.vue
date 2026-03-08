@@ -9,7 +9,7 @@
       <AppSidebar :is-open="isSidebarOpen" @close="isSidebarOpen = false" />
 
       <!-- 主内容区域 -->
-      <main class="flex-1 overflow-hidden p-4">
+      <main class="flex-1 overflow-hidden p-0">
         <router-view />
       </main>
     </div>

@@ -222,6 +222,28 @@ const processStatusCards = [
   { key: 'l3Comm', label: 'L3 通讯状态' },
 ] as const;
 
+const trackTableColumns = [
+  { label: '流水号', weight: 1 },
+  { label: '管号', weight: 1.1 },
+  { label: '合同号', weight: 1.5 },
+  { label: '项目号', weight: 0.9 },
+  { label: '轧批号', weight: 1 },
+  { label: '炉号', weight: 1.1 },
+  { label: '试批号', weight: 1.1 },
+  { label: '长度', weight: 0.9 },
+  { label: '长度合格', weight: 0.9 },
+  { label: '重量', weight: 0.9 },
+  { label: '重量合格', weight: 0.9 },
+  { label: '接箍炉号', weight: 1.2 },
+  { label: '接箍批号', weight: 1.2 },
+] as const;
+
+const trackTableTotalWeight = trackTableColumns.reduce((total, column) => total + column.weight, 0);
+
+function getTrackTableColumnWidth(weight: number) {
+  return `${(weight / trackTableTotalWeight) * 100}%`;
+}
+
 function handleAction(action: string) {
   console.log(action, { mainForm, productionStats, processRunning });
 }
@@ -517,28 +539,32 @@ function handleAction(action: string) {
           <div class="win-group__title">测量点料流详细信息</div>
           <div class="win-table-shell h-full min-h-0 overflow-hidden">
             <div class="win-table-head border-b border-[#8b8b8b]">
-              <Table>
+              <Table class="table-fixed">
+                <colgroup>
+                  <col
+                    v-for="column in trackTableColumns"
+                    :key="`track-head-col-${column.label}`"
+                    :style="{ width: getTrackTableColumnWidth(column.weight) }"
+                  />
+                </colgroup>
                 <TableHeader>
                   <TableRow>
-                    <TableHead class="w-[72px]">流水号</TableHead>
-                    <TableHead class="w-[88px]">管号</TableHead>
-                    <TableHead>合同号</TableHead>
-                    <TableHead class="w-[68px]">项目号</TableHead>
-                    <TableHead class="w-[78px]">轧批号</TableHead>
-                    <TableHead class="w-[98px]">炉号</TableHead>
-                    <TableHead class="w-[90px]">试批号</TableHead>
-                    <TableHead class="w-[84px]">长度</TableHead>
-                    <TableHead class="w-[84px]">长度合格</TableHead>
-                    <TableHead class="w-[84px]">重量</TableHead>
-                    <TableHead class="w-[84px]">重量合格</TableHead>
-                    <TableHead class="w-[98px]">接箍炉号</TableHead>
-                    <TableHead class="w-[98px]">接箍批号</TableHead>
+                    <TableHead v-for="column in trackTableColumns" :key="column.label">
+                      {{ column.label }}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
               </Table>
             </div>
             <div class="h-[calc(100%-44px)] overflow-auto">
-              <Table>
+              <Table class="table-fixed">
+                <colgroup>
+                  <col
+                    v-for="column in trackTableColumns"
+                    :key="`track-body-col-${column.label}`"
+                    :style="{ width: getTrackTableColumnWidth(column.weight) }"
+                  />
+                </colgroup>
                 <TableBody>
                   <TableRow v-for="row in trackRows" :key="row.flowNo">
                     <TableCell>{{ row.flowNo }}</TableCell>

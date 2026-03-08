@@ -1,215 +1,53 @@
 # Project Guidelines for AI Agents
 
-> 本文件聚焦 AI agent 开发时需要的代码示例和约定。高层规则见 `CLAUDE.md`（简洁入口），完整参考见 `WORKSPACE_GUIDELINES.md`。
+> 本文件是仓库唯一的工作区级 agent 指南。需要更细粒度约定时，优先新增嵌套 `AGENTS.md` 或 `.github/instructions/*.instructions.md`，不要再创建重复的工作区总说明。
 
-GT4 Web 是一个全栈 TypeScript 项目，采用 pnpm monorepo 结构。本指南帮助 AI agent 在开发中遵循项目约定。
+GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规则见 `CLAUDE.md`，更完整的背景和示例见 `WORKSPACE_GUIDELINES.md`。
 
 ## Code Style
 
-**TypeScript & Vue 3**: 全项目使用 `"strict": true`，ES2020 目标。所有文件启用 ESM 模块。
-
-**代码格式** (Prettier):
-
-- 单引号、100字符行宽、末尾逗号 (all)
-
-```json
-{
-  "semi": true,
-  "singleQuote": true,
-  "printWidth": 100,
-  "trailingComma": "all"
-}
-```
-
-**命名约定**:
-
-- 组件: PascalCase (Views 后缀 `View.vue`，例外: `HomePage.vue` 作为布局容器)
-- API 函数: `[verb][Resource]()` 如 `getUsers()`, `createPost()`
-- Store: `use[Feature]Store()` (Pinia composition API)
-- 业务逻辑注释: 中文; 技术代码: 英文
-
-**Vue 3 模式**:
-
-- `<script setup lang="ts">` 组合式 API
-- `ref<T>()` 单值状态, `computed()` 派生值
+- 全项目使用 TypeScript strict 模式、ES2020 目标和 ESM。
+- 格式约定由 Prettier 控制: 单引号、100 字符行宽、保留分号、尾随逗号。
+- Vue 统一使用 `<script setup lang="ts">` 和 Composition API；状态优先 `ref<T>()`，派生值使用 `computed()`。
+- 命名约定: 组件 `PascalCase`，页面使用 `*View.vue`，API 函数使用 `[verb][Resource]()`，Pinia store 使用 `use[Feature]Store()`。
+- 业务逻辑注释用中文，技术或结构性说明用英文。
+- 前端优先复用 `frontend/src/components/ui/` 中现有 UI 组件，缺失时再补充 shadcn-vue 组件。
 
 ## Architecture
 
-**Monorepo 结构**: `frontend`, `backend`, `packages/shared`
+- Monorepo 由 `frontend`、`backend` 和 `packages/shared` 组成；共享类型统一定义在 `packages/shared/src/types.ts`。
+- 前端通过 axios 调用 `/api`，由 Vite 代理到 Fastify 后端；WebSocket 通过 `/socket.io` 代理到 Socket.IO 服务。
+- 后端 HTTP 路由位于 `backend/src/modules/api/`，WebSocket 逻辑位于 `backend/src/modules/websocket/`。
+- HMI 页面采用固定全屏布局，不应引入滚动页面；需要按虚拟坐标或 SVG `viewBox` 思路布局，参考 `view_sample/` 和 `doc/mytasks/`。
+- 代表性文件:
+  - API 模块: `frontend/src/api/users.ts`
+  - API 客户端: `frontend/src/api/client.ts`
+  - Store: `frontend/src/stores/realtimeData.ts`
+  - WebSocket: `frontend/src/services/websocket.ts`
+  - 路由: `frontend/src/router/index.ts`
+  - 后端路由: `backend/src/modules/api/mockRoutes.ts`
 
-```
-frontend/
-  ├── api/              # axios 客户端 + 资源模块
-  ├── components/ui/    # Reka UI + Tailwind 组件 (shadcn-vue)
-  ├── views/            # 页面级组件 (*View.vue)
-  ├── stores/           # Pinia (realtimeData.ts)
-  ├── router/           # Vue Router 路由
-  ├── services/         # WebSocket 服务
-  ├── lib/              # 工具函数 (cn() 等)
-  └── assets/           # 静态资源与样式
+## Build and Test
 
-backend/
-  ├── modules/api/      # HTTP 路由 (mockRoutes.ts, mockData.ts)
-  ├── modules/websocket/ # Socket.IO 服务器
+- 安装依赖使用 `pnpm install`；仓库通过 `engines` 明确拒绝 `npm install` 和 `yarn`。
+- 常用根命令:
+  - `npm run dev` 启动前后端开发环境
+  - `npm run build` 构建 shared、backend、frontend
+  - `npm run typecheck` 运行全仓类型检查
+  - `npm run lint` 运行前后端 ESLint
+  - `npm run format` 运行 Prettier
+- 常用地址:
+  - Frontend: `http://localhost:5173`
+  - Backend: `http://localhost:5001`
+  - Health: `http://localhost:5001/api/health`
+- 当前仓库没有独立的自动化测试脚本；修改后至少运行相关范围的 `typecheck`、`lint` 或 `build` 作为基线验证。
 
-packages/shared/
-  ├── types.ts          # 前后端共享接口
-  └── index.ts          # 统一导出
+## Conventions
 
-view_sample/            # WinForms 界面参考截图（用于 HMI 页面转换）
-doc/mytasks/            # 页面转换任务规格说明
-```
-
-**关键集成**:
-
-1. **HTTP API**: 前端通过 axios (`/api`) 代理到后端 Fastify 服务
-2. **WebSocket**: Socket.IO 推送实时数据 (Tag1/2/3)
-   - 前端: [useWebSocket().subscribe(tags)](frontend/src/services/websocket.ts)
-   - 后端: [subscriptionManager](backend/src/modules/websocket/subscriptionManager.ts) 管理订阅
-3. **共享类型**: [packages/shared/src/types.ts](packages/shared/src/types.ts) 防止不匹配
-
-**HMI 布局架构**:
-
-本项目为工业监控界面（HMI），采用固定全屏布局，不能滚动且要填满屏幕：
-
-- 使用 SVG `viewBox` 建立虚拟坐标系（如 `viewBox="0 0 1920 1080"`）
-- 数据点定位使用虚拟坐标或百分比，避免硬编码像素值
-- 通过 `preserveAspectRatio` 控制缩放行为
-
-**响应格式**:
-
-```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
-```
-
-## Build & Test
-
-**root 级命令**:
-
-```bash
-npm run dev          # 后端 + 前端并发
-npm run build        # 编译所有包
-npm run typecheck    # 类型检查全部
-npm run lint         # lint 所有代码
-npm run format       # prettier 格式化
-```
-
-**本地启动**:
-
-```bash
-pnpm install
-npm run dev
-# Frontend: http://localhost:5173
-# Backend: http://localhost:5001
-# Health: http://localhost:5001/api/health
-```
-
-**端口**:
-
-- 前端 Vite: `:5173` (代理 `/api` 和 `/socket.io` 到后端)
-- 后端 Fastify: `:5001`
-
-## Project Conventions
-
-**API 模块模式** ([frontend/src/api/users.ts](frontend/src/api/users.ts)):
-
-```typescript
-import { request } from './client';
-import type { User, CreateUserParams } from '@gt4_web/shared';
-
-export function getUsers(params?: Record<string, any>): Promise<User[]> {
-  return request.get<User[]>('/users', { params });
-}
-export function createUser(data: CreateUserParams): Promise<User> {
-  return request.post<User>('/users', data);
-}
-```
-
-**Store 模式** ([frontend/src/stores/realtimeData.ts](frontend/src/stores/realtimeData.ts)):
-
-```typescript
-export const useRealtimeDataStore = defineStore('realtimeData', () => {
-  const tag1 = ref<Tag1Data | null>(null);
-  function updateData(tag: string, value: any): void {
-    /* ... */
-  }
-  return { tag1, updateData };
-});
-```
-
-**组件引用 UI 库**:
-
-- 所有 UI 组件: [frontend/src/components/ui/](frontend/src/components/ui/) (Button, Card, Input, Table, Chart 等)
-- 优先使用 shadcn-vue 组件库，缺失组件需先下载安装到 `components/ui/`
-- Reka UI primitives + Tailwind CSS (`cn()` 合并类)
-- 图标: lucide-vue-next
-- 表格: @tanstack/vue-table
-- 工具库: @vueuse/core
-
-**添加新资源步骤**:
-
-1. 在 `packages/shared/src/types.ts` 定义类型
-2. 创建 `frontend/src/api/[resource].ts`
-3. 在 `frontend/src/api/index.ts` 中统一导出
-4. 在 `backend/src/modules/api/mockRoutes.ts` 添加路由
-5. 前端组件使用: `import { getResource } from '@/api'`
-
-**添加新页面步骤**:
-
-1. 创建 `frontend/src/views/[FeatureName]View.vue`
-2. 在 `frontend/src/router/index.ts` 中作为 `HomePage` 的子路由添加
-3. 从 `@/components/ui/[component]` 导入 UI 组件
-4. 按需使用 Store: `const store = use[Feature]Store()`
-
-## Integration Points
-
-**前端 API 客户端** ([frontend/src/api/client.ts](frontend/src/api/client.ts)):
-
-- axios 实例自动注入 `localStorage` 的 `auth_token`
-- GET 请求带时间戳避免缓存
-
-**后端路由** ([backend/src/modules/api/mockRoutes.ts](backend/src/modules/api/mockRoutes.ts)):
-
-- `/api/` 命名空间下所有端点
-- Mock 路由直接返回数据对象（未使用 `ApiResponse<T>` 信封包装，仅 login 返回含 `success` 字段的结构）
-- 非生产环境加载 mock 路由
-
-**WebSocket 消息**:
-
-```typescript
-interface DataPushMessage {
-  tag: string; // 当前使用: 'tag1', 'tag2', 'tag3'
-  value: string; // JSON 字符串（客户端自动解析）
-}
-```
-
-- 前端使用: `const { isConnected, error, subscribe, onDataPush } = useWebSocket()`
-- 取消订阅: 调用 `subscribe([])` 传入空数组
-- 调试日志: 前端 `[WebSocket]` 前缀，后端 `[SocketServer]` 前缀
-
-## Key Reference Files
-
-| 目的             | 文件                                                                                                         |
-| ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| 共享类型         | [packages/shared/src/types.ts](packages/shared/src/types.ts)                                                 |
-| 前端 API 客户端  | [frontend/src/api/client.ts](frontend/src/api/client.ts)                                                     |
-| 前端路由         | [frontend/src/router/index.ts](frontend/src/router/index.ts)                                                 |
-| 前端 Pinia Store | [frontend/src/stores/realtimeData.ts](frontend/src/stores/realtimeData.ts)                                   |
-| WebSocket 服务   | [frontend/src/services/websocket.ts](frontend/src/services/websocket.ts)                                     |
-| 后端入口         | [backend/src/index.ts](backend/src/index.ts)                                                                 |
-| 后端 API 路由    | [backend/src/modules/api/mockRoutes.ts](backend/src/modules/api/mockRoutes.ts)                               |
-| 后端 WebSocket   | [backend/src/modules/websocket/socketServer.ts](backend/src/modules/websocket/socketServer.ts)               |
-| 订阅管理器       | [backend/src/modules/websocket/subscriptionManager.ts](backend/src/modules/websocket/subscriptionManager.ts) |
-| UI 组件指南      | [doc/ui-components-guide.md](doc/ui-components-guide.md)                                                     |
-| Prettier 配置    | [.prettierrc](.prettierrc)                                                                                   |
-| Vite 配置        | [frontend/vite.config.ts](frontend/vite.config.ts)                                                           |
-| Workspace 配置   | [pnpm-workspace.yaml](pnpm-workspace.yaml)                                                                   |
-
-## Additional Resources
-
-更详细的指南请参考 `WORKSPACE_GUIDELINES.md`，包含完整示例代码、环境变量配置、调试技巧等。
+- 新增功能时先更新共享类型，再写前后端实现，避免前后端各自定义局部类型。
+- 前端 API 模块保持 `request.get/post/...` 的薄封装模式，并统一从 `frontend/src/api/index.ts` 导出。
+- Mock API 路由通常直接返回数据对象，而不是 `ApiResponse<T>` 包装；登录接口是少数返回 `success` 结构的例外。
+- 新页面加入 `frontend/src/views/` 后，需要作为 `HomePage` 的子路由注册到 `frontend/src/router/index.ts`。
+- WebSocket 订阅通过 `useWebSocket().subscribe(tags)` 管理；取消订阅传空数组，不要自行维护第二套 socket 状态。
+- 调试日志沿用既有前缀: 前端使用 `[WebSocket]`，后端使用 `[SocketServer]`。
+- 细节示例与扩展规则优先链接现有文档，不在本文件重复展开；需要深入背景时查看 `WORKSPACE_GUIDELINES.md` 和 `doc/ui-components-guide.md`。

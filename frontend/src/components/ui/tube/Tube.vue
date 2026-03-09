@@ -11,7 +11,7 @@ interface Props {
   color?: TubeColor;
   /** 停止颜色预设 */
   offColor?: TubeColor | 'gray';
-  /** 尺寸 (宽=高, number 按 px 处理, string 直接作为 CSS 值) */
+  /** 尺寸 (按图形高度计算, 宽度按 SVG 实际比例自动换算) */
   size?: number | string;
   class?: HTMLAttributes['class'];
 }
@@ -50,8 +50,17 @@ const fillClass = computed(() => {
   return props.active ? onFillMap[props.color] : offFillMap[props.offColor];
 });
 
+const tubeAspectRatio = 42 / 58;
+
 const sizeValue = computed(() => {
   return typeof props.size === 'number' ? `${props.size}px` : props.size;
+});
+
+const widthValue = computed(() => {
+  if (typeof props.size === 'number') {
+    return `${props.size * tubeAspectRatio}px`;
+  }
+  return `calc(${props.size} * ${tubeAspectRatio})`;
 });
 </script>
 
@@ -60,9 +69,9 @@ const sizeValue = computed(() => {
     data-slot="tube"
     :data-active="active || undefined"
     :class="cn('inline-block shrink-0', props.class)"
-    :width="sizeValue"
+    :width="widthValue"
     :height="sizeValue"
-    viewBox="0 0 112 112"
+    viewBox="44 24 42 58"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path

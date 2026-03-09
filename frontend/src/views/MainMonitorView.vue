@@ -57,7 +57,6 @@ const mainForm = reactive({
   feedLotNo: '0123456',
   feedMeltNo: '01234567',
   flowNo: '1234',
-  spareCode: '000001',
   basketOrderNo: 'A123456789',
   basketMeltNo: '01234567',
   basketLotNo: '0123456',
@@ -87,35 +86,35 @@ const productionStats = reactive({
 const processRunning = reactive({
   circle: true,
   spray: true,
-  carve: false,
+  carve: true,
   weight: true,
-  length: false,
-  waste: false,
+  length: true,
+  waste: true,
 });
 
 const stationReady = reactive({
   release: true,
-  innerProtect: false,
+  innerProtect: true,
   beamHome: true,
   length: true,
   weight: true,
-  carve: false,
+  carve: true,
   spray: true,
-  circle: false,
+  circle: true,
   outfeed: true,
 });
 
 const processStatus = reactive({
   sprayProcess: true,
   tagPrint: true,
-  tubeTrack: false,
+  tubeTrack: true,
   plcComm: true,
-  l3Comm: false,
+  l3Comm: true,
 });
 
 const trackRows = ref<TrackRow[]>([
   {
-    flowNo: '0001',
+    flowNo: '00001',
     tubeNo: 'T240001',
     orderNo: 'A123456789',
     itemNo: '001',
@@ -124,13 +123,13 @@ const trackRows = ref<TrackRow[]>([
     lotNo: '0123456',
     length: '12.06',
     lengthOk: true,
-    weight: '2.88',
+    weight: '2222.88',
     weightOk: true,
     meltNoCoupling: 'C1234567',
     lotNoCoupling: 'C123456',
   },
   {
-    flowNo: '0002',
+    flowNo: '00002',
     tubeNo: 'T240002',
     orderNo: 'A123456789',
     itemNo: '001',
@@ -139,7 +138,67 @@ const trackRows = ref<TrackRow[]>([
     lotNo: '0123456',
     length: '12.08',
     lengthOk: true,
-    weight: '2.91',
+    weight: '222.91',
+    weightOk: false,
+    meltNoCoupling: 'C1234567',
+    lotNoCoupling: 'C123456',
+  },
+  {
+    flowNo: '00003',
+    tubeNo: 'T240002',
+    orderNo: 'A123456789',
+    itemNo: '001',
+    rollNo: 'RL2301',
+    meltNo: '01234567',
+    lotNo: '0123456',
+    length: '12.08',
+    lengthOk: true,
+    weight: '222.91',
+    weightOk: false,
+    meltNoCoupling: 'C1234567',
+    lotNoCoupling: 'C123456',
+  },
+  {
+    flowNo: '00004',
+    tubeNo: 'T240002',
+    orderNo: 'A123456789',
+    itemNo: '001',
+    rollNo: 'RL2301',
+    meltNo: '01234567',
+    lotNo: '0123456',
+    length: '12.08',
+    lengthOk: true,
+    weight: '222.91',
+    weightOk: false,
+    meltNoCoupling: 'C1234567',
+    lotNoCoupling: 'C123456',
+  },
+  {
+    flowNo: '00005',
+    tubeNo: 'T240002',
+    orderNo: 'A123456789',
+    itemNo: '001',
+    rollNo: 'RL2301',
+    meltNo: '01234567',
+    lotNo: '0123456',
+    length: '12.08',
+    lengthOk: true,
+    weight: '222.91',
+    weightOk: false,
+    meltNoCoupling: 'C1234567',
+    lotNoCoupling: 'C123456',
+  },
+  {
+    flowNo: '00006',
+    tubeNo: 'T240002',
+    orderNo: 'A123456789',
+    itemNo: '001',
+    rollNo: 'RL2301',
+    meltNo: '01234567',
+    lotNo: '0123456',
+    length: '12.08',
+    lengthOk: true,
+    weight: '222.91',
     weightOk: false,
     meltNoCoupling: 'C1234567',
     lotNoCoupling: 'C123456',
@@ -250,15 +309,12 @@ function handleAction(action: string) {
 </script>
 
 <template>
-  <div
-    class="main-monitor-view h-full w-full overflow-hidden bg-[#c8c8c8] p-2 text-slate-900"
-    style="font-family: SimSun, NSimSun, 'Microsoft YaHei', serif"
-  >
-    <div class="grid h-full grid-rows-[minmax(0,3fr)_minmax(0,2.2fr)_auto_minmax(0,3fr)] gap-2">
+  <div class="main-monitor-view h-full w-full overflow-hidden bg-[#c8c8c8] p-2 text-slate-900">
+    <div class="grid h-full grid-rows-[minmax(0,2.2fr)_minmax(0,2.2fr)_auto_minmax(0,3fr)] gap-2">
       <div class="win-group">
         <div class="win-group__title">主控信息</div>
         <div
-          class="grid h-full min-h-0 grid-cols-[1.1fr_1fr_0.8fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_1.3fr] gap-2"
+          class="grid h-full min-h-0 grid-cols-[0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_1.3fr] gap-2"
         >
           <div class="win-panel flex min-h-0 flex-col">
             <div class="flex items-center justify-between">
@@ -288,7 +344,7 @@ function handleAction(action: string) {
                   class="win-input-edit h-7 text-center"
                 />
               </div>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="mt-8 grid grid-cols-2 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -343,8 +399,8 @@ function handleAction(action: string) {
                 :height="66"
               />
               <div class="flex flex-col items-center gap-3">
-                <Tube :active="processRunning.waste" color="amber" :size="46" />
-                <ConveyorRoller :active="processRunning.waste" color="amber" :size="62" />
+                <Tube :active="processRunning.waste" color="amber" :size="60" />
+                <ConveyorRoller :active="processRunning.waste" color="amber" :size="60" />
               </div>
             </div>
             <Button
@@ -358,176 +414,218 @@ function handleAction(action: string) {
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">色环</Label>
-            <div class="flex flex-1 flex-col items-center justify-center gap-3">
-              <Tube :active="processRunning.circle" color="blue" :size="44" />
-              <ConveyorRoller :active="processRunning.circle" color="blue" :size="66" />
-              <IndicatorLight :active="processRunning.circle" color="red" :size="18" glow />
-            </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="-translate-y-1">
+              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+                <Tube :active="processRunning.circle" color="blue" :size="60" />
+                <ConveyorRoller :active="processRunning.circle" color="blue" :size="60" />
+                <IndicatorLight :active="processRunning.circle" color="red" :size="18" glow />
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('circle-back')"
+                  >&lt;</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('circle-forward')"
+                  >&gt;</Button
+                >
+              </div>
               <Button
                 size="sm"
                 variant="outline"
-                class="win-button"
-                @click="handleAction('circle-back')"
-                >&lt;</Button
-              >
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleAction('circle-forward')"
-                >&gt;</Button
+                class="mt-2 w-full win-button"
+                @click="handleAction('circle')"
+                >色环</Button
               >
             </div>
-            <Button size="sm" class="win-button" @click="handleAction('circle')">色环</Button>
           </div>
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">喷印</Label>
-            <div class="flex flex-1 flex-col items-center justify-center gap-3">
-              <Tube :active="processRunning.spray" color="green" :size="44" />
-              <ConveyorRoller :active="processRunning.spray" color="green" :size="66" />
-              <IndicatorLight :active="processRunning.spray" color="red" :size="18" glow />
-            </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="-translate-y-1">
+              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+                <Tube :active="processRunning.spray" color="green" :size="60" />
+                <ConveyorRoller :active="processRunning.spray" color="green" :size="60" />
+                <IndicatorLight :active="processRunning.spray" color="red" :size="18" />
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('spray-back')"
+                  >&lt;</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('spray-forward')"
+                  >&gt;</Button
+                >
+              </div>
               <Button
                 size="sm"
                 variant="outline"
-                class="win-button"
-                @click="handleAction('spray-back')"
-                >&lt;</Button
-              >
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleAction('spray-forward')"
-                >&gt;</Button
+                class="mt-2 w-full win-button"
+                @click="handleAction('spray')"
+                >喷印</Button
               >
             </div>
-            <Button size="sm" class="win-button" @click="handleAction('spray')">喷印</Button>
           </div>
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">刻印</Label>
-            <div class="flex flex-1 flex-col items-center justify-center gap-3">
-              <Tube :active="processRunning.carve" color="amber" :size="44" />
-              <ConveyorRoller :active="processRunning.carve" color="amber" :size="66" />
-              <IndicatorLight :active="processRunning.carve" color="red" :size="18" glow />
-            </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="-translate-y-1">
+              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+                <Tube :active="processRunning.carve" color="green" :size="60" />
+                <ConveyorRoller :active="processRunning.carve" color="green" :size="60" />
+                <IndicatorLight :active="processRunning.carve" color="red" :size="18" />
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('carve-back')"
+                  >&lt;</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('carve-forward')"
+                  >&gt;</Button
+                >
+              </div>
               <Button
                 size="sm"
                 variant="outline"
-                class="win-button"
-                @click="handleAction('carve-back')"
-                >&lt;</Button
-              >
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleAction('carve-forward')"
-                >&gt;</Button
+                class="mt-2 w-full win-button"
+                @click="handleAction('carve')"
+                >刻印</Button
               >
             </div>
-            <Button size="sm" class="win-button" @click="handleAction('carve')">刻印</Button>
           </div>
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">称重</Label>
-            <div class="flex flex-1 flex-col items-center justify-center gap-3">
-              <Tube :active="processRunning.weight" color="orange" :size="44" />
-              <ConveyorRoller :active="processRunning.weight" color="orange" :size="66" />
-              <IndicatorLight :active="processRunning.weight" color="red" :size="18" glow />
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleAction('weight-back')"
-                >&lt;</Button
-              >
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleAction('weight-forward')"
-                >&gt;</Button
-              >
-            </div>
-            <div class="grid grid-cols-1 gap-2">
-              <Button size="sm" class="win-button" @click="handleAction('weight')">称重</Button>
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleAction('weight-stop')"
-                >停止称重</Button
-              >
+            <div class="-translate-y-1">
+              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+                <Tube :active="processRunning.weight" color="green" :size="60" />
+                <ConveyorRoller :active="processRunning.weight" color="green" :size="60" />
+                <IndicatorLight :active="processRunning.weight" color="red" :size="18" />
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('weight-back')"
+                  >&lt;</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('weight-forward')"
+                  >&gt;</Button
+                >
+              </div>
+              <div class="mt-2 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('weight')"
+                  >称重</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('weight-stop')"
+                  >停止称重</Button
+                >
+              </div>
             </div>
           </div>
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">定位</Label>
-            <div class="flex flex-1 flex-col items-center justify-center gap-3">
-              <Tube :active="processRunning.length" color="cyan" :size="44" />
-              <ConveyorRoller :active="processRunning.length" color="cyan" :size="66" />
-              <div class="flex items-center gap-2">
-                <IndicatorLight :active="processRunning.length" color="red" :size="18" glow />
-                <IndicatorLight :active="true" color="red" :size="18" glow />
+            <div class="-translate-y-1">
+              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+                <Tube :active="processRunning.length" color="cyan" :size="60" />
+                <ConveyorRoller :active="processRunning.length" color="cyan" :size="60" />
+                <div class="flex items-center gap-2">
+                  <IndicatorLight :active="processRunning.length" color="red" :size="18" />
+                  <IndicatorLight :active="true" color="red" :size="18" />
+                </div>
               </div>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('length-back')"
+                  >&lt;</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('length-forward')"
+                  >&gt;</Button
+                >
+              </div>
               <Button
                 size="sm"
                 variant="outline"
-                class="win-button"
-                @click="handleAction('length-back')"
-                >&lt;</Button
-              >
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleAction('length-forward')"
-                >&gt;</Button
+                class="mt-2 w-full win-button"
+                @click="handleAction('length')"
+                >测长</Button
               >
             </div>
-            <Button size="sm" class="win-button" @click="handleAction('length')">测长</Button>
           </div>
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">投料区</Label>
             <div class="grid flex-1 gap-2 text-xs">
-              <div class="space-y-1">
-                <Label class="text-xs">合同号</Label>
-                <Input v-model="mainForm.orderNo" class="win-input-edit h-7 text-center" />
+              <div class="flex items-center gap-2">
+                <Label class="text-xs w-20 text-right">合同号</Label>
+                <Input v-model="mainForm.orderNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
-              <div class="space-y-1">
-                <Label class="text-xs">备用代码</Label>
-                <Input v-model="mainForm.spareCode" class="win-input-edit h-7 text-center" />
+              <div class="flex items-center gap-2">
+                <Label class="text-xs w-20 text-right">支数</Label>
+                <Input v-model="mainForm.feedCount" class="win-input-edit h-7 text-center flex-1" />
               </div>
-              <div class="space-y-1">
-                <Label class="text-xs">支数</Label>
-                <Input v-model="mainForm.feedCount" class="win-input-edit h-7 text-center" />
+              <div class="flex items-center gap-2">
+                <Label class="text-xs w-20 text-right">轧批号</Label>
+                <Input
+                  v-model="mainForm.feedRollNo"
+                  class="win-input-edit h-7 text-center flex-1"
+                />
               </div>
-              <div class="space-y-1">
-                <Label class="text-xs">轧批号</Label>
-                <Input v-model="mainForm.feedRollNo" class="win-input-edit h-7 text-center" />
+              <div class="flex items-center gap-2">
+                <Label class="text-xs w-20 text-right">试批号</Label>
+                <Input v-model="mainForm.feedLotNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
-              <div class="space-y-1">
-                <Label class="text-xs">试批号</Label>
-                <Input v-model="mainForm.feedLotNo" class="win-input-edit h-7 text-center" />
+              <div class="flex items-center gap-2">
+                <Label class="text-xs w-20 text-right">炉号</Label>
+                <Input
+                  v-model="mainForm.feedMeltNo"
+                  class="win-input-edit h-7 text-center flex-1"
+                />
               </div>
-              <div class="space-y-1">
-                <Label class="text-xs">炉号</Label>
-                <Input v-model="mainForm.feedMeltNo" class="win-input-edit h-7 text-center" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">下一根流水号</Label>
-                <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center" />
+              <div class="flex items-center gap-2">
+                <Label class="text-xs w-20 text-right">下一根流水号</Label>
+                <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
             </div>
           </div>
@@ -565,7 +663,7 @@ function handleAction(action: string) {
                     :style="{ width: getTrackTableColumnWidth(column.weight) }"
                   />
                 </colgroup>
-                <TableBody>
+                <TableBody class="[&_tr]:h-10">
                   <TableRow v-for="row in trackRows" :key="row.flowNo">
                     <TableCell>{{ row.flowNo }}</TableCell>
                     <TableCell>{{ row.tubeNo }}</TableCell>
@@ -580,7 +678,7 @@ function handleAction(action: string) {
                         :active="row.lengthOk"
                         color="green"
                         off-color="red"
-                        :size="14"
+                        :size="16"
                       />
                     </TableCell>
                     <TableCell>{{ row.weight }}</TableCell>
@@ -589,7 +687,7 @@ function handleAction(action: string) {
                         :active="row.weightOk"
                         color="green"
                         off-color="red"
-                        :size="14"
+                        :size="16"
                       />
                     </TableCell>
                     <TableCell>{{ row.meltNoCoupling }}</TableCell>
@@ -1000,6 +1098,7 @@ function handleAction(action: string) {
 <style scoped>
 .main-monitor-view {
   background: #c8c8c8;
+  font-family: SimSun, NSimSun, 'Microsoft YaHei', serif;
 }
 
 .win-group {

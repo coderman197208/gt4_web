@@ -9,6 +9,15 @@ import ComponentTestView from '../views/ComponentTestView.vue';
 import ContractEditingView from '../views/ContractEditingView.vue';
 import MainMonitorView from '../views/MainMonitorView.vue';
 
+declare module 'vue-router' {
+  interface RouteMeta {
+    hmiScale?: {
+      designWidth?: number;
+      designHeight?: number;
+    };
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -55,6 +64,12 @@ const router = createRouter({
           path: 'main-monitor',
           name: 'main-monitor',
           component: MainMonitorView,
+          meta: {
+            hmiScale: {
+              designWidth: 1920,
+              designHeight: 1080,
+            },
+          },
         },
       ],
     },

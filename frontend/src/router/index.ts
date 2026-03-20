@@ -8,6 +8,7 @@ import BundleManageView from '../views/BundleManageView.vue';
 import ComponentTestView from '../views/ComponentTestView.vue';
 import ContractEditingView from '../views/ContractEditingView.vue';
 import MainMonitorView from '../views/MainMonitorView.vue';
+import ParameterSettingView from '../views/ParameterSettingView.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -70,6 +71,11 @@ const router = createRouter({
               designHeight: 1080,
             },
           },
+        },
+        {
+          path: 'parameter-setting',
+          name: 'parameter-setting',
+          component: ParameterSettingView,
         },
       ],
     },

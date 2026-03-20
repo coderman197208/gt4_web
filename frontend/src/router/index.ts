@@ -9,6 +9,7 @@ import ComponentTestView from '../views/ComponentTestView.vue';
 import ContractEditingView from '../views/ContractEditingView.vue';
 import MainMonitorView from '../views/MainMonitorView.vue';
 import ParameterSettingView from '../views/ParameterSettingView.vue';
+import ModeSettingView from '../views/ModeSettingView.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -76,6 +77,11 @@ const router = createRouter({
           path: 'parameter-setting',
           name: 'parameter-setting',
           component: ParameterSettingView,
+        },
+        {
+          path: 'mode-setting',
+          name: 'mode-setting',
+          component: ModeSettingView,
         },
       ],
     },

@@ -91,6 +91,18 @@
         >
           参数设定
         </router-link>
+        <router-link
+          to="/mode-setting"
+          :class="[
+            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            isActive('/mode-setting')
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
+          ]"
+          @click="handleNavClick"
+        >
+          格式设定
+        </router-link>
       </nav>
     </div>
   </aside>

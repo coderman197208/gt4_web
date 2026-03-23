@@ -94,7 +94,7 @@
           </div>
           <div class="flex items-center gap-2 p-2 border-b">
             <Label class="whitespace-nowrap font-bold">喷印刻印&lt;年&gt;：</Label>
-            <Select v-model="formData.label_count">
+            <Select v-model="formData.spray_year_count">
               <SelectTrigger class="flex-1">
                 <SelectValue placeholder="请选择" />
               </SelectTrigger>
@@ -184,9 +184,9 @@
           </div>
           <div class="flex items-center gap-2 p-2 border-b">
             <Label class="whitespace-nowrap font-bold">判废管长起止：</Label>
-            <Input v-model="formData.weight_limit_min" class="w-16" />
+            <Input v-model="formData.length_limit_min" class="w-16" />
             <span class="font-bold">-&gt;</span>
-            <Input v-model="formData.weight_limit_max" class="w-16" />
+            <Input v-model="formData.length_limit_max" class="w-16" />
             <span class="text-sm">米</span>
           </div>
 
@@ -236,15 +236,15 @@
             <Label class="whitespace-nowrap font-bold">喷枪选择：</Label>
             <div class="flex items-center gap-2">
               <span class="text-xs font-bold">1</span>
-              <Checkbox v-model:checked="formData.gun1" />
+              <Checkbox v-model="formData.gun1" />
               <span class="text-xs font-bold">2</span>
-              <Checkbox v-model:checked="formData.gun2" />
+              <Checkbox v-model="formData.gun2" />
               <span class="text-xs font-bold">3</span>
-              <Checkbox v-model:checked="formData.gun3" />
+              <Checkbox v-model="formData.gun3" />
               <span class="text-xs font-bold">4</span>
-              <Checkbox v-model:checked="formData.gun4" />
+              <Checkbox v-model="formData.gun4" />
               <span class="text-xs font-bold">5</span>
-              <Checkbox v-model:checked="formData.gun5" />
+              <Checkbox v-model="formData.gun5" />
             </div>
           </div>
           <div class="flex items-center gap-2 p-2 border-b border-r">
@@ -262,7 +262,7 @@
           </div>
           <div class="flex items-center gap-2 p-2 border-b">
             <Label class="whitespace-nowrap font-bold">包装材料重量：</Label>
-            <Input v-model="formData.weight_packaging" class="flex-1" />
+            <Input v-model="formData.weight_packging" class="flex-1" />
             <span class="text-sm">KG</span>
           </div>
 
@@ -273,7 +273,7 @@
           </div>
           <div class="flex items-center gap-2 p-2 border-b border-r">
             <Label class="whitespace-nowrap font-bold">钢管外径：</Label>
-            <Input v-model="formData.circle_time" class="flex-1" />
+            <Input v-model="formData.diameter" class="flex-1" />
             <span class="text-sm">毫米</span>
           </div>
           <div class="flex items-center gap-2 p-2 border-b border-r">
@@ -395,7 +395,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
+import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -408,9 +409,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { getParameterSet, saveParameterSet, formToApi, apiToForm } from '@/api';
+import type { ParameterSetForm } from '@/api';
 
 // 表单数据
-const formData = reactive({
+const formData = reactive<ParameterSetForm>({
   // 第一列 - 基本信息
   order_no: '', // 当前合同号（只读）
   item_no: '', // 当前项目号（只读）
@@ -462,10 +465,18 @@ const formData = reactive({
   label_count: '', // 管捆标签张数
   length_limit_min: '', // 判废管长起
   length_limit_max: '', // 判废管长止
-  weight_packaging: '', // 包装材料重量
+  weight_packging: '', // 包装材料重量
   label_length_type: 'metric', // 标签长度格式
   label_weight_type: 'metric', // 标签重量格式
   label_type: 'fixed', // 标签格式
+
+  // 隐藏字段（表中有但画面上不直接显示的）
+  diameter: '',
+  thickness: '',
+  order_weight: '',
+  gun_clear: '',
+  weight_per_meter: '',
+  weight_ew: '',
 });
 
 // 下拉选项
@@ -474,12 +485,51 @@ const paperCountOptions = ref(['1位', '2位', '2位(含季默认1位)']);
 const emCountOptions = ref(['0', '1', '2', '3', '4']);
 const precisionOptions = ref(['0', '1', '2', '3']);
 
-// 事件处理
-function handleRefresh() {
-  console.log('refresh');
+const loading = ref(false);
+
+// 加载数据
+async function loadData() {
+  loading.value = true;
+  try {
+    const data = await getParameterSet();
+    console.log('从API获取的原始数据：', data);
+    const form = apiToForm(data);
+    console.log('转换后的表单数据：', form);
+    Object.assign(formData, form);
+    console.log('更新后的表单数据：', formData);
+  } catch (err: any) {
+    if (err?.response?.status === 404) {
+      toast.warning('没有查询到参数记录');
+    } else {
+      toast.error('查询参数失败');
+    }
+  } finally {
+    loading.value = false;
+  }
 }
 
-function handleConfirm() {
-  console.log('confirm', formData);
+// 页面加载时自动查询
+onMounted(() => {
+  loadData();
+});
+
+// 事件处理
+function handleRefresh() {
+  loadData();
+}
+
+async function handleConfirm() {
+  loading.value = true;
+  try {
+    console.log('提交的表单数据：', formData);
+    const apiData = formToApi(formData);
+    console.log('转换后的API数据：', apiData);
+    await saveParameterSet(apiData);
+    toast.success('参数保存成功');
+  } catch {
+    toast.error('参数保存失败');
+  } finally {
+    loading.value = false;
+  }
 }
 </script>

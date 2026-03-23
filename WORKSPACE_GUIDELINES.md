@@ -147,6 +147,7 @@ packages:
 
 - Framework: Fastify 4.26.2
 - WebSocket: socket.io 4.8.3
+- Database: @prisma/client (PostgreSQL ORM)
 - Runtime: Node.js with tsx for watch mode
 - CORS: @fastify/cors, @fastify/sensible
 
@@ -168,10 +169,12 @@ frontend/
 │   ├── assets/        # Static resources and styles
 
 backend/
+├── prisma/          # Prisma schema (PostgreSQL introspection)
 ├── src/
 │   ├── index.ts       # Fastify server setup, API registration
 │   ├── modules/       # Feature modules
-│   │   ├── api/       # HTTP API routes (mockRoutes.ts, mockData.ts)
+│   │   ├── api/       # HTTP API routes (mockRoutes.ts, parameterSetRoutes.ts, ...)
+│   │   ├── database/  # Prisma client singleton (prismaClient.ts)
 │   │   ├── websocket/ # WebSocket setup (socketServer.ts, subscriptionManager.ts, mockDataGenerator.ts)
 
 packages/shared/
@@ -201,6 +204,7 @@ doc/
 
 - Fastify setup with CORS and sensible error handling
 - Registers mock routes from `modules/api` in non-production environments
+- Registers real database routes (e.g., `parameterSetRoutes.ts`) using Prisma ORM
 - Initializes Socket.IO server for WebSocket connections
 
 **WebSocket Data Flow:**
@@ -258,6 +262,7 @@ npm run format     # Format all files with Prettier
 - `NODE_ENV`: Controls mock route registration
 - `PORT`: Server port (defaults to 5001)
 - `FRONTEND_ORIGIN`: CORS origin (defaults to true for dev)
+- `DATABASE_URL`: PostgreSQL connection string for Prisma (e.g., `postgresql://user:pass@host:5432/dbname`)
 
 ---
 
@@ -374,6 +379,7 @@ request.delete<T>(url, config)      // DELETE
 
 - All routes under `/api/` namespace
 - Mock routes return data objects directly (not wrapped in `ApiResponse<T>`; only login returns a structure with `success` field)
+- Real database routes (e.g., `parameterSetRoutes.ts`) also return data directly, using Prisma for PostgreSQL access
 - Uses Fastify `httpErrors` for proper HTTP error codes
 
 #### WebSocket Real-Time Data
@@ -419,6 +425,7 @@ interface DataPushMessage {
 - `HealthCheckResponse` - Health check response
 - `SubscribeRequest`, `DataPushMessage` - WebSocket messages
 - `Tag1Data`, `Tag2Data`, `Tag3Data` - Real-time sensor data types
+- `ParameterSet` - 生产参数设定（对应 PostgreSQL parameter_set 表）
 
 ### Environment-Specific Configuration
 
@@ -444,6 +451,7 @@ server: {
 **Reka UI + Tailwind CSS:**
 
 - All UI components ([frontend/src/components/ui/](frontend/src/components/ui/)) built on Reka UI primitives
+- Toast/通知使用 Sonner 组件（`frontend/src/components/ui/sonner/`），通过 `vue-sonner` 的 `toast()` 函数调用
 - Button component ([frontend/src/components/ui/button/Button.vue](frontend/src/components/ui/button/Button.vue)):
   - Takes `variant` and `size` props controlled by `cva` (class-variance-authority)
   - Applies Tailwind classes via `cn()` utility (clsx + tailwindMerge)
@@ -501,7 +509,7 @@ npm run dev
 1. Define types in `packages/shared/src/types.ts`
 2. Create API module: `frontend/src/api/[resource].ts` with `async function` wrappers
 3. Export from `frontend/src/api/index.ts`
-4. Add backend routes in `backend/src/modules/api/mockRoutes.ts`
+4. Add backend routes in `backend/src/modules/api/` — mock 数据加到 `mockRoutes.ts`；真实数据库路由创建独立文件（如 `parameterSetRoutes.ts`），使用 Prisma 访问 PostgreSQL
 
 **Adding a New Page:**
 
@@ -535,6 +543,9 @@ npm run dev
 | Frontend Config              | [frontend/vite.config.ts](frontend/vite.config.ts)                                                           |
 | Workspace Config             | [pnpm-workspace.yaml](pnpm-workspace.yaml)                                                                   |
 | UI 组件指南                  | [doc/ui-components-guide.md](doc/ui-components-guide.md)                                                     |
+| Prisma Client                | [backend/src/modules/database/prismaClient.ts](backend/src/modules/database/prismaClient.ts)                 |
+| Prisma Schema                | [backend/prisma/schema.prisma](backend/prisma/schema.prisma)                                                 |
+| DB Route Example             | [backend/src/modules/api/parameterSetRoutes.ts](backend/src/modules/api/parameterSetRoutes.ts)               |
 
 ---
 

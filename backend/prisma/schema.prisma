@@ -1,0 +1,11 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// parameter_set 表无主键，无法映射为 Prisma model。
+// 使用 PrismaClient.$queryRaw / $executeRaw 进行原生 SQL 操作。

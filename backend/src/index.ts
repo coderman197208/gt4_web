@@ -4,6 +4,7 @@ import type { HealthCheckResponse } from '@gt4_web/shared';
 import { initSocketServer } from './modules/websocket/socketServer.js';
 import { startMockDataGenerator } from './modules/websocket/mockDataGenerator.js';
 import { registerMockRoutes } from './modules/api/mockRoutes.js';
+import { registerParameterSetRoutes } from './modules/api/parameterSetRoutes.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -26,6 +27,9 @@ fastify.get<{ Reply: HealthCheckResponse }>('/api/health', async () => ({
 if (process.env.NODE_ENV !== 'production') {
   fastify.register(registerMockRoutes);
 }
+
+// 注册数据库 API 路由（生产参数等）
+fastify.register(registerParameterSetRoutes);
 
 const port = Number(process.env.PORT || 5001);
 const host = '0.0.0.0';

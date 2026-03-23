@@ -14,6 +14,7 @@
     "@fastify/cors": "^9.0.1",
     "@fastify/sensible": "^5.6.0",
     "@gt4_web/shared": "workspace:*",
+    "@prisma/client": "^6.19.2",
     "fastify": "^4.26.2",
     "socket.io": "^4.8.3"
   },
@@ -22,6 +23,7 @@
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "^8.8.0",
     "eslint": "^9.12.0",
+    "prisma": "^6.19.2",
     "tsx": "^4.15.7",
     "typescript": "^5.6.3"
   }

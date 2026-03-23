@@ -96,6 +96,64 @@ export type CreateCommentParams = Omit<Comment, 'id' | 'createdAt'>;
 // 更新评论参数
 export type UpdateCommentParams = Partial<CreateCommentParams>;
 
+// ==================== 生产参数设定类型定义 ====================
+
+// 生产参数（对应 parameter_set 表）
+export interface ParameterSet {
+  order_no: string | null;
+  item_no: string | null;
+  diameter: number | null;
+  thickness: number | null;
+  direction_code: string | null;
+  bundle_type: string | null;
+  bundle_number: number | null;
+  produce_job_point: string | null;
+  order_weight: number | null;
+  lot_no: string | null;
+  roll_no: string | null;
+  melt_no: string | null;
+  melt_no_coupling: string | null;
+  lot_no_coupling: string | null;
+  flow_no: number | null;
+  feed_number: number | null;
+  length_coupling: number | null;
+  weight_coupling: number | null;
+  weight_packging: number | null;
+  length_enable: number | null;
+  weight_enable: number | null;
+  circle_enable: number | null;
+  carve_enable: number | null;
+  spray_enable: number | null;
+  waste_length_enable: number | null;
+  waste_weight_enable: number | null;
+  gun1: number | null;
+  gun2: number | null;
+  gun3: number | null;
+  gun4: number | null;
+  gun5: number | null;
+  gun_clear: number | null;
+  circle_time: number | null;
+  spray_length_type: number | null;
+  spray_weight_type: number | null;
+  spray_length_precision: number | null;
+  spray_weight_precision: number | null;
+  weight_limit_max: number | null;
+  weight_limit_min: number | null;
+  bundle_first_type: number | null;
+  bundle_flow_no: number | null;
+  spray_year_count: number | null;
+  label_count: number | null;
+  length_limit_max: number | null;
+  length_limit_min: number | null;
+  label_length_type: number | null;
+  label_weight_type: number | null;
+  label_type: number | null;
+  tube_no: number | null;
+  qrcode_spray_enable: number | null;
+  weight_per_meter: number | null;
+  weight_ew: number | null;
+}
+
 // ==================== WebSocket 实时数据类型定义 ====================
 
 // Tag1 数据结构（6个字段）

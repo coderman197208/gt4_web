@@ -114,7 +114,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
     @apply bg-background text-foreground;
+    /* 给 html 和 body 添加了 overflow: hidden; height: 100%，从根源上阻止滚动条出现。 */
+    overflow: hidden;
+    height: 100%;
   }
 }

@@ -57,3 +57,7 @@ export {
 
 // 导出认证相关API
 export { login, logout, saveAuthInfo, getCurrentUser, isAuthenticated, healthCheck } from './auth';
+
+// 导出生产参数相关API
+export { getParameterSet, saveParameterSet, formToApi, apiToForm } from './parameterSet';
+export type { ParameterSetForm } from './parameterSet';

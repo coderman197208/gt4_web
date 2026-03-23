@@ -24,9 +24,11 @@ function initSocket() {
     return socket;
   }
 
-  const serverUrl = import.meta.env.VITE_WS_URL || 'http://localhost:5001';
+  // 开发环境不指定URL，自动连接当前页面origin，走Vite的/socket.io代理
+  // 生产环境可通过VITE_WS_URL指定后端地址
+  const serverUrl = import.meta.env.VITE_WS_URL || undefined;
 
-  socket = io(serverUrl, {
+  socket = io(serverUrl ?? '', {
     reconnection: true, // 启用自动重连
     reconnectionAttempts: Infinity, // 无限次重连尝试
     reconnectionDelay: 1000, // 初始重连延迟1秒

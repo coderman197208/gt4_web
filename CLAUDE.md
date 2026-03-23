@@ -51,8 +51,11 @@ frontend/src/
 
 backend/src/
   index.ts      # Fastify setup, CORS, route/WebSocket registration
-  modules/api/  # HTTP routes (mockRoutes.ts) + mock data
+  modules/api/  # HTTP routes (mockRoutes.ts, parameterSetRoutes.ts, ...)
+  modules/database/ # Prisma client singleton (prismaClient.ts)
   modules/websocket/ # Socket.IO server, subscriptionManager, mockDataGenerator
+backend/prisma/
+  schema.prisma # Prisma schema (PostgreSQL introspection)
 
 packages/shared/src/
   types.ts      # All shared TypeScript interfaces (ApiResponse<T>, Tag1/2/3Data, etc.)
@@ -60,7 +63,7 @@ packages/shared/src/
 
 ### Communication Patterns
 
-**HTTP API**: Frontend axios (`/api` proxied by Vite to `:5001`) → Fastify routes → direct data response (mock routes do not use `ApiResponse<T>` envelope)
+**HTTP API**: Frontend axios (`/api` proxied by Vite to `:5001`) → Fastify routes → direct data response (routes do not use `ApiResponse<T>` envelope). Mock data served from `mockRoutes.ts`; real database routes (Prisma + PostgreSQL) in separate files like `parameterSetRoutes.ts`.
 
 **WebSocket**: `useWebSocket().subscribe(['tag1','tag2','tag3'])` → backend `subscriptionManager` → `socket.emit('data:push', { tag, value })` → Pinia store update. Vite also proxies `/socket.io` to `:5001` with `ws: true`.
 
@@ -92,7 +95,7 @@ All pages use **fixed fullscreen layout with no scroll**. SVG panels use `viewBo
 1. Define types in `packages/shared/src/types.ts`
 2. Create `frontend/src/api/[resource].ts`
 3. Export from `frontend/src/api/index.ts`
-4. Add route in `backend/src/modules/api/mockRoutes.ts`
+4. Add route in `backend/src/modules/api/` — mock 数据加到 `mockRoutes.ts`；真实数据库路由创建独立文件（如 `parameterSetRoutes.ts`），使用 Prisma 访问 PostgreSQL
 
 **Adding a new page**:
 
@@ -111,4 +114,7 @@ All pages use **fixed fullscreen layout with no scroll**. SVG panels use `viewBo
 | Backend entry                     | `backend/src/index.ts`                          |
 | HTTP routes                       | `backend/src/modules/api/mockRoutes.ts`         |
 | WebSocket server                  | `backend/src/modules/websocket/socketServer.ts` |
+| Database client (Prisma)          | `backend/src/modules/database/prismaClient.ts`  |
+| DB route example                  | `backend/src/modules/api/parameterSetRoutes.ts` |
+| Prisma schema                     | `backend/prisma/schema.prisma`                  |
 | UI component guide                | `doc/ui-components-guide.md`                    |

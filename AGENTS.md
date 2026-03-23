@@ -25,7 +25,9 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
   - Store: `frontend/src/stores/realtimeData.ts`
   - WebSocket: `frontend/src/services/websocket.ts`
   - 路由: `frontend/src/router/index.ts`
-  - 后端路由: `backend/src/modules/api/mockRoutes.ts`
+  - 后端 Mock 路由: `backend/src/modules/api/mockRoutes.ts`
+  - 后端数据库路由: `backend/src/modules/api/parameterSetRoutes.ts`
+  - Prisma 客户端: `backend/src/modules/database/prismaClient.ts`
 
 ## Build and Test
 
@@ -46,7 +48,8 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
 
 - 新增功能时先更新共享类型，再写前后端实现，避免前后端各自定义局部类型。
 - 前端 API 模块保持 `request.get/post/...` 的薄封装模式，并统一从 `frontend/src/api/index.ts` 导出。
-- Mock API 路由通常直接返回数据对象，而不是 `ApiResponse<T>` 包装；登录接口是少数返回 `success` 结构的例外。
+- Mock API 路由和真实数据库路由均直接返回数据对象，而不是 `ApiResponse<T>` 包装；登录接口是少数返回 `success` 结构的例外。
+- 真实数据库路由使用 Prisma ORM 访问 PostgreSQL，连接通过 `backend/src/modules/database/prismaClient.ts` 单例管理；路由文件独立于 `mockRoutes.ts`，按资源命名（如 `parameterSetRoutes.ts`）。
 - 新页面加入 `frontend/src/views/` 后，需要作为 `HomePage` 的子路由注册到 `frontend/src/router/index.ts`。
 - WebSocket 订阅通过 `useWebSocket().subscribe(tags)` 管理；取消订阅传空数组，不要自行维护第二套 socket 状态。
 - 调试日志沿用既有前缀: 前端使用 `[WebSocket]`，后端使用 `[SocketServer]`。

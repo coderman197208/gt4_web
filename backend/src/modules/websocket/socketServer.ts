@@ -23,7 +23,7 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
   // 创建Socket.IO服务器
   io = new SocketIOServer(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+      origin: process.env.FRONTEND_ORIGIN || true,
       credentials: true,
     },
   });

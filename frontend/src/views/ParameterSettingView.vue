@@ -492,11 +492,8 @@ async function loadData() {
   loading.value = true;
   try {
     const data = await getParameterSet();
-    console.log('从API获取的原始数据：', data);
     const form = apiToForm(data);
-    console.log('转换后的表单数据：', form);
     Object.assign(formData, form);
-    console.log('更新后的表单数据：', formData);
   } catch (err: any) {
     if (err?.response?.status === 404) {
       toast.warning('没有查询到参数记录');
@@ -521,9 +518,7 @@ function handleRefresh() {
 async function handleConfirm() {
   loading.value = true;
   try {
-    console.log('提交的表单数据：', formData);
     const apiData = formToApi(formData);
-    console.log('转换后的API数据：', apiData);
     await saveParameterSet(apiData);
     toast.success('参数保存成功');
   } catch {

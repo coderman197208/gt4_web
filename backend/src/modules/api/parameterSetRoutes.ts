@@ -10,14 +10,6 @@ export async function registerParameterSetRoutes(fastify: FastifyInstance) {
       if (rows.length === 0) {
         return reply.code(404).send({ message: '没有查询到参数记录' });
       }
-      console.log(
-        '查询到参数记录:',
-        rows[0].gun1,
-        rows[0].gun2,
-        rows[0].gun3,
-        rows[0].gun4,
-        rows[0].gun5,
-      );
       return rows[0];
     } catch (err) {
       fastify.log.error(err);

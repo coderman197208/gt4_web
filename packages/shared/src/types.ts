@@ -154,6 +154,77 @@ export interface ParameterSet {
   weight_ew: number | null;
 }
 
+// ==================== 合同数据类型定义 ====================
+
+// 合同数据（对应 api_order_data_t 表）
+export interface OrderData {
+  order_no: string;
+  item_no: string;
+  roll_no: string | null;
+  diameter: number | null;
+  wall_thickness: number | null;
+  prod_code: string | null;
+  prod_cname: string | null;
+  heat_treat_code: string | null;
+  heat_treat_text: string | null;
+  std_sg_code: string | null;
+  std_text: string | null;
+  sg_text: string | null;
+  mat_no: string | null;
+  mat_text: string | null;
+  thread_type_code: string | null;
+  thread_type_sign: string | null;
+  end_type_code: string | null;
+  end_type_sign: string | null;
+  coupling_type_code: string | null;
+  coupling_type_sign: string | null;
+  thread_face_treat_mode_code: string | null;
+  thread_face_treat_mode: string | null;
+  length_from: number | null;
+  length_to: number | null;
+  order_unit_code: string | null;
+  order_unit: string | null;
+  order_qty: number | null;
+  order_tube: number | null;
+  order_weight: number | null;
+  fixed_order_weight: number | null;
+  unfixed_order_weight: number | null;
+  delivery_tolerance_code: string | null;
+  delivery_tolerance_unit: string | null;
+  delivery_tolerance_from: number | null;
+  delivery_tolerance_to: number | null;
+  short_rate: number | null;
+  short_from: number | null;
+  short_to: number | null;
+  single_bundle_weight_max: number | null;
+  single_bundle_tube_max: number | null;
+  oil_code: string | null;
+  oil_type: string | null;
+  stamp_req: string | null;
+  stencil_req: string | null;
+  lable_req_1: string | null;
+  lable_req_2: string | null;
+  lable_req_3: string | null;
+  lable_req_4: string | null;
+  lable_req_5: string | null;
+  lable_req_6: string | null;
+  lable_req_7: string | null;
+  lable_req_8: string | null;
+  qual_special_req: string | null;
+  produce_special_req: string | null;
+  std_pressure_mpa: number | null;
+  std_pressure_psi: number | null;
+  stabilivolt_time_min: number | null;
+  anneal_flag: string | null;
+  weight_per_meter: number | null;
+  weight_ew: number | null;
+  theory_weight_eng: number | null;
+  order_no_old: string | null;
+  color_circle: string | null;
+  color_circle_pos: string | null;
+  toc: string | null;
+}
+
 // ==================== WebSocket 实时数据类型定义 ====================
 
 // Tag1 数据结构（6个字段）

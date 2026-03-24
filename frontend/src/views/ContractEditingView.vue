@@ -54,7 +54,7 @@
           </div>
           <Button @click="handleQuery">查询</Button>
           <div class="flex items-center gap-2">
-            <Label class="whitespace-nowrap">查询范围</Label>
+            <Label class="whitespace-nowrap">查询日期范围</Label>
             <Input v-model="queryForm.dateFrom" type="date" class="w-40" />
           </div>
           <Label class="whitespace-nowrap">至</Label>
@@ -409,7 +409,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -420,6 +420,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { getOrderNos, getItemNos, getOrderData, updateOrderData, createOrderData } from '@/api';
+import type { OrderData } from '@gt4_web/shared';
 
 // 合同申请表单
 const requestForm = reactive({
@@ -437,7 +439,7 @@ const queryForm = reactive({
 
 // 下拉选项
 const orderNoOptions = ref<string[]>([]);
-const itemNoOptions = ref<string[]>(['0', '1', '2', '3']);
+const itemNoOptions = ref<string[]>([]);
 const prodCNameOptions = ref<string[]>([]);
 
 // 合同明细表单数据
@@ -535,24 +537,251 @@ const formData = reactive({
   theory_weight_eng: '',
 });
 
+// 辅助函数：字符串转数字，空字符串返回 null
+function toNum(val: string): number | null {
+  if (val === '' || val === null || val === undefined) return null;
+  const n = Number(val);
+  return isNaN(n) ? null : n;
+}
+
+function toStr(val: string): string | null {
+  return val === '' ? null : val;
+}
+
+// 表单数据 -> API 数据
+function formToApi(): OrderData {
+  return {
+    order_no: formData.order_no,
+    item_no: formData.item_no,
+    roll_no: toStr(formData.roll_no),
+    diameter: toNum(formData.diameter),
+    wall_thickness: toNum(formData.wall_thickness),
+    order_no_old: toStr(formData.order_no_old),
+    prod_code: toStr(formData.prod_code),
+    prod_cname: toStr(formData.prod_cname),
+    heat_treat_code: toStr(formData.heat_treat_code),
+    heat_treat_text: toStr(formData.heat_treat_text),
+    std_sg_code: toStr(formData.std_sg_code),
+    std_text: toStr(formData.std_text),
+    sg_text: toStr(formData.sg_text),
+    mat_no: toStr(formData.mat_no),
+    mat_text: toStr(formData.mat_text),
+    thread_type_code: toStr(formData.thread_type_code),
+    thread_type_sign: toStr(formData.thread_type_sign),
+    end_type_code: toStr(formData.end_type_code),
+    end_type_sign: toStr(formData.end_type_sign),
+    coupling_type_code: toStr(formData.coupling_type_code),
+    coupling_type_sign: toStr(formData.coupling_type_sign),
+    thread_face_treat_mode_code: toStr(formData.thread_face_treat_mode_code),
+    thread_face_treat_mode: toStr(formData.thread_face_treat_mode),
+    length_from: toNum(formData.length_from),
+    length_to: toNum(formData.length_to),
+    order_unit_code: toStr(formData.order_unit_code),
+    order_unit: toStr(formData.order_unit),
+    order_qty: toNum(formData.order_qty),
+    order_tube: toNum(formData.order_tube),
+    order_weight: toNum(formData.order_weight),
+    fixed_order_weight: toNum(formData.fixed_order_weight),
+    unfixed_order_weight: toNum(formData.unfixed_order_weight),
+    delivery_tolerance_code: toStr(formData.delivery_tolerance_code),
+    delivery_tolerance_unit: toStr(formData.delivery_tolerance_unit),
+    delivery_tolerance_from: toNum(formData.delivery_tolerance_from),
+    delivery_tolerance_to: toNum(formData.delivery_tolerance_to),
+    short_rate: toNum(formData.short_rate),
+    short_from: toNum(formData.short_from),
+    short_to: toNum(formData.short_to),
+    single_bundle_weight_max: toNum(formData.single_bundle_weight_max),
+    single_bundle_tube_max: toNum(formData.single_bundle_tube_max),
+    oil_code: toStr(formData.oil_code),
+    oil_type: toStr(formData.oil_type),
+    stamp_req: toStr(formData.stamp_req),
+    stencil_req: toStr(formData.stencil_req),
+    lable_req_1: toStr(formData.lable_req_1),
+    lable_req_2: toStr(formData.lable_req_2),
+    lable_req_3: toStr(formData.lable_req_3),
+    lable_req_4: toStr(formData.lable_req_4),
+    lable_req_5: toStr(formData.lable_req_5),
+    lable_req_6: toStr(formData.lable_req_6),
+    lable_req_7: toStr(formData.lable_req_7),
+    lable_req_8: toStr(formData.lable_req_8),
+    qual_special_req: toStr(formData.qual_special_req),
+    produce_special_req: toStr(formData.produce_special_req),
+    std_pressure_mpa: toNum(formData.std_pressure_mpa),
+    std_pressure_psi: toNum(formData.std_pressure_psi),
+    stabilivolt_time_min: toNum(formData.stabilivolt_time_min),
+    anneal_flag: toStr(formData.anneal_flag),
+    weight_per_meter: toNum(formData.weight_per_meter),
+    weight_ew: toNum(formData.weight_ew),
+    theory_weight_eng: toNum(formData.theory_weight_eng),
+    color_circle: toStr(formData.color_circle),
+    color_circle_pos: toStr(formData.color_circle_pos),
+    toc: null,
+  };
+}
+
+// API 数据 -> 表单数据
+function apiToForm(data: OrderData) {
+  formData.order_no = data.order_no ?? '';
+  formData.item_no = data.item_no ?? '';
+  formData.roll_no = data.roll_no ?? '';
+  formData.diameter = data.diameter != null ? String(data.diameter) : '';
+  formData.wall_thickness = data.wall_thickness != null ? String(data.wall_thickness) : '';
+  formData.order_no_old = data.order_no_old ?? '';
+  formData.prod_code = data.prod_code ?? '';
+  formData.prod_cname = data.prod_cname ?? '';
+  formData.heat_treat_code = data.heat_treat_code ?? '';
+  formData.heat_treat_text = data.heat_treat_text ?? '';
+  formData.std_sg_code = data.std_sg_code ?? '';
+  formData.std_text = data.std_text ?? '';
+  formData.sg_text = data.sg_text ?? '';
+  formData.mat_no = data.mat_no ?? '';
+  formData.mat_text = data.mat_text ?? '';
+  formData.end_type_code = data.end_type_code ?? '';
+  formData.end_type_sign = data.end_type_sign ?? '';
+  formData.thread_type_code = data.thread_type_code ?? '';
+  formData.thread_type_sign = data.thread_type_sign ?? '';
+  formData.coupling_type_code = data.coupling_type_code ?? '';
+  formData.coupling_type_sign = data.coupling_type_sign ?? '';
+  formData.thread_face_treat_mode_code = data.thread_face_treat_mode_code ?? '';
+  formData.thread_face_treat_mode = data.thread_face_treat_mode ?? '';
+  formData.length_from = data.length_from != null ? String(data.length_from) : '';
+  formData.length_to = data.length_to != null ? String(data.length_to) : '';
+  formData.order_unit_code = data.order_unit_code ?? '';
+  formData.order_unit = data.order_unit ?? '';
+  formData.order_qty = data.order_qty != null ? String(data.order_qty) : '';
+  formData.order_tube = data.order_tube != null ? String(data.order_tube) : '';
+  formData.order_weight = data.order_weight != null ? String(data.order_weight) : '';
+  formData.fixed_order_weight =
+    data.fixed_order_weight != null ? String(data.fixed_order_weight) : '';
+  formData.unfixed_order_weight =
+    data.unfixed_order_weight != null ? String(data.unfixed_order_weight) : '';
+  formData.delivery_tolerance_code = data.delivery_tolerance_code ?? '';
+  formData.delivery_tolerance_unit = data.delivery_tolerance_unit ?? '';
+  formData.delivery_tolerance_from =
+    data.delivery_tolerance_from != null ? String(data.delivery_tolerance_from) : '';
+  formData.delivery_tolerance_to =
+    data.delivery_tolerance_to != null ? String(data.delivery_tolerance_to) : '';
+  formData.short_rate = data.short_rate != null ? String(data.short_rate) : '';
+  formData.short_from = data.short_from != null ? String(data.short_from) : '';
+  formData.short_to = data.short_to != null ? String(data.short_to) : '';
+  formData.single_bundle_weight_max =
+    data.single_bundle_weight_max != null ? String(data.single_bundle_weight_max) : '';
+  formData.single_bundle_tube_max =
+    data.single_bundle_tube_max != null ? String(data.single_bundle_tube_max) : '';
+  formData.oil_code = data.oil_code ?? '';
+  formData.oil_type = data.oil_type ?? '';
+  formData.stamp_req = data.stamp_req ?? '';
+  formData.stencil_req = data.stencil_req ?? '';
+  formData.lable_req_1 = data.lable_req_1 ?? '';
+  formData.lable_req_2 = data.lable_req_2 ?? '';
+  formData.lable_req_3 = data.lable_req_3 ?? '';
+  formData.lable_req_4 = data.lable_req_4 ?? '';
+  formData.lable_req_5 = data.lable_req_5 ?? '';
+  formData.lable_req_6 = data.lable_req_6 ?? '';
+  formData.lable_req_7 = data.lable_req_7 ?? '';
+  formData.lable_req_8 = data.lable_req_8 ?? '';
+  formData.qual_special_req = data.qual_special_req ?? '';
+  formData.produce_special_req = data.produce_special_req ?? '';
+  formData.std_pressure_mpa = data.std_pressure_mpa != null ? String(data.std_pressure_mpa) : '';
+  formData.std_pressure_psi = data.std_pressure_psi != null ? String(data.std_pressure_psi) : '';
+  formData.stabilivolt_time_min =
+    data.stabilivolt_time_min != null ? String(data.stabilivolt_time_min) : '';
+  formData.anneal_flag = data.anneal_flag ?? '';
+  formData.weight_per_meter = data.weight_per_meter != null ? String(data.weight_per_meter) : '';
+  formData.weight_ew = data.weight_ew != null ? String(data.weight_ew) : '';
+  formData.theory_weight_eng = data.theory_weight_eng != null ? String(data.theory_weight_eng) : '';
+  formData.color_circle = data.color_circle ?? '';
+  formData.color_circle_pos = data.color_circle_pos ?? '';
+}
+
+// 当查询日期范围改变后，查询合同号列表
+watch(
+  () => [queryForm.dateFrom, queryForm.dateTo],
+  async ([dateFrom, dateTo]) => {
+    if (!dateFrom || !dateTo) return;
+    try {
+      const nos = await getOrderNos(dateFrom, dateTo);
+      orderNoOptions.value = nos;
+      // 清空已选合同号和项目号
+      queryForm.orderNo = '';
+      queryForm.itemNo = '';
+      itemNoOptions.value = [];
+    } catch (err) {
+      console.error('查询合同号失败', err);
+    }
+  },
+);
+
+// 当合同号下拉列表选择项改变后，查询项目号列表
+watch(
+  () => queryForm.orderNo,
+  async (orderNo) => {
+    if (!orderNo) {
+      itemNoOptions.value = [];
+      queryForm.itemNo = '';
+      return;
+    }
+    try {
+      const nos = await getItemNos(orderNo, queryForm.dateFrom, queryForm.dateTo);
+      itemNoOptions.value = nos;
+      queryForm.itemNo = '';
+    } catch (err) {
+      console.error('查询项目号失败', err);
+    }
+  },
+);
+
 // 事件处理
 function handleRequest() {
   console.log('request', requestForm);
 }
 
-function handleQuery() {
-  console.log('query', queryForm);
+// 点击查询按钮，根据合同号、项目号查询合同明细
+async function handleQuery() {
+  if (!queryForm.orderNo || !queryForm.itemNo) {
+    alert('请选择合同号和项目号');
+    return;
+  }
+  try {
+    const data = await getOrderData(queryForm.orderNo, queryForm.itemNo);
+    apiToForm(data);
+  } catch (err) {
+    console.error('查询合同数据失败', err);
+    alert('查询合同数据失败');
+  }
 }
 
 function handleSetCurrentContract() {
-  console.log('set current contract', formData.orderNo);
+  console.log('set current contract', formData.order_no);
 }
 
-function handleContractAdd() {
-  console.log('contract add', formData);
+// 点击确认新增按钮，新增一条合同记录
+async function handleContractAdd() {
+  if (!formData.order_no || !formData.item_no) {
+    alert('合同号和项目号不能为空');
+    return;
+  }
+  try {
+    const result = await createOrderData(formToApi());
+    alert(result.message);
+  } catch (err) {
+    console.error('新增合同数据失败', err);
+    alert('新增合同数据失败');
+  }
 }
 
-function handleContractModify() {
-  console.log('contract modify', formData);
+// 点击确认修改按钮，保存当前记录
+async function handleContractModify() {
+  if (!formData.order_no || !formData.item_no) {
+    alert('合同号和项目号不能为空');
+    return;
+  }
+  try {
+    const result = await updateOrderData(formToApi());
+    alert(result.message);
+  } catch (err) {
+    console.error('保存合同数据失败', err);
+    alert('保存合同数据失败');
+  }
 }
 </script>

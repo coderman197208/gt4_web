@@ -298,11 +298,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求1</Label>
-              <Input v-model="formData.lable_req_1" class="flex-1" />
+              <Input v-model="formData.label_req_1" class="flex-1" />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求2</Label>
-              <Input v-model="formData.lable_req_2" class="flex-1" />
+              <Input v-model="formData.label_req_2" class="flex-1" />
             </div>
           </div>
 
@@ -310,11 +310,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求3</Label>
-              <Input v-model="formData.lable_req_3" class="flex-1" />
+              <Input v-model="formData.label_req_3" class="flex-1" />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求4</Label>
-              <Input v-model="formData.lable_req_4" class="flex-1" />
+              <Input v-model="formData.label_req_4" class="flex-1" />
             </div>
           </div>
 
@@ -322,11 +322,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求5</Label>
-              <Input v-model="formData.lable_req_5" class="flex-1" />
+              <Input v-model="formData.label_req_5" class="flex-1" />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求6</Label>
-              <Input v-model="formData.lable_req_6" class="flex-1" />
+              <Input v-model="formData.label_req_6" class="flex-1" />
             </div>
           </div>
 
@@ -334,11 +334,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求7</Label>
-              <Input v-model="formData.lable_req_7" class="flex-1" />
+              <Input v-model="formData.label_req_7" class="flex-1" />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">标签要求8</Label>
-              <Input v-model="formData.lable_req_8" class="flex-1" />
+              <Input v-model="formData.label_req_8" class="flex-1" />
             </div>
           </div>
 
@@ -422,6 +422,9 @@ import {
 } from '@/components/ui/select';
 import { getOrderNos, getItemNos, getOrderData, updateOrderData, createOrderData } from '@/api';
 import type { OrderData } from '@gt4_web/shared';
+
+// 缓存查询到的完整记录，修改时以此为基础合并表单数据
+const cachedOrderData = ref<OrderData | null>(null);
 
 // 合同申请表单
 const requestForm = reactive({
@@ -510,14 +513,14 @@ const formData = reactive({
   stencil_req: '',
 
   // 标签要求
-  lable_req_1: '',
-  lable_req_2: '',
-  lable_req_3: '',
-  lable_req_4: '',
-  lable_req_5: '',
-  lable_req_6: '',
-  lable_req_7: '',
-  lable_req_8: '',
+  label_req_1: '',
+  label_req_2: '',
+  label_req_3: '',
+  label_req_4: '',
+  label_req_5: '',
+  label_req_6: '',
+  label_req_7: '',
+  label_req_8: '',
 
   // 质量/生产特殊要求
   qual_special_req: '',
@@ -548,8 +551,8 @@ function toStr(val: string): string | null {
   return val === '' ? null : val;
 }
 
-// 表单数据 -> API 数据
-function formToApi(): OrderData {
+// 表单数据 -> 本页面编辑的字段
+function formFields() {
   return {
     order_no: formData.order_no,
     item_no: formData.item_no,
@@ -596,14 +599,14 @@ function formToApi(): OrderData {
     oil_type: toStr(formData.oil_type),
     stamp_req: toStr(formData.stamp_req),
     stencil_req: toStr(formData.stencil_req),
-    lable_req_1: toStr(formData.lable_req_1),
-    lable_req_2: toStr(formData.lable_req_2),
-    lable_req_3: toStr(formData.lable_req_3),
-    lable_req_4: toStr(formData.lable_req_4),
-    lable_req_5: toStr(formData.lable_req_5),
-    lable_req_6: toStr(formData.lable_req_6),
-    lable_req_7: toStr(formData.lable_req_7),
-    lable_req_8: toStr(formData.lable_req_8),
+    label_req_1: toStr(formData.label_req_1),
+    label_req_2: toStr(formData.label_req_2),
+    label_req_3: toStr(formData.label_req_3),
+    label_req_4: toStr(formData.label_req_4),
+    label_req_5: toStr(formData.label_req_5),
+    label_req_6: toStr(formData.label_req_6),
+    label_req_7: toStr(formData.label_req_7),
+    label_req_8: toStr(formData.label_req_8),
     qual_special_req: toStr(formData.qual_special_req),
     produce_special_req: toStr(formData.produce_special_req),
     std_pressure_mpa: toNum(formData.std_pressure_mpa),
@@ -615,8 +618,20 @@ function formToApi(): OrderData {
     theory_weight_eng: toNum(formData.theory_weight_eng),
     color_circle: toStr(formData.color_circle),
     color_circle_pos: toStr(formData.color_circle_pos),
-    toc: null,
   };
+}
+
+// 修改时：基于缓存完整记录，合并本页面编辑的字段
+function formToApiForUpdate(): OrderData {
+  return {
+    ...cachedOrderData.value!,
+    ...formFields(),
+  };
+}
+
+// 新增时：只提供本页面字段，其余由数据库默认值填充
+function formToApiForCreate(): OrderData {
+  return formFields() as OrderData;
 }
 
 // API 数据 -> 表单数据
@@ -672,14 +687,14 @@ function apiToForm(data: OrderData) {
   formData.oil_type = data.oil_type ?? '';
   formData.stamp_req = data.stamp_req ?? '';
   formData.stencil_req = data.stencil_req ?? '';
-  formData.lable_req_1 = data.lable_req_1 ?? '';
-  formData.lable_req_2 = data.lable_req_2 ?? '';
-  formData.lable_req_3 = data.lable_req_3 ?? '';
-  formData.lable_req_4 = data.lable_req_4 ?? '';
-  formData.lable_req_5 = data.lable_req_5 ?? '';
-  formData.lable_req_6 = data.lable_req_6 ?? '';
-  formData.lable_req_7 = data.lable_req_7 ?? '';
-  formData.lable_req_8 = data.lable_req_8 ?? '';
+  formData.label_req_1 = data.label_req_1 ?? '';
+  formData.label_req_2 = data.label_req_2 ?? '';
+  formData.label_req_3 = data.label_req_3 ?? '';
+  formData.label_req_4 = data.label_req_4 ?? '';
+  formData.label_req_5 = data.label_req_5 ?? '';
+  formData.label_req_6 = data.label_req_6 ?? '';
+  formData.label_req_7 = data.label_req_7 ?? '';
+  formData.label_req_8 = data.label_req_8 ?? '';
   formData.qual_special_req = data.qual_special_req ?? '';
   formData.produce_special_req = data.produce_special_req ?? '';
   formData.std_pressure_mpa = data.std_pressure_mpa != null ? String(data.std_pressure_mpa) : '';
@@ -744,6 +759,7 @@ async function handleQuery() {
   }
   try {
     const data = await getOrderData(queryForm.orderNo, queryForm.itemNo);
+    cachedOrderData.value = data;
     apiToForm(data);
   } catch (err) {
     console.error('查询合同数据失败', err);
@@ -762,7 +778,7 @@ async function handleContractAdd() {
     return;
   }
   try {
-    const result = await createOrderData(formToApi());
+    const result = await createOrderData(formToApiForCreate());
     alert(result.message);
   } catch (err) {
     console.error('新增合同数据失败', err);
@@ -772,12 +788,12 @@ async function handleContractAdd() {
 
 // 点击确认修改按钮，保存当前记录
 async function handleContractModify() {
-  if (!formData.order_no || !formData.item_no) {
-    alert('合同号和项目号不能为空');
+  if (!cachedOrderData.value) {
+    alert('请先查询合同数据');
     return;
   }
   try {
-    const result = await updateOrderData(formToApi());
+    const result = await updateOrderData(formToApiForUpdate());
     alert(result.message);
   } catch (err) {
     console.error('保存合同数据失败', err);

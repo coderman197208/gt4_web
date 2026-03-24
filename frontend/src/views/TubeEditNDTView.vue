@@ -24,7 +24,7 @@
               </Select>
             </div>
 
-            <Button variant="info" @click="handleQuery1">查询</Button>
+            <Button variant="outline" @click="handleQuery1">查询</Button>
 
             <div class="flex items-center gap-4">
               <Label class="whitespace-nowrap">管捆号</Label>
@@ -65,7 +65,7 @@
               </Select>
             </div>
 
-            <Button variant="info" @click="handleQuery2">查询</Button>
+            <Button variant="outline" @click="handleQuery2">查询</Button>
 
             <div class="flex items-center gap-4">
               <Label class="whitespace-nowrap">管捆号</Label>
@@ -200,7 +200,7 @@
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">&nbsp;</Label>
-                <Button variant="info" class="w-full" @click="printLabel">打印标签</Button>
+                <Button variant="outline" class="w-full" @click="printLabel">打印标签</Button>
               </div>
             </div>
 

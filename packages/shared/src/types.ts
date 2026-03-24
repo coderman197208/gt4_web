@@ -103,7 +103,7 @@ export interface ParameterSet {
   order_no: string | null;
   item_no: string | null;
   diameter: number | null;
-  thickness: number | null;
+  wall_thickness: number | null;
   direction_code: string | null;
   bundle_type: string | null;
   bundle_number: number | null;
@@ -118,7 +118,7 @@ export interface ParameterSet {
   feed_number: number | null;
   length_coupling: number | null;
   weight_coupling: number | null;
-  weight_packging: number | null;
+  weight_packaging: number | null;
   length_enable: number | null;
   weight_enable: number | null;
   circle_enable: number | null;

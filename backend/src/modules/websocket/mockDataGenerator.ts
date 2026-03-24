@@ -96,7 +96,7 @@ function updateAndPushTag3() {
 function tick() {
   // 仅在有活跃连接时更新和推送数据
   if (!getSubscriptionManager().hasActiveConnections()) {
-    console.log('[MockDataGenerator] 无活跃连接，跳过数据生成');
+    // console.log('[MockDataGenerator] 无活跃连接，跳过数据生成');
     return;
   }
 

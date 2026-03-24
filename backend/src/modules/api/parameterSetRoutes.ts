@@ -25,10 +25,10 @@ export async function registerParameterSetRoutes(fastify: FastifyInstance) {
         await tx.$executeRaw`DELETE FROM parameter_set`;
         await tx.$executeRaw`
           INSERT INTO parameter_set (
-            order_no, item_no, diameter, thickness, direction_code,
+            order_no, item_no, diameter, wall_thickness, direction_code,
             bundle_type, bundle_number, produce_job_point, order_weight,
             lot_no, roll_no, melt_no, melt_no_coupling, lot_no_coupling,
-            flow_no, feed_number, length_coupling, weight_coupling, weight_packging,
+            flow_no, feed_number, length_coupling, weight_coupling, weight_packaging,
             length_enable, weight_enable, circle_enable, carve_enable, spray_enable,
             waste_length_enable, waste_weight_enable,
             gun1, gun2, gun3, gun4, gun5, gun_clear,
@@ -41,14 +41,14 @@ export async function registerParameterSetRoutes(fastify: FastifyInstance) {
             tube_no, qrcode_spray_enable, weight_per_meter, weight_ew
           ) VALUES (
             ${data.order_no}, ${data.item_no},
-            ${data.diameter}::numeric, ${data.thickness}::numeric,
+            ${data.diameter}::numeric, ${data.wall_thickness}::numeric,
             ${data.direction_code}, ${data.bundle_type},
             ${data.bundle_number}::int, ${data.produce_job_point},
             ${data.order_weight}::int, ${data.lot_no}, ${data.roll_no},
             ${data.melt_no}, ${data.melt_no_coupling}, ${data.lot_no_coupling},
             ${data.flow_no}::int, ${data.feed_number}::int,
             ${data.length_coupling}::real, ${data.weight_coupling}::real,
-            ${data.weight_packging}::real,
+            ${data.weight_packaging}::real,
             ${data.length_enable}::int, ${data.weight_enable}::int,
             ${data.circle_enable}::int, ${data.carve_enable}::int,
             ${data.spray_enable}::int,

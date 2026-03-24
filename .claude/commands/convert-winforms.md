@@ -75,20 +75,20 @@ Form (顶层)
 
 使用以下映射表将 C# 控件转换为 Vue 组件：
 
-| C# WinForms 控件             | shadcn-vue / HTML 输出                                                                     | 备注                                                                                                                        |
-| ---------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `Button`                     | `<Button>`                                                                                 | `Text` 属性作为按钮文字；蓝色 ForeColor → `variant="info"`；红色/删除 → `variant="destructive"`；绿色 → `variant="success"` |
-| `TextBox`                    | `<Input>`                                                                                  | `Enabled=false` 或 `ReadOnly=true` → 添加 `readonly` 属性                                                                   |
-| `Label`                      | `<Label>`                                                                                  | 纯展示文本                                                                                                                  |
-| `ComboBox`                   | `<Select>` + `<SelectTrigger>` + `<SelectValue>` + `<SelectContent>` + `<SelectItem>`      | 从 `Items.AddRange` 提取静态选项                                                                                            |
-| `DataGridView`               | `<Table>` + `<TableHeader>` + `<TableRow>` + `<TableHead>` + `<TableBody>` + `<TableCell>` | 固定表头 + 可滚动表体（分两个 div）                                                                                         |
-| `DataGridViewTextBoxColumn`  | `<TableHead>`                                                                              | 提取 `HeaderText`                                                                                                           |
-| `DataGridViewCheckBoxColumn` | `<TableHead>` + `<Checkbox>`                                                               | 表格内复选框                                                                                                                |
-| `GroupBox`                   | `<div class="border rounded-lg p-4 relative">`                                             | `Text` → 标题 `<div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">`                            |
-| `CheckBox`                   | `<Checkbox>`                                                                               | 需确认组件已安装                                                                                                            |
-| `Panel`                      | `<div>`                                                                                    | 普通容器                                                                                                                    |
-| `TabControl` / `TabPage`     | `<Tabs>` 系列                                                                              | 如果已安装 tabs 组件                                                                                                        |
-| 其他未列出                   | `<div>` + `<!-- 原控件: XxxType -->` 注释                                                  | 注明原控件类型                                                                                                              |
+| C# WinForms 控件             | shadcn-vue / HTML 输出                                                                     | 备注                                                                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `Button`                     | `<Button>`                                                                                 | `Text` 属性作为按钮文字；蓝色 ForeColor → `variant="outline"`；红色/删除 → `variant="destructive"`；绿色 → `variant="success"` |
+| `TextBox`                    | `<Input>`                                                                                  | `Enabled=false` 或 `ReadOnly=true` → 添加 `readonly` 属性                                                                      |
+| `Label`                      | `<Label>`                                                                                  | 纯展示文本                                                                                                                     |
+| `ComboBox`                   | `<Select>` + `<SelectTrigger>` + `<SelectValue>` + `<SelectContent>` + `<SelectItem>`      | 从 `Items.AddRange` 提取静态选项                                                                                               |
+| `DataGridView`               | `<Table>` + `<TableHeader>` + `<TableRow>` + `<TableHead>` + `<TableBody>` + `<TableCell>` | 固定表头 + 可滚动表体（分两个 div）                                                                                            |
+| `DataGridViewTextBoxColumn`  | `<TableHead>`                                                                              | 提取 `HeaderText`                                                                                                              |
+| `DataGridViewCheckBoxColumn` | `<TableHead>` + `<Checkbox>`                                                               | 表格内复选框                                                                                                                   |
+| `GroupBox`                   | `<div class="border rounded-lg p-4 relative">`                                             | `Text` → 标题 `<div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">`                               |
+| `CheckBox`                   | `<Checkbox>`                                                                               | 需确认组件已安装                                                                                                               |
+| `Panel`                      | `<div>`                                                                                    | 普通容器                                                                                                                       |
+| `TabControl` / `TabPage`     | `<Tabs>` 系列                                                                              | 如果已安装 tabs 组件                                                                                                           |
+| 其他未列出                   | `<div>` + `<!-- 原控件: XxxType -->` 注释                                                  | 注明原控件类型                                                                                                                 |
 
 ### 映射关系补充说明
 

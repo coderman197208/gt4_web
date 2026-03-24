@@ -15,7 +15,7 @@ export interface ParameterSetForm {
   order_no: string;
   item_no: string;
   diameter: string;
-  thickness: string;
+  wall_thickness: string;
   direction_code: string;
   bundle_type: string;
   bundle_number: string;
@@ -30,7 +30,7 @@ export interface ParameterSetForm {
   feed_number: string;
   length_coupling: string;
   weight_coupling: string;
-  weight_packging: string;
+  weight_packaging: string;
   length_enable: string;
   weight_enable: string;
   circle_enable: string;
@@ -91,7 +91,7 @@ export function formToApi(form: ParameterSetForm): ParameterSet {
     order_no: toStr(form.order_no),
     item_no: toStr(form.item_no),
     diameter: toNum(form.diameter),
-    thickness: toNum(form.thickness),
+    wall_thickness: toNum(form.wall_thickness),
     direction_code: toStr(form.direction_code),
     bundle_type: toStr(form.bundle_type),
     bundle_number: toNum(form.bundle_number),
@@ -106,7 +106,7 @@ export function formToApi(form: ParameterSetForm): ParameterSet {
     feed_number: toNum(form.feed_number),
     length_coupling: toNum(form.length_coupling),
     weight_coupling: toNum(form.weight_coupling),
-    weight_packging: toNum(form.weight_packging),
+    weight_packaging: toNum(form.weight_packaging),
     length_enable: ENABLE_MAP[form.length_enable] ?? null,
     weight_enable: ENABLE_MAP[form.weight_enable] ?? null,
     circle_enable: ENABLE_MAP[form.circle_enable] ?? null,
@@ -149,7 +149,7 @@ export function apiToForm(data: ParameterSet): ParameterSetForm {
     order_no: data.order_no ?? '',
     item_no: data.item_no ?? '',
     diameter: data.diameter != null ? String(data.diameter) : '',
-    thickness: data.thickness != null ? String(data.thickness) : '',
+    wall_thickness: data.wall_thickness != null ? String(data.wall_thickness) : '',
     direction_code: data.direction_code ?? '',
     bundle_type: data.bundle_type ?? '',
     bundle_number: data.bundle_number != null ? String(data.bundle_number) : '',
@@ -164,7 +164,7 @@ export function apiToForm(data: ParameterSet): ParameterSetForm {
     feed_number: data.feed_number != null ? String(data.feed_number) : '',
     length_coupling: data.length_coupling != null ? String(data.length_coupling) : '',
     weight_coupling: data.weight_coupling != null ? String(data.weight_coupling) : '',
-    weight_packging: data.weight_packging != null ? String(data.weight_packging) : '',
+    weight_packaging: data.weight_packaging != null ? String(data.weight_packaging) : '',
     length_enable: ENABLE_MAP_REV[data.length_enable ?? 0] ?? 'deny',
     weight_enable: ENABLE_MAP_REV[data.weight_enable ?? 0] ?? 'deny',
     circle_enable: ENABLE_MAP_REV[data.circle_enable ?? 0] ?? 'deny',

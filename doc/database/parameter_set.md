@@ -12,7 +12,7 @@ CREATE TABLE parameter_set (
     order_no varchar(10) NULL,
     item_no varchar(3) NULL,
     diameter numeric(5, 2) NULL,
-    thickness numeric(4, 2) NULL,
+    wall_thickness numeric(4, 2) NULL,
     direction_code varchar(8) NULL,
     bundle_type varchar(8) NULL,
     bundle_number int NULL,
@@ -27,7 +27,7 @@ CREATE TABLE parameter_set (
     feed_number int NULL,
     length_coupling real NULL,
     weight_coupling real NULL,
-    weight_packging real NULL,
+    weight_packaging real NULL,
     length_enable int NULL,
     weight_enable int NULL,
     circle_enable int NULL,
@@ -67,7 +67,7 @@ CREATE TABLE parameter_set (
 COMMENT ON COLUMN parameter_set.order_no IS '当前合同号';
 COMMENT ON COLUMN parameter_set.item_no IS '当前项目号';
 COMMENT ON COLUMN parameter_set.diameter IS '外径';
-COMMENT ON COLUMN parameter_set.thickness IS '壁厚';
+COMMENT ON COLUMN parameter_set.wall_thickness IS '壁厚';
 COMMENT ON COLUMN parameter_set.direction_code IS '去向';
 COMMENT ON COLUMN parameter_set.bundle_type IS '管捆类型';
 COMMENT ON COLUMN parameter_set.bundle_number IS '打捆根数';
@@ -82,7 +82,7 @@ COMMENT ON COLUMN parameter_set.flow_no IS '喷印工位下一根管子流水号
 COMMENT ON COLUMN parameter_set.feed_number IS '上料总根数';
 COMMENT ON COLUMN parameter_set.length_coupling IS '保护环长度';
 COMMENT ON COLUMN parameter_set.weight_coupling IS '保护环重量';
-COMMENT ON COLUMN parameter_set.weight_packging IS '包装材料重量';
+COMMENT ON COLUMN parameter_set.weight_packaging IS '包装材料重量';
 COMMENT ON COLUMN parameter_set.length_enable IS '测长允许';
 COMMENT ON COLUMN parameter_set.weight_enable IS '称重允许';
 COMMENT ON COLUMN parameter_set.circle_enable IS '色环允许';

@@ -47,7 +47,7 @@
               </SelectContent>
             </Select>
           </div>
-          <Button variant="info" @click="handleQuery">执行查询</Button>
+          <Button variant="outline" @click="handleQuery">执行查询</Button>
         </div>
       </div>
     </div>
@@ -143,7 +143,7 @@
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">壁厚(毫米)</Label>
-                <Input v-model="formData.thickness" />
+                <Input v-model="formData.wall_thickness" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">最短</Label>
@@ -307,10 +307,10 @@
 
           <!-- 底部操作按钮区域 -->
           <div class="flex items-center gap-3 flex-wrap">
-            <Button variant="info" @click="handleSendBundleTele">成捆电文补发</Button>
-            <Button variant="info" @click="handleDeleteBundle">删除管捆</Button>
-            <Button variant="info" @click="handleBundleTube">按管子数据成捆</Button>
-            <Button variant="info" @click="handlePrintTag">标签打印</Button>
+            <Button variant="outline" @click="handleSendBundleTele">成捆电文补发</Button>
+            <Button variant="outline" @click="handleDeleteBundle">删除管捆</Button>
+            <Button variant="outline" @click="handleBundleTube">按管子数据成捆</Button>
+            <Button variant="outline" @click="handlePrintTag">标签打印</Button>
             <div class="flex items-center gap-2">
               <input id="ckbPaperTag" v-model="ckbPaperTag" type="checkbox" class="h-4 w-4" />
               <Label for="ckbPaperTag" class="text-xs">纸标签</Label>
@@ -319,17 +319,17 @@
               <input id="ckbEmTag" v-model="ckbEmTag" type="checkbox" class="h-4 w-4" />
               <Label for="ckbEmTag" class="text-xs">塑料标签</Label>
             </div>
-            <Button variant="info" @click="handleFreeFormatSet">自由格式设定</Button>
+            <Button variant="outline" @click="handleFreeFormatSet">自由格式设定</Button>
           </div>
 
           <div class="flex items-center gap-3 flex-wrap">
-            <Button variant="info" @click="handleLenEngToMetric">英制长度转米制长度</Button>
-            <Button variant="info" @click="handleWeiEngToMetric">英制重量转米制重量</Button>
+            <Button variant="outline" @click="handleLenEngToMetric">英制长度转米制长度</Button>
+            <Button variant="outline" @click="handleWeiEngToMetric">英制重量转米制重量</Button>
           </div>
 
           <div class="flex items-center gap-3 flex-wrap">
-            <Button variant="info" @click="handleLenMetricToEng">米制长度转英制长度</Button>
-            <Button variant="info" @click="handleWeiMetricToEng">米制重量转英制重量</Button>
+            <Button variant="outline" @click="handleLenMetricToEng">米制长度转英制长度</Button>
+            <Button variant="outline" @click="handleWeiMetricToEng">米制重量转英制重量</Button>
           </div>
         </div>
       </div>
@@ -396,7 +396,7 @@
 
           <!-- 保存按钮 -->
           <div class="mt-3 flex justify-center">
-            <Button variant="info" class="w-32" @click="handleSave">保存</Button>
+            <Button variant="outline" class="w-32" @click="handleSave">保存</Button>
           </div>
         </div>
       </div>

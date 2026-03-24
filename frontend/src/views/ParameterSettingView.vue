@@ -262,7 +262,7 @@
           </div>
           <div class="flex items-center gap-2 p-2 border-b">
             <Label class="whitespace-nowrap font-bold">包装材料重量：</Label>
-            <Input v-model="formData.weight_packging" class="flex-1" />
+            <Input v-model="formData.weight_packaging" class="flex-1" />
             <span class="text-sm">KG</span>
           </div>
 
@@ -465,14 +465,14 @@ const formData = reactive<ParameterSetForm>({
   label_count: '', // 管捆标签张数
   length_limit_min: '', // 判废管长起
   length_limit_max: '', // 判废管长止
-  weight_packging: '', // 包装材料重量
+  weight_packaging: '', // 包装材料重量
   label_length_type: 'metric', // 标签长度格式
   label_weight_type: 'metric', // 标签重量格式
   label_type: 'fixed', // 标签格式
 
   // 隐藏字段（表中有但画面上不直接显示的）
   diameter: '',
-  thickness: '',
+  wall_thickness: '',
   order_weight: '',
   gun_clear: '',
   weight_per_meter: '',

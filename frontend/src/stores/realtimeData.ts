@@ -5,13 +5,14 @@
 
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { Tag1Data, Tag2Data, Tag3Data } from '@gt4_web/shared';
+import type { Tag1Data, Tag2Data, Tag3Data, PlanInfo } from '@gt4_web/shared';
 
 export const useRealtimeDataStore = defineStore('realtimeData', () => {
   // 状态定义
   const tag1 = ref<Tag1Data | null>(null);
   const tag2 = ref<Tag2Data | null>(null);
   const tag3 = ref<Tag3Data | null>(null);
+  const planInfo = ref<PlanInfo | null>(null);
 
   /**
    * 更新指定tag的数据
@@ -32,6 +33,10 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         tag3.value = value as Tag3Data;
         console.log('[RealtimeDataStore] tag3 数据已更新:', tag3.value);
         break;
+      case 'PlanInfo':
+        planInfo.value = value as PlanInfo;
+        console.log('[RealtimeDataStore] planInfo 数据已更新:', planInfo.value);
+        break;
       default:
         console.warn(`[RealtimeDataStore] 未知的tag: ${tag}`);
     }
@@ -44,6 +49,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     tag1.value = null;
     tag2.value = null;
     tag3.value = null;
+    planInfo.value = null;
     console.log('[RealtimeDataStore] 所有数据已重置');
   }
 
@@ -52,6 +58,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     tag1,
     tag2,
     tag3,
+    planInfo,
     // 方法
     updateData,
     resetData,

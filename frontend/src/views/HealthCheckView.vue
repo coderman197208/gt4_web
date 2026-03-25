@@ -77,6 +77,40 @@
         <p v-else class="text-gray-500 text-xs">等待数据...</p>
       </div>
     </div>
+
+    <!-- PlanInfo 数据展示 -->
+    <div class="border rounded p-2 mb-2">
+      <h3 class="text-sm font-semibold mb-1">PlanInfo 数据</h3>
+      <Table v-if="realtimeStore.planInfo" class="text-xs">
+        <TableHeader>
+          <TableRow>
+            <TableHead class="p-1 h-auto">合同号</TableHead>
+            <TableHead class="p-1 h-auto">项目号</TableHead>
+            <TableHead class="p-1 h-auto">轧批号</TableHead>
+            <TableHead class="p-1 h-auto">炉号</TableHead>
+            <TableHead class="p-1 h-auto">试批号</TableHead>
+            <TableHead class="p-1 h-auto">接箍批号</TableHead>
+            <TableHead class="p-1 h-auto">接箍炉号</TableHead>
+            <TableHead class="p-1 h-auto">投料支数</TableHead>
+            <TableHead class="p-1 h-auto">管号</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.order_no }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.item_no }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.roll_no }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.melt_no }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.lot_no }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.lotno_coupling }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.meltno_coupling }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.feed_num }}</TableCell>
+            <TableCell class="p-1">{{ realtimeStore.planInfo.tube_no }}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+      <p v-else class="text-gray-500 text-xs">等待数据...</p>
+    </div>
   </div>
 </template>
 
@@ -114,8 +148,8 @@ async function checkHealth() {
 
 // 在组件挂载时订阅tag1, tag2, tag3
 onMounted(() => {
-  subscribe(['tag1', 'tag2', 'tag3']);
-  console.log('[HealthCheckView] 已订阅 tag1, tag2, tag3');
+  subscribe(['tag1', 'tag2', 'tag3', 'PlanInfo']);
+  console.log('[HealthCheckView] 已订阅 tag1, tag2, tag3, PlanInfo');
 });
 
 // 在组件卸载时取消所有订阅

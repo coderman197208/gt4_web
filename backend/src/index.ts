@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import type { HealthCheckResponse } from '@gt4_web/shared';
 import { initSocketServer } from './modules/websocket/socketServer.js';
 import { startMockDataGenerator } from './modules/websocket/mockDataGenerator.js';
+import { startRedisSubscriber } from './modules/redis/redisSubscriber.js';
 import { registerMockRoutes } from './modules/api/mockRoutes.js';
 import { registerParameterSetRoutes } from './modules/api/parameterSetRoutes.js';
 import { registerOrderDataRoutes } from './modules/api/orderDataRoutes.js';
@@ -48,6 +49,9 @@ const start = async () => {
 
     // 启动模拟数据生成器
     startMockDataGenerator();
+
+    // 启动 Redis 订阅（接收 C++ 程序写入的实时数据）
+    startRedisSubscriber();
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

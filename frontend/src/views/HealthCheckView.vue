@@ -110,6 +110,10 @@
         </TableBody>
       </Table>
       <p v-else class="text-gray-500 text-xs">等待数据...</p>
+      <!-- 这里可以添加一个按钮来发送命令到后端重置投料之数  -->
+      <Button v-if="realtimeStore.planInfo" class="mt-2" @click="sendSetFeedNumCommand">
+        重置投料之数
+      </Button>
     </div>
   </div>
 </template>
@@ -130,7 +134,7 @@ import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 
 const result = ref('');
-const { isConnected, error, subscribe } = useWebSocket();
+const { isConnected, error, subscribe, sendCommand } = useWebSocket();
 const realtimeStore = useRealtimeDataStore();
 
 async function checkHealth() {
@@ -144,6 +148,11 @@ async function checkHealth() {
   } catch (error) {
     result.value = 'error';
   }
+}
+
+async function sendSetFeedNumCommand() {
+  // 发送命令
+  sendCommand('command1', { feed_num: 100 });
 }
 
 // 在组件挂载时订阅tag1, tag2, tag3

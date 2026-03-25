@@ -5,7 +5,7 @@
 
 import { ref, onUnmounted } from 'vue';
 import { io, Socket } from 'socket.io-client';
-import type { SubscribeRequest, DataPushMessage } from '@gt4_web/shared';
+import type { SubscribeRequest, DataPushMessage, CmdPushMessage } from '@gt4_web/shared';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 
 // 全局单例Socket实例
@@ -161,10 +161,35 @@ export function useWebSocket() {
   //   subscribe([]);
   // });
 
+  /**
+   * 发送操作命令到后端（通过WebSocket转发至Redis）
+   * @param cmdName 命令名称
+   * @param cmdPara 命令参数（对象，会被序列化为JSON字符串）
+   * 调用方式：
+   * // 有参数
+   * sendCommand('command1', { feed_num: 10 });
+   * // 无参数
+   * sendCommand('command2');
+   */
+  function sendCommand(cmdName: string, cmdPara?: unknown): void {
+    if (!socketInstance) {
+      console.error('[WebSocket] Socket未初始化，无法发送命令');
+      return;
+    }
+
+    const message: CmdPushMessage = { cmd_name: cmdName };
+    if (cmdPara !== undefined) {
+      message.cmd_para = typeof cmdPara === 'string' ? cmdPara : JSON.stringify(cmdPara);
+    }
+    socketInstance.emit('cmd:push', message);
+    console.log('[WebSocket] 已发送操作命令:', message);
+  }
+
   return {
     isConnected,
     error,
     subscribe,
+    sendCommand,
     onDataPush,
     offDataPush,
   };

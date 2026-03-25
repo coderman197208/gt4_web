@@ -25,10 +25,10 @@ export interface SubscribeRequest {
   tags: string[]; // 要订阅的标签列表，如 ['tag1', 'tag2', 'tag3']
 }
 
-// WebSocket 操作命令发送消息
+// WebSocket 操作命令发送消息（字段名与C++端一致）
 export interface CmdPushMessage {
-  name: string; // 操作命令名称
-  para: string; // JSON字符串格式的命令参数（C++业务后端需要解析）
+  cmd_name: string; // 操作命令名称
+  cmd_para?: string; // JSON字符串格式的命令参数（C++业务后端需要解析），无参数时可省略
 }
 
 // WebSocket 数据推送消息

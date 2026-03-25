@@ -6,8 +6,11 @@
 import { Server as SocketIOServer } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
-import type { SubscribeRequest } from '@gt4_web/shared';
+import type { SubscribeRequest, CmdPushMessage } from '@gt4_web/shared';
 import { SubscriptionManager } from './subscriptionManager.js';
+import { getDataClient } from '../redis/redisClient.js';
+
+const OPERATION_CMD_CHANNEL = 'operation_cmd';
 
 let io: SocketIOServer | null = null;
 const subscriptionManager = new SubscriptionManager();
@@ -44,6 +47,32 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
       } else {
         console.error(`[SocketServer] 无效的订阅请求格式:`, data);
       }
+    });
+
+    // 监听操作命令事件，转发到Redis
+    socket.on('cmd:push', (data: CmdPushMessage) => {
+      console.log(`[SocketServer] 收到操作命令:`, data);
+
+      if (!data.cmd_name) {
+        console.error(`[SocketServer] 无效的命令格式（缺少cmd_name）:`, data);
+        return;
+      }
+
+      const payload = JSON.stringify({
+        cmd_name: data.cmd_name,
+        cmd_para: data.cmd_para ?? '',
+      });
+
+      getDataClient()
+        .publish(OPERATION_CMD_CHANNEL, payload)
+        .then((receivers) => {
+          console.log(
+            `[SocketServer] 命令已发布到 ${OPERATION_CMD_CHANNEL}，接收者数: ${receivers}`,
+          );
+        })
+        .catch((err) => {
+          console.error(`[SocketServer] 发布命令到 Redis 失败:`, err);
+        });
     });
 
     // 监听断开连接事件

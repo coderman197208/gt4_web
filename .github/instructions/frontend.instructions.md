@@ -15,4 +15,4 @@ applyTo: 'frontend/src/**'
 - WebSocket work should go through `useWebSocket()` in `frontend/src/services/websocket.ts`. Subscribe with `subscribe(tags)` and clear subscriptions with an empty array instead of creating a parallel socket state model.
 - Follow existing logging and comment conventions: business logic comments in Chinese, structural or technical explanations in English, and frontend websocket logs prefixed with `[WebSocket]`.
 - Use `@` path aliases for frontend source imports instead of long relative paths.
-- When adding a new HMI screen, use `frontend/src/views/MainMonitorView.vue`, `frontend/src/views/ContractEditingView.vue`, and `doc/mytasks/` as pattern references rather than inventing a new layout style.
+- When adding a new HMI screen, use `frontend/src/views/MainMonitorView.vue`, `frontend/src/views/ContractEditingView.vue` as pattern references rather than inventing a new layout style.

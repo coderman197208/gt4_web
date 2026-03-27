@@ -51,7 +51,7 @@ export function startRedisSubscriber(): void {
         io.to(socketId).emit('data:push', message);
       });
 
-      console.log(`[RedisSubscriber] 推送 ${tagName} 给 ${subscribers.length} 个订阅者`);
+      // console.log(`[RedisSubscriber] 推送 ${tagName} 给 ${subscribers.length} 个订阅者`);
     } catch (err) {
       console.error(`[RedisSubscriber] 处理 tag "${tagName}" 时出错:`, err);
     }

@@ -303,6 +303,48 @@ function getTrackTableColumnWidth(weight: number) {
   return `${(weight / trackTableTotalWeight) * 100}%`;
 }
 
+// 料筐/缓冲区 11 列定义
+const tubeTableColumns = [
+  { label: '流水号', weight: 1 },
+  { label: '管号', weight: 1.1 },
+  { label: '合同号', weight: 1.5 },
+  { label: '项目号', weight: 0.9 },
+  { label: '轧批号', weight: 1 },
+  { label: '炉号', weight: 1.1 },
+  { label: '试批号', weight: 1.1 },
+  { label: '长度', weight: 0.9 },
+  { label: '重量', weight: 0.9 },
+  { label: '接箍炉号', weight: 1.0 },
+  { label: '接箍批号', weight: 1.0 },
+] as const;
+
+const tubeTableTotalWeight = tubeTableColumns.reduce((total, column) => total + column.weight, 0);
+
+function getTubeTableColumnWidth(weight: number) {
+  return `${(weight / tubeTableTotalWeight) * 100}%`;
+}
+
+// 废料筐 8 列定义
+const scraptTableColumns = [
+  { label: '流水号', weight: 1 },
+  { label: '合同号', weight: 1.5 },
+  { label: '项目号', weight: 0.9 },
+  { label: '轧批号', weight: 1 },
+  { label: '炉号', weight: 1.1 },
+  { label: '试批号', weight: 1.1 },
+  { label: '长度', weight: 0.9 },
+  { label: '重量', weight: 0.9 },
+] as const;
+
+const scraptTableTotalWeight = scraptTableColumns.reduce(
+  (total, column) => total + column.weight,
+  0,
+);
+
+function getScraptTableColumnWidth(weight: number) {
+  return `${(weight / scraptTableTotalWeight) * 100}%`;
+}
+
 function handleAction(action: string) {
   console.log(action, { mainForm, productionStats, processRunning });
 }
@@ -310,8 +352,8 @@ function handleAction(action: string) {
 
 <template>
   <div class="main-monitor-view h-full w-full overflow-hidden bg-[#c8c8c8] p-2 text-slate-900">
-    <div class="grid h-full grid-rows-[minmax(0,2.2fr)_minmax(0,2.2fr)_auto_minmax(0,3fr)] gap-2">
-      <div class="win-group">
+    <div class="grid h-full grid-rows-[minmax(0,2.5fr)_minmax(0,2.5fr)_auto_minmax(0,3fr)] gap-4">
+      <div class="win-group mt-2">
         <div class="win-group__title">主控信息</div>
         <div
           class="grid h-full min-h-0 grid-cols-[0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_1.3fr] gap-2"
@@ -319,13 +361,12 @@ function handleAction(action: string) {
           <div class="win-panel flex min-h-0 flex-col">
             <div class="flex items-center justify-between">
               <Label class="win-panel__title">料筐</Label>
-              <span class="win-value text-sm"> 料筐支数 {{ mainForm.feedCount }} </span>
             </div>
-            <div class="flex flex-1 items-center justify-center">
-              <TubeBasket active color="cyan" :top-width="72" :bottom-width="98" :height="96" />
-            </div>
-            <div class="grid gap-2 text-xs">
-              <div class="flex items-center justify-between">
+            <!-- <div class="flex flex-1 items-center justify-center">
+              <TubeBasket active color="cyan" :top-width="72" :bottom-width="98" :height="48" />
+            </div> -->
+            <div class="grid gap-2">
+              <div class="flex items-center justify-between mt-4">
                 <span>合同号</span>
                 <span class="win-value">{{ mainForm.basketOrderNo }}</span>
               </div>
@@ -337,52 +378,92 @@ function handleAction(action: string) {
                 <span>试批号</span>
                 <span class="win-value">{{ mainForm.basketLotNo }}</span>
               </div>
-              <div class="space-y-1">
-                <Label class="text-xs">成捆支数设定</Label>
+              <div class="flex items-center justify-between">
+                <span>料筐支数</span>
+                <span class="win-value">{{ mainForm.feedCount }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <Label class="shrink-0 text-base">成捆支数</Label>
                 <Input
                   v-model="mainForm.basketBundleCount"
-                  class="win-input-edit h-7 text-center"
+                  class="win-input-edit h-7 text-right w-20"
                 />
               </div>
-              <div class="mt-8 grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('bundle')"
+                  >打捆</Button
+                >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleAction('bundle-once')"
-                  >&lt;&lt;</Button
+                  >&gt;</Button
                 >
-                <Button size="sm" class="win-button" @click="handleAction('bundle')">打捆</Button>
               </div>
             </div>
           </div>
 
           <div class="win-panel flex min-h-0 flex-col">
-            <div class="flex items-center justify-between">
-              <Label class="win-panel__title">缓冲区</Label>
-              <span class="win-value text-sm">{{ mainForm.bundleFlowNo }}</span>
-            </div>
-            <div class="flex flex-1 items-center justify-center px-2">
-              <svg
+            <Label class="win-panel__title">缓冲区</Label>
+            <div class="flex items-start justify-center px-2 pt-4">
+              <!-- <svg
                 viewBox="0 0 271.666 271.666"
                 class="h-28 w-full fill-cyan-500/70 stroke-slate-500"
               >
                 <path
                   d="M253.022 136.008v-13.366c0-3.313-2.687-6-6-6h-44.689c-3.313 0-6 2.687-6 6v12.445h-21.946l-9.116-3.67 5.297-11.882c.647-1.454.691-3.105.122-4.591s-1.706-2.685-3.159-3.333l-40.674-18.133c-1.453-.648-3.104-.691-4.591-.123-1.486.569-2.685 1.706-3.333 3.16l-6.141 13.775-11.531-4.642a5.98 5.98 0 0 0-2.24-.434H86.522V91.77c0-3.313-2.687-6-6-6H35.833c-3.313 0-6 2.687-6 6v13.446h-4.429C11.396 105.216 0 116.612 0 130.62s11.396 25.404 25.404 25.404h72.455l73.125 29.438a5.98 5.98 0 0 0 2.24.434h73.037c14.008 0 25.404-11.396 25.404-25.404 0-11.666-7.908-21.515-18.643-24.484Zm-6.76 37.888h-71.875l-73.124-29.438a6.026 6.026 0 0 0-2.241-.434H25.404c-7.392 0-13.404-6.013-13.404-13.404s6.013-13.404 13.404-13.404h72.455l73.125 29.438a5.98 5.98 0 0 0 2.24.434h73.037c7.392 0 13.404 6.013 13.404 13.404s-6.012 13.404-13.403 13.404Z"
                 />
+              </svg> -->
+              <svg
+                viewBox="0 85 271.666 100"
+                class="h-12 fill-cyan-500/70 stroke-slate-500"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <path
+                  d="M253.022 136.008v-13.366c0-3.313-2.687-6-6-6h-44.689c-3.313 0-6 2.687-6 6v12.445h-21.946l-9.116-3.67 5.297-11.882c.647-1.454.691-3.105.122-4.591s-1.706-2.685-3.159-3.333l-40.674-18.133c-1.453-.648-3.104-.691-4.591-.123-1.486.569-2.685 1.706-3.333 3.16l-6.141 13.775-11.531-4.642a5.98 5.98 0 0 0-2.24-.434H86.522V91.77c0-3.313-2.687-6-6-6H35.833c-3.313 0-6 2.687-6 6v13.446h-4.429C11.396 105.216 0 116.612 0 130.62s11.396 25.404 25.404 25.404h72.455l73.125 29.438a5.98 5.98 0 0 0 2.24.434h73.037c14.008 0 25.404-11.396 25.404-25.404 0-11.666-7.908-21.515-18.643-24.484Zm-6.76 37.888h-71.875l-73.124-29.438a6.026 6.026 0 0 0-2.241-.434H25.404c-7.392 0-13.404-6.013-13.404-13.404s6.013-13.404 13.404-13.404h72.455l73.125 29.438a5.98 5.98 0 0 0 2.24.434h73.037c7.392 0 13.404 6.013 13.404 13.404s-6.012 13.404-13.403 13.404Z"
+                />
               </svg>
             </div>
-            <div class="grid gap-2 text-xs">
+
+            <div class="mt-4 grid grid-cols-3 gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('circle-back')"
+                >&lt;&lt;</Button
+              >
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('circle-back')"
+                >&lt;</Button
+              >
+              <Button
+                size="sm"
+                variant="outline"
+                class="win-button"
+                @click="handleAction('circle-forward')"
+                >&gt;</Button
+              >
+            </div>
+            <div class="grid gap-1 mt-4">
               <div class="flex items-center justify-between">
-                <span>缓冲支数</span>
-                <span class="win-value">0</span>
+                <span>缓冲区支数</span>
+                <span class="win-value">000</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>最近成捆管捆号</span>
+                <span>最近管捆号</span>
                 <span class="win-value">{{ mainForm.lastBundleNo }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>下一管捆流水号</span>
+                <span>下一流水号</span>
                 <span class="win-value">{{ mainForm.bundleFlowNo }}</span>
               </div>
             </div>
@@ -390,32 +471,51 @@ function handleAction(action: string) {
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">废料辊道</Label>
-            <div class="flex flex-1 items-center justify-center gap-3">
-              <TubeBasket
-                :active="false"
-                color="amber"
-                :top-width="56"
-                :bottom-width="82"
-                :height="66"
-              />
-              <div class="flex flex-col items-center gap-3">
+            <div class="-translate-y-1 mt-2">
+              <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.waste" color="amber" :size="60" />
                 <ConveyorRoller :active="processRunning.waste" color="amber" :size="60" />
+                <IndicatorLight :active="processRunning.waste" color="red" :size="18" glow />
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('circle-back')"
+                  >&lt;</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('circle-forward')"
+                  >&gt;</Button
+                >
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAction('circle-back')"
+                  >入废料筐</Button
+                >
+                <TubeBasket
+                  :active="false"
+                  color="amber"
+                  :top-width="56"
+                  :bottom-width="82"
+                  :height="32"
+                />
               </div>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              class="win-button"
-              @click="handleAction('waste-basket')"
-              >入废料筐</Button
-            >
           </div>
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">色环</Label>
-            <div class="-translate-y-1">
-              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+            <div class="-translate-y-1 mt-2">
+              <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.circle" color="blue" :size="60" />
                 <ConveyorRoller :active="processRunning.circle" color="blue" :size="60" />
                 <IndicatorLight :active="processRunning.circle" color="red" :size="18" glow />
@@ -439,7 +539,7 @@ function handleAction(action: string) {
               <Button
                 size="sm"
                 variant="outline"
-                class="mt-2 w-full win-button"
+                class="mt-4 w-full win-button"
                 @click="handleAction('circle')"
                 >色环</Button
               >
@@ -448,8 +548,8 @@ function handleAction(action: string) {
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">喷印</Label>
-            <div class="-translate-y-1">
-              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+            <div class="-translate-y-1 mt-2">
+              <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.spray" color="green" :size="60" />
                 <ConveyorRoller :active="processRunning.spray" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.spray" color="red" :size="18" />
@@ -473,7 +573,7 @@ function handleAction(action: string) {
               <Button
                 size="sm"
                 variant="outline"
-                class="mt-2 w-full win-button"
+                class="mt-4 w-full win-button"
                 @click="handleAction('spray')"
                 >喷印</Button
               >
@@ -482,8 +582,8 @@ function handleAction(action: string) {
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">刻印</Label>
-            <div class="-translate-y-1">
-              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+            <div class="-translate-y-1 mt-2">
+              <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.carve" color="green" :size="60" />
                 <ConveyorRoller :active="processRunning.carve" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.carve" color="red" :size="18" />
@@ -507,7 +607,7 @@ function handleAction(action: string) {
               <Button
                 size="sm"
                 variant="outline"
-                class="mt-2 w-full win-button"
+                class="mt-4 w-full win-button"
                 @click="handleAction('carve')"
                 >刻印</Button
               >
@@ -516,8 +616,8 @@ function handleAction(action: string) {
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">称重</Label>
-            <div class="-translate-y-1">
-              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+            <div class="-translate-y-1 mt-2">
+              <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.weight" color="green" :size="60" />
                 <ConveyorRoller :active="processRunning.weight" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.weight" color="red" :size="18" />
@@ -538,7 +638,7 @@ function handleAction(action: string) {
                   >&gt;</Button
                 >
               </div>
-              <div class="mt-2 grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -559,8 +659,8 @@ function handleAction(action: string) {
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">定位</Label>
-            <div class="-translate-y-1">
-              <div class="flex flex-1 flex-col items-center justify-center gap-0.5">
+            <div class="-translate-y-1 mt-2">
+              <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.length" color="cyan" :size="60" />
                 <ConveyorRoller :active="processRunning.length" color="cyan" :size="60" />
                 <div class="flex items-center gap-2">
@@ -587,7 +687,7 @@ function handleAction(action: string) {
               <Button
                 size="sm"
                 variant="outline"
-                class="mt-2 w-full win-button"
+                class="mt-4 w-full win-button"
                 @click="handleAction('length')"
                 >测长</Button
               >
@@ -596,35 +696,35 @@ function handleAction(action: string) {
 
           <div class="win-panel flex min-h-0 flex-col">
             <Label class="win-panel__title">投料区</Label>
-            <div class="grid flex-1 gap-2 text-xs">
+            <div class="mt-2 grid flex-1 gap-2 text-xs">
               <div class="flex items-center gap-2">
-                <Label class="text-xs w-20 text-right">合同号</Label>
+                <Label class="text-base w-20 text-right">合同号</Label>
                 <Input v-model="mainForm.orderNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-xs w-20 text-right">支数</Label>
+                <Label class="text-base w-20 text-right">支数</Label>
                 <Input v-model="mainForm.feedCount" class="win-input-edit h-7 text-center flex-1" />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-xs w-20 text-right">轧批号</Label>
+                <Label class="text-base w-20 text-right">轧批号</Label>
                 <Input
                   v-model="mainForm.feedRollNo"
                   class="win-input-edit h-7 text-center flex-1"
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-xs w-20 text-right">试批号</Label>
+                <Label class="text-base w-20 text-right">试批号</Label>
                 <Input v-model="mainForm.feedLotNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-xs w-20 text-right">炉号</Label>
+                <Label class="text-base w-20 text-right">炉号</Label>
                 <Input
                   v-model="mainForm.feedMeltNo"
                   class="win-input-edit h-7 text-center flex-1"
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-xs w-20 text-right">下一根流水号</Label>
+                <Label class="text-base w-20 text-right">下一流水号</Label>
                 <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
             </div>
@@ -636,7 +736,7 @@ function handleAction(action: string) {
         <div class="win-group">
           <div class="win-group__title">测量点料流详细信息</div>
           <div class="win-table-shell h-full min-h-0 overflow-hidden">
-            <div class="win-table-head border-b border-[#8b8b8b]">
+            <!-- <div class="win-table-head border-b border-[#8b8b8b]">
               <Table class="table-fixed">
                 <colgroup>
                   <col
@@ -653,99 +753,114 @@ function handleAction(action: string) {
                   </TableRow>
                 </TableHeader>
               </Table>
-            </div>
-            <div class="h-[calc(100%-44px)] overflow-auto">
-              <Table class="table-fixed">
-                <colgroup>
-                  <col
-                    v-for="column in trackTableColumns"
-                    :key="`track-body-col-${column.label}`"
-                    :style="{ width: getTrackTableColumnWidth(column.weight) }"
-                  />
-                </colgroup>
-                <TableBody class="[&_tr]:h-10">
-                  <TableRow v-for="row in trackRows" :key="row.flowNo">
-                    <TableCell>{{ row.flowNo }}</TableCell>
-                    <TableCell>{{ row.tubeNo }}</TableCell>
-                    <TableCell>{{ row.orderNo }}</TableCell>
-                    <TableCell>{{ row.itemNo }}</TableCell>
-                    <TableCell>{{ row.rollNo }}</TableCell>
-                    <TableCell>{{ row.meltNo }}</TableCell>
-                    <TableCell>{{ row.lotNo }}</TableCell>
-                    <TableCell>{{ row.length }}</TableCell>
-                    <TableCell>
-                      <IndicatorLight
-                        :active="row.lengthOk"
-                        color="green"
-                        off-color="red"
-                        :size="16"
-                      />
-                    </TableCell>
-                    <TableCell>{{ row.weight }}</TableCell>
-                    <TableCell>
-                      <IndicatorLight
-                        :active="row.weightOk"
-                        color="green"
-                        off-color="red"
-                        :size="16"
-                      />
-                    </TableCell>
-                    <TableCell>{{ row.meltNoCoupling }}</TableCell>
-                    <TableCell>{{ row.lotNoCoupling }}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
+            </div> -->
+            <Table class="table-fixed">
+              <colgroup>
+                <col
+                  v-for="column in trackTableColumns"
+                  :key="`track-body-col-${column.label}`"
+                  :style="{ width: getTrackTableColumnWidth(column.weight) }"
+                />
+              </colgroup>
+              <TableHeader>
+                <TableRow>
+                  <TableHead v-for="column in trackTableColumns" :key="column.label">
+                    {{ column.label }}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody class="[&_tr]:h-9">
+                <TableRow v-for="row in trackRows" :key="row.flowNo">
+                  <TableCell>{{ row.flowNo }}</TableCell>
+                  <TableCell>{{ row.tubeNo }}</TableCell>
+                  <TableCell>{{ row.orderNo }}</TableCell>
+                  <TableCell>{{ row.itemNo }}</TableCell>
+                  <TableCell>{{ row.rollNo }}</TableCell>
+                  <TableCell>{{ row.meltNo }}</TableCell>
+                  <TableCell>{{ row.lotNo }}</TableCell>
+                  <TableCell>{{ row.length }}</TableCell>
+                  <TableCell>
+                    <IndicatorLight
+                      :active="row.lengthOk"
+                      color="green"
+                      off-color="red"
+                      :size="16"
+                    />
+                  </TableCell>
+                  <TableCell>{{ row.weight }}</TableCell>
+                  <TableCell>
+                    <IndicatorLight
+                      :active="row.weightOk"
+                      color="green"
+                      off-color="red"
+                      :size="16"
+                    />
+                  </TableCell>
+                  <TableCell>{{ row.meltNoCoupling }}</TableCell>
+                  <TableCell>{{ row.lotNoCoupling }}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
         </div>
 
         <div class="win-group">
-          <div class="win-group__title">工位备妥状态</div>
+          <div class="win-group__title">设备状态</div>
           <div class="flex h-full flex-col gap-3">
-            <div class="win-panel flex items-start justify-between">
-              <div class="space-y-1">
-                <Label class="win-panel__title">抱闸锁定</Label>
-                <p class="text-xs font-bold text-[#7a1212]">封锁 / 释放</p>
-              </div>
-              <SelectSwitch :active="stationReady.release" color="red" :size="64" />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="win-status-row flex items-center justify-between text-sm">
-                <span>释放</span>
-                <div class="flex items-center gap-2">
+            <div class="win-panel flex items-start justify-left gap-2">
+              <SelectSwitch :active="stationReady.release" color="green" :size="128" />
+              <div class="win-panel flex flex-1 h-full flex-col">
+                <div class="grid grid-cols-[120px_1fr] gap-2 items-center justify-items-stretch">
                   <Button
-                    size="icon-sm"
+                    size="sm"
                     variant="outline"
                     class="win-button"
                     @click="handleAction('position-release')"
-                    >●</Button
+                    >步进梁释放</Button
                   >
-                  <IndicatorLight :active="stationReady.release" color="green" :size="18" />
-                </div>
-              </div>
-              <div class="win-status-row flex items-center justify-between text-sm">
-                <span>内保</span>
-                <div class="flex items-center gap-2">
+                  <div class="justify-self-center">
+                    <IndicatorLight
+                      :active="stationReady.release"
+                      color="green"
+                      :size="20"
+                      class="translate-y-[2px]"
+                    />
+                  </div>
+
                   <Button
-                    size="icon-sm"
+                    size="sm"
                     variant="outline"
                     class="win-button"
-                    @click="handleAction('inner-protect')"
-                    >●</Button
+                    @click="handleAction('position-release')"
+                    >内保步进梁释放</Button
                   >
-                  <IndicatorLight :active="stationReady.innerProtect" color="green" :size="18" />
+                  <div class="justify-self-center">
+                    <IndicatorLight
+                      :active="stationReady.release"
+                      color="green"
+                      :size="20"
+                      class="translate-y-[2px]"
+                    />
+                  </div>
+
+                  <div class="justify-self-center">步进梁原位</div>
+                  <div class="justify-self-center">
+                    <IndicatorLight
+                      :active="stationReady.beamHome"
+                      color="green"
+                      :size="20"
+                      class="translate-y-[2px]"
+                    />
+                  </div>
                 </div>
               </div>
-              <div class="win-status-row col-span-2 flex items-center justify-between text-sm">
-                <span>步进梁原位</span>
-                <IndicatorLight :active="stationReady.beamHome" color="green" :size="18" />
-              </div>
             </div>
+
             <div class="win-panel grid grid-cols-2 gap-2 text-sm">
               <div
                 v-for="item in stationIndicators"
                 :key="item.key"
-                class="flex items-center justify-between"
+                class="flex items-center justify-evenly gap-2"
               >
                 <span>{{ item.label }}</span>
                 <IndicatorLight :active="stationReady[item.key]" color="green" :size="18" />
@@ -757,7 +872,7 @@ function handleAction(action: string) {
 
       <div class="win-group">
         <div class="win-group__title">喷印字符串</div>
-        <div class="win-spray-string px-3 py-2 font-mono text-sm text-slate-700">
+        <div class="px-3 py-2 font-mono text-lg font-bold text-slate-800">
           {{ sprayString }}
         </div>
       </div>
@@ -765,14 +880,51 @@ function handleAction(action: string) {
       <div class="grid min-h-0 grid-cols-[minmax(0,3.4fr)_minmax(420px,2fr)] gap-2">
         <div class="win-group">
           <div class="win-group__title">管子详细信息</div>
-          <Tabs default-value="basket" class="flex h-full min-h-0 flex-col gap-3">
-            <TabsList class="win-tabs-list grid w-full grid-cols-3">
-              <TabsTrigger value="basket" class="win-tab-trigger">料筐</TabsTrigger>
-              <TabsTrigger value="buffer" class="win-tab-trigger">缓冲区</TabsTrigger>
-              <TabsTrigger value="scrapt" class="win-tab-trigger">废料筐</TabsTrigger>
+          <Tabs default-value="basket" class="flex h-full min-h-0 flex-row gap-3">
+            <TabsList class="win-tabs-list flex flex-col justify-start gap-1 w-20 shrink-0">
+              <TabsTrigger value="basket" class="win-tab-trigger w-full">料筐</TabsTrigger>
+              <TabsTrigger value="buffer" class="win-tab-trigger w-full">缓冲区</TabsTrigger>
+              <TabsTrigger value="scrapt" class="win-tab-trigger w-full">废料筐</TabsTrigger>
             </TabsList>
 
             <TabsContent value="basket" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
+              <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
+                <Table class="table-fixed">
+                  <colgroup>
+                    <col
+                      v-for="column in tubeTableColumns"
+                      :key="`basket-col-${column.label}`"
+                      :style="{ width: getTubeTableColumnWidth(column.weight) }"
+                    />
+                  </colgroup>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead v-for="column in tubeTableColumns" :key="column.label">{{
+                        column.label
+                      }}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow v-for="row in basketRows" :key="`basket-${row.flowNo}`">
+                      <TableCell>{{ row.flowNo }}</TableCell>
+                      <TableCell>{{ row.tubeNo }}</TableCell>
+                      <TableCell>{{ row.orderNo }}</TableCell>
+                      <TableCell>{{ row.itemNo }}</TableCell>
+                      <TableCell>{{ row.rollNo }}</TableCell>
+                      <TableCell>{{ row.meltNo }}</TableCell>
+                      <TableCell>{{ row.lotNo }}</TableCell>
+                      <TableCell>{{ row.length }}</TableCell>
+                      <TableCell>{{ row.weight }}</TableCell>
+                      <TableCell>{{ row.meltNoCoupling }}</TableCell>
+                      <TableCell>{{ row.lotNoCoupling }}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
+                <span>总重 28.88</span>
+                <span>总长 120.118</span>
+              </div>
               <div class="flex items-center justify-end gap-2">
                 <Button
                   size="sm"
@@ -782,53 +934,47 @@ function handleAction(action: string) {
                   >刷新</Button
                 >
               </div>
-              <div class="win-table-shell min-h-0 flex-1 overflow-hidden">
-                <div class="win-table-head border-b border-[#8b8b8b]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>流水号</TableHead>
-                        <TableHead>管号</TableHead>
-                        <TableHead>合同号</TableHead>
-                        <TableHead>项目号</TableHead>
-                        <TableHead>轧批号</TableHead>
-                        <TableHead>炉号</TableHead>
-                        <TableHead>试批号</TableHead>
-                        <TableHead>长度</TableHead>
-                        <TableHead>重量</TableHead>
-                        <TableHead>接箍炉号</TableHead>
-                        <TableHead>接箍批号</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                  </Table>
-                </div>
-                <div class="h-[calc(100%-44px)] overflow-auto">
-                  <Table>
-                    <TableBody>
-                      <TableRow v-for="row in basketRows" :key="`basket-${row.flowNo}`">
-                        <TableCell>{{ row.flowNo }}</TableCell>
-                        <TableCell>{{ row.tubeNo }}</TableCell>
-                        <TableCell>{{ row.orderNo }}</TableCell>
-                        <TableCell>{{ row.itemNo }}</TableCell>
-                        <TableCell>{{ row.rollNo }}</TableCell>
-                        <TableCell>{{ row.meltNo }}</TableCell>
-                        <TableCell>{{ row.lotNo }}</TableCell>
-                        <TableCell>{{ row.length }}</TableCell>
-                        <TableCell>{{ row.weight }}</TableCell>
-                        <TableCell>{{ row.meltNoCoupling }}</TableCell>
-                        <TableCell>{{ row.lotNoCoupling }}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
-                <span>总重 28.88</span>
-                <span>总长 120.118</span>
-              </div>
             </TabsContent>
 
             <TabsContent value="buffer" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
+              <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
+                <Table class="table-fixed">
+                  <colgroup>
+                    <col
+                      v-for="column in tubeTableColumns"
+                      :key="`buffer-col-${column.label}`"
+                      :style="{ width: getTubeTableColumnWidth(column.weight) }"
+                    />
+                  </colgroup>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead v-for="column in tubeTableColumns" :key="column.label">{{
+                        column.label
+                      }}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow v-for="row in bufferRows" :key="`buffer-${row.flowNo}`">
+                      <TableCell>{{ row.flowNo }}</TableCell>
+                      <TableCell>{{ row.tubeNo }}</TableCell>
+                      <TableCell>{{ row.orderNo }}</TableCell>
+                      <TableCell>{{ row.itemNo }}</TableCell>
+                      <TableCell>{{ row.rollNo }}</TableCell>
+                      <TableCell>{{ row.meltNo }}</TableCell>
+                      <TableCell>{{ row.lotNo }}</TableCell>
+                      <TableCell>{{ row.length }}</TableCell>
+                      <TableCell>{{ row.weight }}</TableCell>
+                      <TableCell>{{ row.meltNoCoupling }}</TableCell>
+                      <TableCell>{{ row.lotNoCoupling }}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
+                <span>总重 12.95</span>
+                <span>总长 120.118</span>
+              </div>
               <div class="flex items-center justify-end gap-2">
                 <Button
                   size="sm"
@@ -852,53 +998,43 @@ function handleAction(action: string) {
                   >删除钢管</Button
                 >
               </div>
-              <div class="win-table-shell min-h-0 flex-1 overflow-hidden">
-                <div class="win-table-head border-b border-[#8b8b8b]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>流水号</TableHead>
-                        <TableHead>管号</TableHead>
-                        <TableHead>合同号</TableHead>
-                        <TableHead>项目号</TableHead>
-                        <TableHead>轧批号</TableHead>
-                        <TableHead>炉号</TableHead>
-                        <TableHead>试批号</TableHead>
-                        <TableHead>长度</TableHead>
-                        <TableHead>重量</TableHead>
-                        <TableHead>接箍炉号</TableHead>
-                        <TableHead>接箍批号</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                  </Table>
-                </div>
-                <div class="h-[calc(100%-44px)] overflow-auto">
-                  <Table>
-                    <TableBody>
-                      <TableRow v-for="row in bufferRows" :key="`buffer-${row.flowNo}`">
-                        <TableCell>{{ row.flowNo }}</TableCell>
-                        <TableCell>{{ row.tubeNo }}</TableCell>
-                        <TableCell>{{ row.orderNo }}</TableCell>
-                        <TableCell>{{ row.itemNo }}</TableCell>
-                        <TableCell>{{ row.rollNo }}</TableCell>
-                        <TableCell>{{ row.meltNo }}</TableCell>
-                        <TableCell>{{ row.lotNo }}</TableCell>
-                        <TableCell>{{ row.length }}</TableCell>
-                        <TableCell>{{ row.weight }}</TableCell>
-                        <TableCell>{{ row.meltNoCoupling }}</TableCell>
-                        <TableCell>{{ row.lotNoCoupling }}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
-                <span>总重 12.95</span>
-                <span>总长 120.118</span>
-              </div>
             </TabsContent>
 
             <TabsContent value="scrapt" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
+              <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
+                <Table class="table-fixed">
+                  <colgroup>
+                    <col
+                      v-for="column in scraptTableColumns"
+                      :key="`scrapt-col-${column.label}`"
+                      :style="{ width: getScraptTableColumnWidth(column.weight) }"
+                    />
+                  </colgroup>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead v-for="column in scraptTableColumns" :key="column.label">{{
+                        column.label
+                      }}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow v-for="row in scraptRows" :key="`scrapt-${row.flowNo}`">
+                      <TableCell>{{ row.flowNo }}</TableCell>
+                      <TableCell>{{ row.orderNo }}</TableCell>
+                      <TableCell>{{ row.itemNo }}</TableCell>
+                      <TableCell>{{ row.rollNo }}</TableCell>
+                      <TableCell>{{ row.meltNo }}</TableCell>
+                      <TableCell>{{ row.lotNo }}</TableCell>
+                      <TableCell>{{ row.length }}</TableCell>
+                      <TableCell>{{ row.weight }}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
+                <span>总重 0.52</span>
+                <span>总长 120.118</span>
+              </div>
               <div class="flex items-center justify-end gap-2">
                 <Button
                   size="sm"
@@ -911,153 +1047,121 @@ function handleAction(action: string) {
                   >废料成筐</Button
                 >
               </div>
-              <div class="win-table-shell min-h-0 flex-1 overflow-hidden">
-                <div class="win-table-head border-b border-[#8b8b8b]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>流水号</TableHead>
-                        <TableHead>合同号</TableHead>
-                        <TableHead>项目号</TableHead>
-                        <TableHead>轧批号</TableHead>
-                        <TableHead>炉号</TableHead>
-                        <TableHead>试批号</TableHead>
-                        <TableHead>长度</TableHead>
-                        <TableHead>重量</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                  </Table>
-                </div>
-                <div class="h-[calc(100%-44px)] overflow-auto">
-                  <Table>
-                    <TableBody>
-                      <TableRow v-for="row in scraptRows" :key="`scrapt-${row.flowNo}`">
-                        <TableCell>{{ row.flowNo }}</TableCell>
-                        <TableCell>{{ row.orderNo }}</TableCell>
-                        <TableCell>{{ row.itemNo }}</TableCell>
-                        <TableCell>{{ row.rollNo }}</TableCell>
-                        <TableCell>{{ row.meltNo }}</TableCell>
-                        <TableCell>{{ row.lotNo }}</TableCell>
-                        <TableCell>{{ row.length }}</TableCell>
-                        <TableCell>{{ row.weight }}</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
-                <span>总重 0.52</span>
-                <span>总长 120.118</span>
-              </div>
             </TabsContent>
           </Tabs>
         </div>
 
-        <div class="grid min-h-0 grid-rows-[minmax(0,2fr)_minmax(0,1fr)] gap-2">
+        <div class="grid min-h-0 grid-rows-[minmax(0,1.8fr)_minmax(0,1fr)] gap-4">
           <div class="win-group">
             <div class="win-group__title">生产统计信息</div>
-            <div class="grid h-full min-h-0 gap-3 grid-rows-[auto_auto_auto]">
-              <div class="win-stat-block p-3">
-                <div class="mb-2 flex items-center gap-4 text-sm font-semibold text-[#1d47a4]">
-                  <span>合同号 {{ productionStats.statOrderNo }}</span>
-                  <span>炉号 {{ productionStats.statMeltNo }}</span>
-                  <span>试批号 {{ productionStats.statLotNo }}</span>
+            <div class="flex h-full flex-col gap-2">
+              <div class="mb-2 flex items-center gap-4 text-s font-semibold text-[#1d47a4]">
+                <span>合同号 {{ productionStats.statOrderNo }}</span>
+                <span>炉号 {{ productionStats.statMeltNo }}</span>
+                <span>试批号 {{ productionStats.statLotNo }}</span>
+              </div>
+
+              <div class="grid grid-cols-[150px_1fr_1fr_1fr] gap-3">
+                <Label class="text-sm font-bold">当前合同已完成</Label>
+                <div class="flex items-center gap-2">
+                  <Input
+                    v-model="productionStats.orderWeight"
+                    class="win-input-readonly h-7 text-right"
+                  />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">吨</Label>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
-                  <div class="space-y-1">
-                    <Label class="text-xs">当前合同已完成 吨</Label>
-                    <Input
-                      v-model="productionStats.orderWeight"
-                      class="win-input-edit h-7 text-right"
-                    />
-                  </div>
-                  <div class="space-y-1">
-                    <Label class="text-xs">当前合同已完成 米</Label>
-                    <Input
-                      v-model="productionStats.orderLength"
-                      class="win-input-edit h-7 text-right"
-                    />
-                  </div>
-                  <div class="space-y-1">
-                    <Label class="text-xs">当前合同已完成 支</Label>
-                    <Input
-                      v-model="productionStats.orderCount"
-                      readonly
-                      class="win-input-readonly h-7 text-right"
-                    />
-                  </div>
+                <div class="flex items-center gap-2">
+                  <Input
+                    v-model="productionStats.orderLength"
+                    class="win-input-readonly h-7 text-right"
+                  />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">米</Label>
                 </div>
-                <div class="mt-3 grid grid-cols-2 gap-3">
-                  <div class="space-y-1">
-                    <Label class="text-xs">英制重量 磅</Label>
-                    <Input
-                      v-model="productionStats.orderWeightEng"
-                      readonly
-                      class="win-input-readonly h-7 text-right"
-                    />
-                  </div>
-                  <div class="space-y-1">
-                    <Label class="text-xs">英制长度 英尺</Label>
-                    <Input
-                      v-model="productionStats.orderLengthEng"
-                      readonly
-                      class="win-input-readonly h-7 text-right"
-                    />
-                  </div>
+                <div class="flex items-center gap-2">
+                  <Input
+                    v-model="productionStats.orderCount"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">支</Label>
                 </div>
               </div>
 
-              <div class="win-stat-block grid grid-cols-3 gap-3 p-3">
-                <div class="space-y-1">
-                  <Label class="text-xs">当前炉批已完成 吨</Label>
+              <div class="grid grid-cols-[150px_1fr_1fr_1fr] gap-3">
+                <Label class="text-sm font-bold"></Label>
+                <div class="flex items-center gap-2">
+                  <Input
+                    v-model="productionStats.orderWeightEng"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">磅</Label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <Input
+                    v-model="productionStats.orderLengthEng"
+                    readonly
+                    class="win-input-readonly h-7 text-right"
+                  />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">英尺</Label>
+                </div>
+                <Label class="text-xs font-bold"></Label>
+              </div>
+
+              <div class="grid grid-cols-[150px_1fr_1fr_1fr] gap-3">
+                <Label class="text-sm font-bold">当前炉批已完成</Label>
+                <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.lotWeight"
                     readonly
                     class="win-input-readonly h-7 text-right"
                   />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">吨</Label>
                 </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">当前炉批已完成 米</Label>
+                <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.lotLength"
                     readonly
                     class="win-input-readonly h-7 text-right"
                   />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">米</Label>
                 </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">当前炉批已完成 支</Label>
+                <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.lotCount"
                     readonly
                     class="win-input-readonly h-7 text-right"
                   />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">支</Label>
                 </div>
               </div>
+              <!-- </div> -->
 
-              <div class="win-stat-block grid grid-cols-3 gap-3 p-3">
-                <div class="space-y-1">
-                  <Label class="text-xs">班产量 吨</Label>
+              <div class="grid grid-cols-[150px_1fr_1fr_1fr] gap-3">
+                <Label class="text-sm font-bold">班产量</Label>
+                <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.shiftWeight"
                     readonly
                     class="win-input-readonly h-7 text-right"
                   />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">吨</Label>
                 </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">班产量 米</Label>
+                <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.shiftLength"
                     readonly
                     class="win-input-readonly h-7 text-right"
                   />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">米</Label>
                 </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">班产量 支</Label>
+                <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.shiftCount"
                     readonly
                     class="win-input-readonly h-7 text-right"
                   />
+                  <Label class="shrink-0 whitespace-nowrap text-xs">支</Label>
                 </div>
               </div>
             </div>
@@ -1065,7 +1169,7 @@ function handleAction(action: string) {
 
           <div class="win-group">
             <div class="win-group__title">进程工作状态</div>
-            <div class="grid h-full grid-cols-5 gap-2 pt-2">
+            <div class="grid h-full grid-cols-5 gap-2">
               <div
                 v-for="item in processStatusCards"
                 :key="item.key"
@@ -1075,7 +1179,7 @@ function handleAction(action: string) {
                   :active="processStatus[item.key]"
                   color="green"
                   off-color="red"
-                  :size="22"
+                  :size="20"
                   glow
                 />
                 <span class="text-xs font-bold leading-4 text-slate-800">{{ item.label }}</span>
@@ -1151,7 +1255,7 @@ function handleAction(action: string) {
 .win-input-edit,
 .win-input-readonly {
   border-radius: 2px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   box-shadow: none;
 }
@@ -1212,12 +1316,15 @@ function handleAction(action: string) {
 }
 
 .win-table-shell :deep(th) {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   height: 30px;
   border-right: 1px solid #8a8a8a;
   padding: 4px 8px;
   background: #dcdcdc;
   color: #1d47a4;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-align: center;
   white-space: nowrap;
@@ -1228,7 +1335,7 @@ function handleAction(action: string) {
   border-bottom: 1px solid #9d9d9d;
   padding: 4px 8px;
   color: #262626;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-align: center;
   white-space: nowrap;
@@ -1255,7 +1362,9 @@ function handleAction(action: string) {
   padding: 0;
 }
 
-.win-tab-trigger {
+:deep(.win-tab-trigger) {
+  height: 32px !important;
+  flex: none !important;
   border: 1px solid #8a8a8a;
   border-bottom: 0;
   border-radius: 2px 2px 0 0;
@@ -1265,7 +1374,7 @@ function handleAction(action: string) {
   font-weight: 700;
 }
 
-.win-tab-trigger[data-state='active'] {
+:deep(.win-tab-trigger[data-state='active']) {
   background: #ededed;
   color: #6f1616;
 }

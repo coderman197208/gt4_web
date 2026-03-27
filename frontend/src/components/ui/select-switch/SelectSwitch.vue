@@ -82,7 +82,7 @@ const sizeValue = computed(() => {
     :class="cn('inline-block shrink-0', props.class)"
     :width="sizeValue"
     :height="sizeValue"
-    viewBox="0 0 352 352"
+    viewBox="85 45 185 245"
     xmlns="http://www.w3.org/2000/svg"
   >
     <!-- 关位路径 — 原始坐标已在 352x352 内 -->

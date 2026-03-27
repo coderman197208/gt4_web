@@ -40,7 +40,7 @@ function updateAndPushTag1() {
       io.to(socketId).emit('data:push', message);
     });
 
-    console.log(`[MockDataGenerator] 推送 tag1 给 ${subscribers.length} 个订阅者:`, tag1Data);
+    // console.log(`[MockDataGenerator] 推送 tag1 给 ${subscribers.length} 个订阅者:`, tag1Data);
   }
 }
 
@@ -63,7 +63,7 @@ function updateAndPushTag2() {
       io.to(socketId).emit('data:push', message);
     });
 
-    console.log(`[MockDataGenerator] 推送 tag2 给 ${subscribers.length} 个订阅者:`, tag2Data);
+    // console.log(`[MockDataGenerator] 推送 tag2 给 ${subscribers.length} 个订阅者:`, tag2Data);
   }
 }
 
@@ -86,7 +86,7 @@ function updateAndPushTag3() {
       io.to(socketId).emit('data:push', message);
     });
 
-    console.log(`[MockDataGenerator] 推送 tag3 给 ${subscribers.length} 个订阅者:`, tag3Data);
+    // console.log(`[MockDataGenerator] 推送 tag3 给 ${subscribers.length} 个订阅者:`, tag3Data);
   }
 }
 

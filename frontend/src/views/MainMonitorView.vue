@@ -1180,7 +1180,6 @@ function handleAction(action: string) {
                   color="green"
                   off-color="red"
                   :size="20"
-                  glow
                 />
                 <span class="text-xs font-bold leading-4 text-slate-800">{{ item.label }}</span>
                 <Button

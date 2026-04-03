@@ -24,7 +24,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   active: false,
   color: 'green',
-  offColor: 'gray',
+  offColor: 'black',
   shape: 'circle',
   size: 16,
   glow: false,
@@ -32,25 +32,30 @@ const props = withDefaults(defineProps<Props>(), {
 
 // -- 亮灯颜色映射 (明亮/饱和) --
 const onColorMap: Record<IndicatorLightColor, string> = {
-  green: 'bg-green-500',
-  red: 'bg-red-500',
+  // green: 'bg-green-500',
+  green: 'bg-[#00ff00]',
+  // red: 'bg-red-500',
+  red: 'bg-[#ff0000]',
   amber: 'bg-amber-400',
   blue: 'bg-blue-500',
   orange: 'bg-orange-500',
   cyan: 'bg-cyan-400',
   white: 'bg-white',
+  black: 'bg-[#000000]',
 };
 
 // -- 灭灯颜色映射 (暗淡/低饱和) --
 const offColorMap: Record<IndicatorLightColor | 'gray', string> = {
   gray: 'bg-gray-300 dark:bg-gray-600',
   green: 'bg-green-900/50 dark:bg-green-800/30',
-  red: 'bg-red-900/50 dark:bg-red-800/30',
+  // red: 'bg-red-900/50 dark:bg-red-800/30',
+  red: 'bg-[#ff0000]',
   amber: 'bg-amber-900/50 dark:bg-amber-800/30',
   blue: 'bg-blue-900/50 dark:bg-blue-800/30',
   orange: 'bg-orange-900/50 dark:bg-orange-800/30',
   cyan: 'bg-cyan-900/50 dark:bg-cyan-800/30',
   white: 'bg-gray-200 dark:bg-gray-500',
+  black: 'bg-black dark:bg-gray-800',
 };
 
 // -- 发光效果颜色映射 (对应 on-state 颜色的 50% 透明度) --
@@ -62,6 +67,7 @@ const glowColorMap: Record<IndicatorLightColor, string> = {
   orange: 'rgba(249, 115, 22, 0.5)',
   cyan: 'rgba(34, 211, 238, 0.5)',
   white: 'rgba(255, 255, 255, 0.5)',
+  black: 'rgba(0, 0, 0, 0.5)',
 };
 
 const colorClass = computed(() => {

@@ -78,6 +78,28 @@
       </div>
     </div>
 
+    <!-- SvgToggle 组件演示 -->
+    <div class="flex-shrink-0 border rounded p-2 mb-2">
+      <h3 class="text-sm font-semibold mb-2">SvgToggle 组件演示</h3>
+      <div class="flex items-center gap-6 flex-wrap">
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-xs text-gray-500">默认尺寸</span>
+          <SvgToggle v-model="toggle1" />
+          <span class="text-xs">{{ toggle1 ? 'ON' : 'OFF' }}</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-xs text-gray-500">自定义尺寸 (150×75)</span>
+          <SvgToggle v-model="toggle2" :width="150" :height="75" />
+          <span class="text-xs">{{ toggle2 ? 'ON' : 'OFF' }}</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-xs text-gray-500">小尺寸 (60×30)</span>
+          <SvgToggle v-model="toggle3" :width="60" :height="30" />
+          <span class="text-xs">{{ toggle3 ? 'ON' : 'OFF' }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- PlanInfo 数据展示 -->
     <div class="border rounded p-2 mb-2">
       <h3 class="text-sm font-semibold mb-1">PlanInfo 数据</h3>
@@ -120,6 +142,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -134,6 +157,9 @@ import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 
 const result = ref('');
+const toggle1 = ref(false);
+const toggle2 = ref(true);
+const toggle3 = ref(false);
 const { isConnected, error, subscribe, sendCommand } = useWebSocket();
 const realtimeStore = useRealtimeDataStore();
 

@@ -4,18 +4,18 @@
  */
 
 import type { DataPushMessage } from '@gt4_web/shared';
-import { getDataClient, getSubClient } from './redisClient.js';
+import { getRedisDataClient, getRedisSubClient } from './redisClient.js';
 import { getSocketServer, getSubscriptionManager } from '../websocket/socketServer.js';
 
 /**
  * 启动 Redis 订阅，监听 C++ 程序写入的实时数据变更
  */
 export function startRedisSubscriber(): void {
-  const subClient = getSubClient();
-  const dataClient = getDataClient();
+  const redisSubClient = getRedisSubClient();
+  const redisDataClient = getRedisDataClient();
 
   // 订阅 RealDataChanged 主题
-  subClient.subscribe('RealDataChanged', (err, count) => {
+  redisSubClient.subscribe('RealDataChanged', (err, count) => {
     if (err) {
       console.error('[RedisSubscriber] 订阅 RealDataChanged 失败:', err.message);
       return;
@@ -24,7 +24,7 @@ export function startRedisSubscriber(): void {
   });
 
   // 监听消息
-  subClient.on('message', async (channel, tagName) => {
+  redisSubClient.on('message', async (channel, tagName) => {
     if (channel !== 'RealDataChanged') return;
 
     // 检查是否有前端订阅了这个 tag
@@ -33,7 +33,7 @@ export function startRedisSubscriber(): void {
 
     try {
       // 从 Redis 读取 tag 的值
-      const tagValue = await dataClient.get(tagName);
+      const tagValue = await redisDataClient.get(tagName);
       if (tagValue === null) {
         console.warn(`[RedisSubscriber] tag "${tagName}" 在 Redis 中不存在`);
         return;

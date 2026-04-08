@@ -8,7 +8,7 @@ import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
 import type { SubscribeRequest, CmdPushMessage } from '@gt4_web/shared';
 import { SubscriptionManager } from './subscriptionManager.js';
-import { getDataClient } from '../redis/redisClient.js';
+import { getRedisDataClient } from '../redis/redisClient.js';
 
 const OPERATION_CMD_CHANNEL = 'operation_cmd';
 
@@ -63,7 +63,7 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
         cmd_para: data.cmd_para ?? '',
       });
 
-      getDataClient()
+      getRedisDataClient()
         .publish(OPERATION_CMD_CHANNEL, payload)
         .then((receivers) => {
           console.log(

@@ -19,10 +19,10 @@ const REDIS_CONFIG = {
 };
 
 /** 用于普通数据读取（GET）的客户端 */
-let dataClient: Redis | null = null;
+let redisDataClient: Redis | null = null;
 
 /** 用于 Pub/Sub 订阅的客户端（订阅模式下不能执行普通命令） */
-let subClient: Redis | null = null;
+let redisSubClient: Redis | null = null;
 
 function attachLogger(client: Redis, label: string): void {
   client.on('connect', () => {
@@ -45,36 +45,36 @@ function attachLogger(client: Redis, label: string): void {
 /**
  * 获取数据读取客户端（单例）
  */
-export function getDataClient(): Redis {
-  if (!dataClient) {
-    dataClient = new Redis(REDIS_CONFIG);
-    attachLogger(dataClient, 'DataClient');
+export function getRedisDataClient(): Redis {
+  if (!redisDataClient) {
+    redisDataClient = new Redis(REDIS_CONFIG);
+    attachLogger(redisDataClient, 'DataClient');
   }
-  return dataClient;
+  return redisDataClient;
 }
 
 /**
  * 获取 Pub/Sub 订阅客户端（单例）
  */
-export function getSubClient(): Redis {
-  if (!subClient) {
-    subClient = new Redis(REDIS_CONFIG);
-    attachLogger(subClient, 'SubClient');
+export function getRedisSubClient(): Redis {
+  if (!redisSubClient) {
+    redisSubClient = new Redis(REDIS_CONFIG);
+    attachLogger(redisSubClient, 'SubClient');
   }
-  return subClient;
+  return redisSubClient;
 }
 
 /**
  * 关闭所有 Redis 连接
  */
 export async function closeRedisClients(): Promise<void> {
-  if (dataClient) {
-    await dataClient.quit();
-    dataClient = null;
+  if (redisDataClient) {
+    await redisDataClient.quit();
+    redisDataClient = null;
   }
-  if (subClient) {
-    await subClient.quit();
-    subClient = null;
+  if (redisSubClient) {
+    await redisSubClient.quit();
+    redisSubClient = null;
   }
   console.log('[RedisClient] 所有 Redis 连接已关闭');
 }

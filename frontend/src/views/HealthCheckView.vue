@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -185,12 +185,6 @@ async function sendSetFeedNumCommand() {
 onMounted(() => {
   subscribe(['tag1', 'tag2', 'tag3', 'PlanInfo']);
   console.log('[HealthCheckView] 已订阅 tag1, tag2, tag3, PlanInfo');
-});
-
-// 在组件卸载时取消所有订阅
-onUnmounted(() => {
-  subscribe([]);
-  console.log('[HealthCheckView] 已取消所有订阅');
 });
 </script>
 

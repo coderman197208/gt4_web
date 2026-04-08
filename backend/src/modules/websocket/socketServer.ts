@@ -6,7 +6,7 @@
 import { Server as SocketIOServer } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
-import type { SubscribeRequest, CmdPushMessage } from '@gt4_web/shared';
+import type { SubscribeRequest, CmdPushMessage, DataPushMessage } from '@gt4_web/shared';
 import { SubscriptionManager } from './subscriptionManager.js';
 import { getRedisDataClient } from '../redis/redisClient.js';
 
@@ -39,14 +39,28 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
     subscriptionManager.addConnection(socket.id);
 
     // 监听订阅事件
-    socket.on('subscribe', (data: SubscribeRequest) => {
+    socket.on('subscribe', async (data: SubscribeRequest) => {
       console.log(`[SocketServer] 收到订阅请求:`, data);
 
-      if (Array.isArray(data.tags)) {
-        subscriptionManager.updateSubscriptions(socket.id, data.tags);
-      } else {
+      if (!Array.isArray(data.tags)) {
         console.error(`[SocketServer] 无效的订阅请求格式:`, data);
+        return;
       }
+
+      subscriptionManager.updateSubscriptions(socket.id, data.tags);
+
+      // 立即从 Redis 读取每个 tag 的当前值并推送给该 socket，避免画面初始显示为空
+      const redisDataClient = getRedisDataClient();
+      for (const tag of data.tags) {
+        try {
+          const value = await redisDataClient.get(tag);
+          if (value === null) continue;
+          socket.emit('data:push', { tag, value } as DataPushMessage);
+        } catch (err) {
+          console.error(`[SocketServer] 初始推送 tag "${tag}" 失败:`, err);
+        }
+      }
+      console.log(`[SocketServer] 初始数据推送完成，tags: [${data.tags.join(', ')}]`);
     });
 
     // 监听操作命令事件，转发到Redis

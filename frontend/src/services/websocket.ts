@@ -3,7 +3,7 @@
  * 提供全局单例WebSocket连接，支持订阅和数据推送
  */
 
-import { ref, onUnmounted } from 'vue';
+import { ref } from 'vue';
 import { io, Socket } from 'socket.io-client';
 import type { SubscribeRequest, DataPushMessage, CmdPushMessage } from '@gt4_web/shared';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
@@ -12,9 +12,36 @@ import { useRealtimeDataStore } from '@/stores/realtimeData';
 let socket: Socket | null = null;
 let isInitialized = false;
 
+// 当前订阅的tags，用于重连后自动恢复订阅
+let currentTags: string[] = [];
+
+// 仅跟踪外部注册的 data:push 监听器，避免误删内部处理器
+const externalDataPushListeners = new Set<(data: DataPushMessage) => void>();
+
+// 是否已经完成过首次连接（用于区分"首次连接"和"重连"）
+let hasConnectedOnce = false;
+
 // 响应式状态
 const isConnected = ref(false);
 const error = ref<string | null>(null);
+
+// 把更新 Pinia store 的内部处理器提取成固定函数，并且新增一个外部监听器集合，
+// 只跟踪通过 onDataPush 注册的回调。这样offDataPush 在无参时只会清理外部回调，不会碰内部处理器；
+// 有参时也只移除指定的外部回调。
+function handleInternalDataPush(message: DataPushMessage) {
+  try {
+    console.log('[WebSocket] 收到数据推送:', message);
+
+    // 解析JSON数据
+    const parsedValue = JSON.parse(message.value);
+
+    // 更新Pinia store
+    const store = useRealtimeDataStore();
+    store.updateData(message.tag, parsedValue);
+  } catch (err) {
+    console.error('[WebSocket] 解析推送数据失败:', err, message);
+  }
+}
 
 /**
  * 初始化WebSocket连接（仅在首次调用时创建）
@@ -29,6 +56,7 @@ function initSocket() {
   const serverUrl = import.meta.env.VITE_WS_URL || undefined;
 
   socket = io(serverUrl ?? '', {
+    transports: ['websocket'], // 直接使用WebSocket，跳过long-polling避免路由切换时断连
     reconnection: true, // 启用自动重连
     reconnectionAttempts: Infinity, // 无限次重连尝试
     reconnectionDelay: 1000, // 初始重连延迟1秒
@@ -36,11 +64,19 @@ function initSocket() {
     timeout: 20000, // 连接超时20秒
   });
 
-  // 监听连接成功事件
+  // 监听连接成功事件（初次连接和每次重连都会触发）
   socket.on('connect', () => {
     console.log('[WebSocket] 连接已建立:', socket?.id);
     isConnected.value = true;
     error.value = null;
+
+    // 仅在重连时自动恢复订阅；首次连接由组件onMounted主动调用subscribe，无需重复
+    if (hasConnectedOnce && currentTags.length > 0) {
+      const request: SubscribeRequest = { tags: currentTags };
+      socket!.emit('subscribe', request);
+      console.log('[WebSocket] 重连后自动恢复订阅:', currentTags);
+    }
+    hasConnectedOnce = true;
   });
 
   // 监听断开连接事件
@@ -88,20 +124,7 @@ function initSocket() {
 function setupDataPushHandler() {
   if (!socket) return;
 
-  socket.on('data:push', (message: DataPushMessage) => {
-    try {
-      console.log('[WebSocket] 收到数据推送:', message);
-
-      // 解析JSON数据
-      const parsedValue = JSON.parse(message.value);
-
-      // 更新Pinia store
-      const store = useRealtimeDataStore();
-      store.updateData(message.tag, parsedValue);
-    } catch (err) {
-      console.error('[WebSocket] 解析推送数据失败:', err, message);
-    }
-  });
+  socket.on('data:push', handleInternalDataPush);
 }
 
 /**
@@ -121,6 +144,9 @@ export function useWebSocket() {
       return;
     }
 
+    // 记录当前订阅，用于重连后自动恢复
+    currentTags = tags;
+
     const request: SubscribeRequest = { tags };
     socketInstance.emit('subscribe', request);
     console.log('[WebSocket] 已发送订阅请求:', tags);
@@ -136,6 +162,11 @@ export function useWebSocket() {
       return;
     }
 
+    if (externalDataPushListeners.has(callback)) {
+      return;
+    }
+
+    externalDataPushListeners.add(callback);
     socketInstance.on('data:push', callback);
   }
 
@@ -149,9 +180,13 @@ export function useWebSocket() {
     }
 
     if (callback) {
+      externalDataPushListeners.delete(callback);
       socketInstance.off('data:push', callback);
     } else {
-      socketInstance.off('data:push');
+      for (const listener of externalDataPushListeners) {
+        socketInstance.off('data:push', listener);
+      }
+      externalDataPushListeners.clear();
     }
   }
 

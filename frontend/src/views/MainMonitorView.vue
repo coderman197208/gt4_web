@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { ConveyorRoller } from '@/components/ui/conveyor-roller';
 import { IndicatorLight } from '@/components/ui/indicator-light';
@@ -17,6 +17,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tube } from '@/components/ui/tube';
 import { TubeBasket } from '@/components/ui/tube-basket';
+import { useWebSocket } from '@/services/websocket';
+import { useRealtimeDataStore } from '@/stores/realtimeData';
 
 interface TrackRow {
   flowNo: string;
@@ -48,6 +50,9 @@ interface TubeDetailRow {
   meltNoCoupling?: string;
   lotNoCoupling?: string;
 }
+
+const { isConnected, error, subscribe, sendCommand } = useWebSocket();
+const realtimeStore = useRealtimeDataStore();
 
 const mainForm = reactive({
   basketBundleCount: '20',
@@ -348,6 +353,12 @@ function getScraptTableColumnWidth(weight: number) {
 function handleAction(action: string) {
   console.log(action, { mainForm, productionStats, processRunning });
 }
+
+// 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
+onMounted(() => {
+  subscribe(['PlanInfo']);
+  console.log('[MainMonitorView] 已订阅 PlanInfo');
+});
 </script>
 
 <template>
@@ -699,28 +710,42 @@ function handleAction(action: string) {
             <div class="mt-2 grid flex-1 gap-2 text-xs">
               <div class="flex items-center gap-2">
                 <Label class="text-base w-20 text-right">合同号</Label>
-                <Input v-model="mainForm.orderNo" class="win-input-edit h-7 text-center flex-1" />
+                <Input
+                  :model-value="realtimeStore.planInfo?.order_no || ''"
+                  class="win-input-edit h-7 text-center flex-1"
+                  readonly
+                />
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-20 text-right">支数</Label>
-                <Input v-model="mainForm.feedCount" class="win-input-edit h-7 text-center flex-1" />
+                <Input
+                  :model-value="String(realtimeStore.planInfo?.feed_num ?? '')"
+                  class="win-input-edit h-7 text-center flex-1"
+                  readonly
+                />
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-20 text-right">轧批号</Label>
                 <Input
-                  v-model="mainForm.feedRollNo"
+                  :model-value="realtimeStore.planInfo?.roll_no || ''"
                   class="win-input-edit h-7 text-center flex-1"
+                  readonly
                 />
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-20 text-right">试批号</Label>
-                <Input v-model="mainForm.feedLotNo" class="win-input-edit h-7 text-center flex-1" />
+                <Input
+                  :model-value="realtimeStore.planInfo?.lot_no || ''"
+                  class="win-input-edit h-7 text-center flex-1"
+                  readonly
+                />
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-20 text-right">炉号</Label>
                 <Input
-                  v-model="mainForm.feedMeltNo"
+                  :model-value="realtimeStore.planInfo?.melt_no || ''"
                   class="win-input-edit h-7 text-center flex-1"
+                  readonly
                 />
               </div>
               <div class="flex items-center gap-2">

@@ -17,9 +17,10 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
 
 - Monorepo 由 `frontend`、`backend` 和 `packages/shared` 组成；共享类型统一定义在 `packages/shared/src/types.ts`。
 - 前端通过 axios 调用 `/api`，由 Vite 代理到 Fastify 后端；WebSocket 通过 `/socket.io` 代理到 Socket.IO 服务。
+- 前端当前以 `HomePage` 作为应用壳层，统一承载 `AppHeader`、`AppSidebar` 和 `HmiViewport`；除 `LoginView` 外，其余业务页面作为其子路由挂载。
 - 后端 HTTP 路由位于 `backend/src/modules/api/`，WebSocket 逻辑位于 `backend/src/modules/websocket/`。
 - 后端通过 Redis Pub/Sub 与 C++ 业务后端通信，逻辑位于 `backend/src/modules/redis/`。
-- HMI 页面采用固定全屏布局，不应引入滚动页面；需要按虚拟坐标或 SVG `viewBox` 思路布局，参考 `view_sample/` 和 `doc/mytasks/`。
+- HMI 页面采用固定全屏布局，不应引入滚动页面；需要按虚拟坐标或 SVG `viewBox` 思路布局。当前主显示页通过路由 `meta.hmiScale` 按 `1920 x 1080` 基准驱动 `HmiViewport` 缩放，参考 `view_sample/` 和 `doc/mytasks/`。
 
 ### Redis Pub/Sub 数据流
 
@@ -30,6 +31,7 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
 1. C++ 程序将 tag 值写入 Redis（`SET tagName value`）后，向 `RealDataChanged` 频道发布 tagName
 2. `redisSubscriber.ts` 监听 `RealDataChanged` 频道，收到 tagName 后通过 `subscriptionManager` 检查是否有前端订阅该 tag
 3. 若有订阅者，从 Redis 读取对应 tag 数据（`GET tagName`），通过 Socket.IO 的 `data:push` 事件推送给前端
+4. 前端 `useWebSocket()` 的内部处理器会把 `data:push` 更新写入 `frontend/src/stores/realtimeData.ts`
 
 **操作命令下发（前端 → C++）**:
 
@@ -45,8 +47,10 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
   - Store: `frontend/src/stores/realtimeData.ts`
   - WebSocket: `frontend/src/services/websocket.ts`
   - 路由: `frontend/src/router/index.ts`
+  - 应用壳层: `frontend/src/views/HomePage.vue`
   - 后端 Mock 路由: `backend/src/modules/api/mockRoutes.ts`
   - 后端数据库路由: `backend/src/modules/api/parameterSetRoutes.ts`
+  - 合同数据路由: `backend/src/modules/api/orderDataRoutes.ts`
   - Prisma 客户端: `backend/src/modules/database/prismaClient.ts`
   - Redis 客户端: `backend/src/modules/redis/redisClient.ts`
   - Redis 订阅器: `backend/src/modules/redis/redisSubscriber.ts`
@@ -72,9 +76,11 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
 - 前端 API 模块保持 `request.get/post/...` 的薄封装模式，并统一从 `frontend/src/api/index.ts` 导出。
 - Mock API 路由和真实数据库路由均直接返回数据对象，而不是 `ApiResponse<T>` 包装；登录接口是少数返回 `success` 结构的例外。
 - 真实数据库路由使用 Prisma ORM 访问 PostgreSQL，连接通过 `backend/src/modules/database/prismaClient.ts` 单例管理；路由文件独立于 `mockRoutes.ts`，按资源命名（如 `parameterSetRoutes.ts`）。
-- 新页面加入 `frontend/src/views/` 后，需要作为 `HomePage` 的子路由注册到 `frontend/src/router/index.ts`。
+- 新页面加入 `frontend/src/views/` 后，需要作为 `HomePage` 的子路由注册到 `frontend/src/router/index.ts`；`LoginView` 保持顶层独立路由。
+- 固定分辨率 HMI 页面应通过路由 `meta.hmiScale` 声明设计尺寸，由 `HomePage` 驱动 `HmiViewport` 统一缩放，而不是在页面内部自行实现第二套缩放逻辑。
 - WebSocket 订阅通过 `useWebSocket().subscribe(tags)` 管理；取消订阅传空数组，不要自行维护第二套 socket 状态。
 - 产品约束默认始终只有一个活跃页面，并且任一时刻只允许一个页面拥有 WebSocket 订阅；因此 `subscribe(tags)` 语义是全量替换当前订阅集合，重连后恢复最后一次订阅属于设计预期，不应按多页面并发订阅模型改造。
+- `useWebSocket()` 是单例服务；其内部 `data:push` 处理器负责把实时数据写入 `realtimeData` store。当前 store 维护 `tag1`、`tag2`、`tag3` 和 `PlanInfo`，新增实时 tag 时要一起更新共享类型与 store。
 - 操作命令通过 `useWebSocket().sendCommand(cmdName, cmdPara?)` 发送，后端经 Redis `operation_cmd` 频道转发给 C++ 业务后端；命令参数为对象时会自动序列化为 JSON 字符串。
 - Redis 相关开发注意事项:
   - 订阅客户端（SubClient）只能用于 Pub/Sub，不能执行 GET/SET 等普通命令；数据读写和 PUBLISH 使用 DataClient。

@@ -51,9 +51,10 @@ frontend/src/
 
 backend/src/
   index.ts      # Fastify setup, CORS, route/WebSocket registration
-  modules/api/  # HTTP routes (mockRoutes.ts, parameterSetRoutes.ts, ...)
+  modules/api/  # HTTP routes (mockRoutes.ts, parameterSetRoutes.ts, orderDataRoutes.ts, ...)
   modules/database/ # Prisma client singleton (prismaClient.ts)
   modules/websocket/ # Socket.IO server, subscriptionManager, mockDataGenerator
+  modules/redis/ # Redis data/subscriber clients + RealDataChanged bridge
 backend/prisma/
   schema.prisma # Prisma schema (PostgreSQL introspection)
 
@@ -63,15 +64,17 @@ packages/shared/src/
 
 ### Communication Patterns
 
-**HTTP API**: Frontend axios (`/api` proxied by Vite to `:5001`) → Fastify routes → direct data response (routes do not use `ApiResponse<T>` envelope). Mock data served from `mockRoutes.ts`; real database routes (Prisma + PostgreSQL) in separate files like `parameterSetRoutes.ts`.
+**HTTP API**: Frontend axios (`/api` proxied by Vite to `:5001`) → Fastify routes → direct data response (routes do not use `ApiResponse<T>` envelope). Mock data served from `mockRoutes.ts`; real database routes (Prisma + PostgreSQL) live in separate files such as `parameterSetRoutes.ts` and `orderDataRoutes.ts`.
 
-**WebSocket**: `useWebSocket().subscribe(['tag1','tag2','tag3'])` → backend `subscriptionManager` → `socket.emit('data:push', { tag, value })` → Pinia store update. Vite also proxies `/socket.io` to `:5001` with `ws: true`.
+**WebSocket**: `useWebSocket().subscribe(['tag1','tag2','tag3'])` → backend `subscriptionManager` (full replacement semantics) → server immediately reads current Redis values for subscribed tags and emits `data:push` → frontend singleton service updates Pinia store. Vite also proxies `/socket.io` to `:5001` with `ws: true`.
+
+**Redis bridge**: backend uses two ioredis singletons: a data client for GET/SET/PUBLISH and a subscriber client for Pub/Sub. `redisSubscriber.ts` listens to `RealDataChanged`, fetches the new value, and pushes it only to subscribed sockets; command writes go to `operation_cmd`.
 
 **Shared types**: Both frontend and backend import from `@gt4_web/shared` — always define new types there first.
 
 ### HMI Layout Constraint
 
-All pages use **fixed fullscreen layout with no scroll**. SVG panels use `viewBox="0 0 1920 1080"` virtual coordinates with `preserveAspectRatio`. Reference screenshots in `view_sample/`; task specs in `doc/mytasks/`.
+All pages use **fixed fullscreen layout with no scroll**. `HomePage.vue` is the current app shell for in-app pages, and fixed-resolution HMI screens should use route `meta.hmiScale` with the current `1920 x 1080` baseline rather than ad hoc page-level scaling. SVG panels use `viewBox="0 0 1920 1080"` virtual coordinates with `preserveAspectRatio`. Reference screenshots in `view_sample/`; task specs in `doc/mytasks/`.
 
 ## Key Conventions
 
@@ -100,7 +103,8 @@ All pages use **fixed fullscreen layout with no scroll**. SVG panels use `viewBo
 **Adding a new page**:
 
 1. Create `frontend/src/views/[FeatureName]View.vue`
-2. Add as child route of `HomePage` in `frontend/src/router/index.ts`
+2. Add as child route of `HomePage` in `frontend/src/router/index.ts` (keep `LoginView` as the standalone top-level route)
+3. If the page is a fixed-size HMI screen, declare route `meta.hmiScale`
 
 ## Key Files
 
@@ -109,12 +113,15 @@ All pages use **fixed fullscreen layout with no scroll**. SVG panels use `viewBo
 | Shared types                      | `packages/shared/src/types.ts`                  |
 | API client (axios + interceptors) | `frontend/src/api/client.ts`                    |
 | Router                            | `frontend/src/router/index.ts`                  |
+| App shell                         | `frontend/src/views/HomePage.vue`               |
 | Realtime data store               | `frontend/src/stores/realtimeData.ts`           |
 | WebSocket composable              | `frontend/src/services/websocket.ts`            |
 | Backend entry                     | `backend/src/index.ts`                          |
 | HTTP routes                       | `backend/src/modules/api/mockRoutes.ts`         |
 | WebSocket server                  | `backend/src/modules/websocket/socketServer.ts` |
+| Redis bridge                      | `backend/src/modules/redis/redisSubscriber.ts`  |
 | Database client (Prisma)          | `backend/src/modules/database/prismaClient.ts`  |
 | DB route example                  | `backend/src/modules/api/parameterSetRoutes.ts` |
+| Order data route example          | `backend/src/modules/api/orderDataRoutes.ts`    |
 | Prisma schema                     | `backend/prisma/schema.prisma`                  |
 | UI component guide                | `doc/ui-components-guide.md`                    |

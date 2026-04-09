@@ -2,7 +2,7 @@
 
 > 本文件是最详细的参考文档，包含完整示例、环境变量配置和调试技巧。高层规则见 `CLAUDE.md`，简洁代码示例见 `AGENTS.md`。
 
-**Document Date:** 2026-02-10  
+**Document Date:** 2026-04-09  
 **Project Structure:** Monorepo with pnpm workspaces  
 **Primary Tech Stack:** TypeScript, Vue 3, Fastify, Socket.IO, Tailwind CSS
 
@@ -164,7 +164,7 @@ frontend/
 │   ├── services/      # Business logic (websocket.ts)
 │   ├── stores/        # Pinia stores (realtimeData.ts)
 │   ├── router/        # Vue Router config
-│   ├── views/         # Page components
+│   ├── views/         # Page components (HomePage is the in-app shell)
 │   ├── lib/           # Utilities (utils.ts with cn() helper)
 │   ├── assets/        # Static resources and styles
 
@@ -173,9 +173,10 @@ backend/
 ├── src/
 │   ├── index.ts       # Fastify server setup, API registration
 │   ├── modules/       # Feature modules
-│   │   ├── api/       # HTTP API routes (mockRoutes.ts, parameterSetRoutes.ts, ...)
+│   │   ├── api/       # HTTP API routes (mockRoutes.ts, parameterSetRoutes.ts, orderDataRoutes.ts, ...)
 │   │   ├── database/  # Prisma client singleton (prismaClient.ts)
 │   │   ├── websocket/ # WebSocket setup (socketServer.ts, subscriptionManager.ts, mockDataGenerator.ts)
+│   │   ├── redis/     # Redis clients and RealDataChanged bridge
 
 packages/shared/
 ├── src/
@@ -204,15 +205,22 @@ doc/
 
 - Fastify setup with CORS and sensible error handling
 - Registers mock routes from `modules/api` in non-production environments
-- Registers real database routes (e.g., `parameterSetRoutes.ts`) using Prisma ORM
+- Registers real database routes (e.g., `parameterSetRoutes.ts`, `orderDataRoutes.ts`) using Prisma ORM
 - Initializes Socket.IO server for WebSocket connections
+
+**Frontend Layout Flow:**
+
+1. [frontend/src/router/index.ts](frontend/src/router/index.ts) mounts business pages as child routes under [frontend/src/views/HomePage.vue](frontend/src/views/HomePage.vue)
+2. [frontend/src/views/HomePage.vue](frontend/src/views/HomePage.vue) wraps child routes with `AppHeader`, `AppSidebar`, and `HmiViewport`
+3. Fixed-resolution HMI pages declare route `meta.hmiScale`, and `HomePage` applies the shared `1920 x 1080` scaling baseline
 
 **WebSocket Data Flow:**
 
 1. Frontend subscribes via [frontend/src/services/websocket.ts](frontend/src/services/websocket.ts) `useWebSocket().subscribe(tags)`
-2. Backend subscription manager ([backend/src/modules/websocket/subscriptionManager.ts](backend/src/modules/websocket/subscriptionManager.ts)) tracks subscriptions per connection
-3. Mock data generator pushes data to subscribed clients via `socket.emit('data:push', message)`
-4. Frontend receives and updates Pinia store ([frontend/src/stores/realtimeData.ts](frontend/src/stores/realtimeData.ts))
+2. Backend subscription manager ([backend/src/modules/websocket/subscriptionManager.ts](backend/src/modules/websocket/subscriptionManager.ts)) tracks subscriptions per connection with full-replacement semantics
+3. On each subscribe event, the server immediately reads current tag values from Redis and sends initial `data:push` messages to that socket
+4. [backend/src/modules/redis/redisSubscriber.ts](backend/src/modules/redis/redisSubscriber.ts) listens to `RealDataChanged`, fetches the latest tag value, and pushes only to subscribed sockets
+5. Frontend receives `data:push`, auto-parses JSON, and updates Pinia store ([frontend/src/stores/realtimeData.ts](frontend/src/stores/realtimeData.ts))
 
 ---
 
@@ -290,6 +298,7 @@ npm run format     # Format all files with Prettier
 **Services:**
 
 - Export composable function `use[Service]()` returning reactive state and methods ([frontend/src/services/websocket.ts](frontend/src/services/websocket.ts#L89))
+- `useWebSocket()` is a singleton service; reconnect recovery and internal realtime store updates stay inside the service instead of being reimplemented per page
 
 **TypeScript Interfaces:**
 
@@ -333,17 +342,19 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
 **Vue Router Setup** ([frontend/src/router/index.ts](frontend/src/router/index.ts)):
 
 - Nested routes under main layout (HomePage as parent)
+- `LoginView` remains a standalone top-level route
 - Path-based routing with named routes
 - Lazy loading not used (all components imported directly)
+- Fixed-size HMI pages use route `meta.hmiScale` so `HomePage` can drive `HmiViewport`
 - Fallback route: catch-all redirects to home
 
-### API Response Consistency
+### API Response Shape
 
 **Shared Response Types** ([packages/shared/src/types.ts](packages/shared/src/types.ts)):
 
-- All endpoints return typed response objects
-- Generic `ApiResponse<T>` wrapper with success, data, message, error fields
-- Paged endpoints return `PaginatedResponse<T>` with data, total, page, limit
+- Shared response types exist for reuse where needed
+- `ApiResponse<T>` and `PaginatedResponse<T>` are available in shared types, but current frontend-backed routes generally return raw data objects instead of wrapping everything in `ApiResponse<T>`
+- Login remains the notable endpoint that returns a `success`-style payload
 
 **Error Handling** ([frontend/src/api/client.ts](frontend/src/api/client.ts)):
 
@@ -379,8 +390,8 @@ request.delete<T>(url, config)      // DELETE
 
 - All routes under `/api/` namespace
 - Mock routes return data objects directly (not wrapped in `ApiResponse<T>`; only login returns a structure with `success` field)
-- Real database routes (e.g., `parameterSetRoutes.ts`) also return data directly, using Prisma for PostgreSQL access
-- Uses Fastify `httpErrors` for proper HTTP error codes
+- Real database routes (e.g., `parameterSetRoutes.ts`, `orderDataRoutes.ts`) also return data directly or simple `{ message }` payloads, using Prisma for PostgreSQL access
+- `@fastify/sensible` is registered globally, so `fastify.httpErrors` is available for new handlers, though existing database routes still commonly use `reply.code(...).send({ message })`
 
 #### WebSocket Real-Time Data
 
@@ -388,22 +399,27 @@ request.delete<T>(url, config)      // DELETE
 
 - Global singleton Socket.IO connection
 - Auto-reconnect enabled (1-5 second delays)
-- Composable `useWebSocket()` returns: `isConnected`, `error`, `subscribe()`, `onDataPush()`, `offDataPush()`
+- Composable `useWebSocket()` returns: `isConnected`, `error`, `subscribe()`, `sendCommand()`, `onDataPush()`, `offDataPush()`
 - 取消订阅通过 `subscribe([])` 传入空数组实现
-- Data push handler auto-parses JSON and updates Pinia store
+- Service remembers the latest subscribed tags and restores them after reconnect
+- Internal data push handler auto-parses JSON and updates Pinia store
+- `offDataPush()` only removes externally registered listeners; it does not remove the internal store-update handler
 
 **Server Push** ([backend/src/modules/websocket/socketServer.ts](backend/src/modules/websocket/socketServer.ts)):
 
 - Socket.IO server initialized with Fastify HTTP server
 - CORS enabled for frontend origin
 - Subscription manager tracks which clients want which data tags
-- Mock data generator pushes to subscribed sockets via `io.to(socketId).emit('data:push', message)`
+- On `subscribe`, the server updates `SubscriptionManager` and immediately pushes current Redis values for each requested tag
+- Runtime realtime push path is driven by Redis channel `RealDataChanged` through [backend/src/modules/redis/redisSubscriber.ts](backend/src/modules/redis/redisSubscriber.ts)
+- `cmd:push` messages are forwarded to Redis channel `operation_cmd`
+- `mockDataGenerator.ts` is a development helper, not the primary production realtime data path
 
 **Message Format:**
 
 ```typescript
 interface DataPushMessage {
-  tag: string; // 'tag1', 'tag2', 'tag3'
+  tag: string; // 'tag1', 'tag2', 'tag3', 'PlanInfo', ...
   value: string; // JSON string (auto-parsed on client)
 }
 ```
@@ -423,9 +439,10 @@ interface DataPushMessage {
 - `User`, `Post`, `Comment` - Domain entities
 - `LoginParams`, `LoginResponse` - Auth payloads
 - `HealthCheckResponse` - Health check response
-- `SubscribeRequest`, `DataPushMessage` - WebSocket messages
-- `Tag1Data`, `Tag2Data`, `Tag3Data` - Real-time sensor data types
+- `SubscribeRequest`, `DataPushMessage`, `CmdPushMessage` - WebSocket messages
+- `Tag1Data`, `Tag2Data`, `Tag3Data`, `PlanInfo` - Real-time sensor data types
 - `ParameterSet` - 生产参数设定（对应 PostgreSQL parameter_set 表）
+- `OrderData` - 合同数据（对应 `api_order_data_t` 查询结果）
 
 ### Environment-Specific Configuration
 
@@ -468,6 +485,8 @@ server: {
 
 本项目为工业监控界面（HMI），采用固定全屏布局，不能滚动且要填满屏幕：
 
+- **应用壳层**: [frontend/src/views/HomePage.vue](frontend/src/views/HomePage.vue) 统一承载页头、侧边栏和 `HmiViewport`
+- **统一缩放入口**: 固定分辨率页面通过路由 `meta.hmiScale` 声明设计尺寸，由 `HomePage` 驱动 `HmiViewport`
 - **SVG viewBox 坐标系**: 使用 `viewBox="0 0 1920 1080"` 建立虚拟坐标
 - **数据点定位**: 使用虚拟坐标或百分比，避免硬编码像素值
 - **缩放控制**: 通过 `preserveAspectRatio` 控制响应式行为
@@ -514,14 +533,16 @@ npm run dev
 **Adding a New Page:**
 
 1. Create `frontend/src/views/[FeatureName]View.vue`
-2. Add route to `frontend/src/router/index.ts`
-3. Import and use UI components from `@/components/ui/[component]`
-4. Use stores via `const store = use[Feature]Store()`
+2. Add as a child route under `HomePage` in `frontend/src/router/index.ts` (`LoginView` stays top-level)
+3. If it is a fixed-size HMI screen, declare route `meta.hmiScale`
+4. Import and use UI components from `@/components/ui/[component]`
+5. Use stores via `const store = use[Feature]Store()`
 
 **Debugging WebSocket:**
 
 - Frontend logs use `[WebSocket]` prefix in console
 - Backend logs use `[SocketServer]` prefix
+- Redis connection logs use `[RedisClient]`, and realtime bridge logs use `[RedisSubscriber]`
 - Check `isConnected` state in any component using `const { isConnected } = useWebSocket()`
 
 ---
@@ -533,12 +554,14 @@ npm run dev
 | Shared Type Definitions      | [packages/shared/src/types.ts](packages/shared/src/types.ts)                                                 |
 | Frontend API Client          | [frontend/src/api/client.ts](frontend/src/api/client.ts)                                                     |
 | Frontend Routing             | [frontend/src/router/index.ts](frontend/src/router/index.ts)                                                 |
+| Frontend App Shell           | [frontend/src/views/HomePage.vue](frontend/src/views/HomePage.vue)                                           |
 | Frontend State (Pinia)       | [frontend/src/stores/realtimeData.ts](frontend/src/stores/realtimeData.ts)                                   |
 | Frontend WebSocket Service   | [frontend/src/services/websocket.ts](frontend/src/services/websocket.ts)                                     |
 | Backend Server Setup         | [backend/src/index.ts](backend/src/index.ts)                                                                 |
 | Backend API Routes           | [backend/src/modules/api/mockRoutes.ts](backend/src/modules/api/mockRoutes.ts)                               |
 | Backend WebSocket Server     | [backend/src/modules/websocket/socketServer.ts](backend/src/modules/websocket/socketServer.ts)               |
 | Backend Subscription Manager | [backend/src/modules/websocket/subscriptionManager.ts](backend/src/modules/websocket/subscriptionManager.ts) |
+| Backend Redis Bridge         | [backend/src/modules/redis/redisSubscriber.ts](backend/src/modules/redis/redisSubscriber.ts)                 |
 | Code Formatting Config       | [.prettierrc](.prettierrc)                                                                                   |
 | Frontend Config              | [frontend/vite.config.ts](frontend/vite.config.ts)                                                           |
 | Workspace Config             | [pnpm-workspace.yaml](pnpm-workspace.yaml)                                                                   |
@@ -546,6 +569,7 @@ npm run dev
 | Prisma Client                | [backend/src/modules/database/prismaClient.ts](backend/src/modules/database/prismaClient.ts)                 |
 | Prisma Schema                | [backend/prisma/schema.prisma](backend/prisma/schema.prisma)                                                 |
 | DB Route Example             | [backend/src/modules/api/parameterSetRoutes.ts](backend/src/modules/api/parameterSetRoutes.ts)               |
+| Order Data Route Example     | [backend/src/modules/api/orderDataRoutes.ts](backend/src/modules/api/orderDataRoutes.ts)                     |
 
 ---
 

@@ -47,8 +47,10 @@ const start = async () => {
     // 初始化Socket.IO服务器
     initSocketServer(fastify);
 
-    // 启动模拟数据生成器
-    startMockDataGenerator();
+    // 开发环境才启动模拟数据生成器，生产环境应由真实 Redis 数据驱动
+    if (process.env.NODE_ENV !== 'production') {
+      startMockDataGenerator();
+    }
 
     // 启动 Redis 订阅（接收 C++ 程序写入的实时数据）
     startRedisSubscriber();

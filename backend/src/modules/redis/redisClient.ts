@@ -5,11 +5,16 @@
 
 import Redis from 'ioredis';
 
+const redisPort = Number(process.env.REDIS_PORT || '6379');
+const redisDb = Number(process.env.REDIS_DB || '0');
+const redisPassword = process.env.REDIS_PASSWORD;
+
 // Redis 连接配置
 const REDIS_CONFIG = {
-  host: '140.32.1.192',
-  port: 6379,
-  password: 'ggl2e=mc2',
+  host: process.env.REDIS_HOST || '140.32.1.192',
+  port: Number.isNaN(redisPort) ? 6379 : redisPort,
+  db: Number.isNaN(redisDb) ? 0 : redisDb,
+  password: redisPassword && redisPassword.length > 0 ? redisPassword : 'ggl2e=mc2',
   // 自动重连策略：每次重连间隔递增，最大5秒
   retryStrategy(times: number) {
     const delay = Math.min(times * 500, 5000);

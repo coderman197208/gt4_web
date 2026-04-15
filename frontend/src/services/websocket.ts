@@ -202,11 +202,11 @@ export function useWebSocket() {
    * @param cmdPara 命令参数（对象，会被序列化为JSON字符串）
    * 调用方式：
    * // 有参数
-   * sendCommand('command1', { feed_num: 10 });
+   * sendUserCommand('command1', { feed_num: 10 });
    * // 无参数
-   * sendCommand('command2');
+   * sendUserCommand('command2');
    */
-  function sendCommand(cmdName: string, cmdPara?: unknown): void {
+  function sendUserCommand(cmdName: string, cmdPara?: unknown): void {
     if (!socketInstance) {
       console.error('[WebSocket] Socket未初始化，无法发送命令');
       return;
@@ -224,7 +224,7 @@ export function useWebSocket() {
     isConnected,
     error,
     subscribe,
-    sendCommand,
+    sendUserCommand,
     onDataPush,
     offDataPush,
   };

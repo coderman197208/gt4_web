@@ -39,8 +39,26 @@ export interface DataPushMessage {
 
 // ==================== 以下是操作命令类型定义 ====================
 // 这些类型定义了前端发送给后端的操作命令参数结构，对应DataPushMessage的value字段，后端需要根据这些结构解析参数并执行相应的操作
-export interface TestCmd {
+
+//设定投料支数命令
+export interface SetFeedNumCmd {
   feed_num: number; // 投料支数
+}
+
+//移动管子命令
+//plan:投料虚拟工位
+//align:对齐工位
+//weight：称重工位
+//carve:刻印工位
+//spray:喷码工位
+//circle:色环工位
+//scraptroller:出废辊道工位
+//scrapt:废料台架工位
+//backbuffer:打包前缓冲区工位
+//basket:打包区工位
+export interface MoveTubeCmd {
+  from: string;
+  to: string;
 }
 
 // ==================== 以下是生产数据类型定义 ====================

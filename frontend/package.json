@@ -13,6 +13,8 @@
   "dependencies": {
     "@gt4_web/shared": "workspace:*",
     "@tanstack/vue-table": "^8.21.3",
+    "@unovis/ts": "1.6.4",
+    "@unovis/vue": "1.6.4",
     "@vueuse/core": "^12.8.2",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",

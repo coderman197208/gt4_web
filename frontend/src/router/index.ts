@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomePage from '../views/HomePage.vue';
-import LoginView from '../views/LoginView.vue';
-import HealthCheckView from '../views/HealthCheckView.vue';
-import ApiDemoView from '../views/ApiDemoView.vue';
-import TubeEditNDTView from '../views/TubeEditNDTView.vue';
-import BundleManageView from '../views/BundleManageView.vue';
-import ComponentTestView from '../views/ComponentTestView.vue';
-import ContractEditingView from '../views/ContractEditingView.vue';
-import MainMonitorView from '../views/MainMonitorView.vue';
-import ParameterSettingView from '../views/ParameterSettingView.vue';
-import ModeSettingView from '../views/ModeSettingView.vue';
+
+const HomePage = () => import('../views/HomePage.vue');
+const LoginView = () => import('../views/LoginView.vue');
+const HealthCheckView = () => import('../views/HealthCheckView.vue');
+const ApiDemoView = () => import('../views/ApiDemoView.vue');
+const TubeEditNDTView = () => import('../views/TubeEditNDTView.vue');
+const BundleManageView = () => import('../views/BundleManageView.vue');
+const ComponentTestView = () => import('../views/ComponentTestView.vue');
+const ContractEditingView = () => import('../views/ContractEditingView.vue');
+const MainMonitorView = () => import('../views/MainMonitorView.vue');
+const ParameterSettingView = () => import('../views/ParameterSettingView.vue');
+const ModeSettingView = () => import('../views/ModeSettingView.vue');
 
 declare module 'vue-router' {
   interface RouteMeta {

@@ -133,7 +133,7 @@
       </Table>
       <p v-else class="text-gray-500 text-xs">等待数据...</p>
       <!-- 这里可以添加一个按钮来发送命令到后端重置投料之数  -->
-      <Button v-if="realtimeStore.planInfo" class="mt-2" @click="sendSetFeedNumCommand">
+      <Button v-if="realtimeStore.planInfo" class="mt-2" @click="sendSetFeedNumCmd">
         重置投料之数
       </Button>
     </div>
@@ -142,6 +142,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import type { SetFeedNumCmd } from '@gt4_web/shared';
 import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -160,7 +161,7 @@ const result = ref('');
 const toggle1 = ref(false);
 const toggle2 = ref(true);
 const toggle3 = ref(false);
-const { isConnected, error, subscribe, sendCommand } = useWebSocket();
+const { isConnected, error, subscribe, sendUserCommand } = useWebSocket();
 const realtimeStore = useRealtimeDataStore();
 
 async function checkHealth() {
@@ -176,9 +177,9 @@ async function checkHealth() {
   }
 }
 
-async function sendSetFeedNumCommand() {
-  // 发送命令
-  sendCommand('command1', { feed_num: 100 });
+async function sendSetFeedNumCmd() {
+  const cmd: SetFeedNumCmd = { feed_num: 100 };
+  sendUserCommand('SetFeedNumCmd', cmd);
 }
 
 // 在组件挂载时订阅tag1, tag2, tag3

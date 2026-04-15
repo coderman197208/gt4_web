@@ -35,7 +35,7 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
 
 **操作命令下发（前端 → C++）**:
 
-1. 前端通过 `useWebSocket().sendCommand(cmdName, cmdPara?)` 发送命令
+1. 前端通过 `useWebSocket().sendUserCommand(cmdName, cmdPara?)` 发送命令
 2. Socket.IO 服务端监听 `cmd:push` 事件，将命令序列化为 JSON 后发布到 Redis 的 `operation_cmd` 频道
 3. C++ 业务后端订阅 `operation_cmd` 频道，接收并执行命令
 
@@ -81,7 +81,7 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
 - WebSocket 订阅通过 `useWebSocket().subscribe(tags)` 管理；取消订阅传空数组，不要自行维护第二套 socket 状态。
 - 产品约束默认始终只有一个活跃页面，并且任一时刻只允许一个页面拥有 WebSocket 订阅；因此 `subscribe(tags)` 语义是全量替换当前订阅集合，重连后恢复最后一次订阅属于设计预期，不应按多页面并发订阅模型改造。
 - `useWebSocket()` 是单例服务；其内部 `data:push` 处理器负责把实时数据写入 `realtimeData` store。当前 store 维护 `tag1`、`tag2`、`tag3` 和 `PlanInfo`，新增实时 tag 时要一起更新共享类型与 store。
-- 操作命令通过 `useWebSocket().sendCommand(cmdName, cmdPara?)` 发送，后端经 Redis `operation_cmd` 频道转发给 C++ 业务后端；命令参数为对象时会自动序列化为 JSON 字符串。
+- 操作命令通过 `useWebSocket().sendUserCommand(cmdName, cmdPara?)` 发送，后端经 Redis `operation_cmd` 频道转发给 C++ 业务后端；命令参数为对象时会自动序列化为 JSON 字符串。
 - Redis 相关开发注意事项:
   - 订阅客户端（SubClient）只能用于 Pub/Sub，不能执行 GET/SET 等普通命令；数据读写和 PUBLISH 使用 DataClient。
   - 新增 Redis 频道时需同时考虑 C++ 端的发布/订阅对应关系。

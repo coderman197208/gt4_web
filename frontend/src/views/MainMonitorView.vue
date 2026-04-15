@@ -19,6 +19,7 @@ import { Tube } from '@/components/ui/tube';
 import { TubeBasket } from '@/components/ui/tube-basket';
 import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
+import type { SetFeedNumCmd, MoveTubeCmd } from '@gt4_web/shared';
 
 interface TrackRow {
   flowNo: string;
@@ -51,7 +52,7 @@ interface TubeDetailRow {
   lotNoCoupling?: string;
 }
 
-const { isConnected, error, subscribe, sendCommand } = useWebSocket();
+const { isConnected, error, subscribe, sendUserCommand } = useWebSocket();
 const realtimeStore = useRealtimeDataStore();
 
 const mainForm = reactive({
@@ -350,8 +351,10 @@ function getScraptTableColumnWidth(weight: number) {
   return `${(weight / scraptTableTotalWeight) * 100}%`;
 }
 
-function handleAction(action: string) {
-  console.log(action, { mainForm, productionStats, processRunning });
+function handleMoveTube(from: string, to = '') {
+  const cmd: MoveTubeCmd = { from, to };
+  sendUserCommand('MoveTubeCmd', cmd);
+  console.log(`发送 MoveTubeCmd: from ${from} to ${to}`);
 }
 
 // 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
@@ -401,18 +404,12 @@ onMounted(() => {
                 />
               </div>
               <div class="grid grid-cols-2 gap-2">
+                <Button size="sm" variant="outline" class="win-button">打捆</Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('bundle')"
-                  >打捆</Button
-                >
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAction('bundle-once')"
+                  @click="handleMoveTube('basket', 'backbuffer')"
                   >&gt;</Button
                 >
               </div>
@@ -446,21 +443,21 @@ onMounted(() => {
                 size="sm"
                 variant="outline"
                 class="win-button"
-                @click="handleAction('circle-back')"
+                @click="handleMoveTube('scaptroller', 'backbuffer')"
                 >&lt;&lt;</Button
               >
               <Button
                 size="sm"
                 variant="outline"
                 class="win-button"
-                @click="handleAction('circle-back')"
+                @click="handleMoveTube('scaptroller', 'backbuffer')"
                 >&lt;</Button
               >
               <Button
                 size="sm"
                 variant="outline"
                 class="win-button"
-                @click="handleAction('circle-forward')"
+                @click="handleMoveTube('backbuffer', 'scaptroller')"
                 >&gt;</Button
               >
             </div>
@@ -493,25 +490,19 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('circle-back')"
+                  @click="handleMoveTube('circle', 'scraptroller')"
                   >&lt;</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('circle-forward')"
+                  @click="handleMoveTube('scraptroller', 'circle')"
                   >&gt;</Button
                 >
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAction('circle-back')"
-                  >入废料筐</Button
-                >
+                <Button size="sm" variant="outline" class="win-button">入废料筐</Button>
                 <TubeBasket
                   :active="false"
                   color="amber"
@@ -536,24 +527,18 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('circle-back')"
+                  @click="handleMoveTube('spray', 'circle')"
                   >&lt;</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('circle-forward')"
+                  @click="handleMoveTube('circle', 'spray')"
                   >&gt;</Button
                 >
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-4 w-full win-button"
-                @click="handleAction('circle')"
-                >色环</Button
-              >
+              <Button size="sm" variant="outline" class="mt-4 w-full win-button">色环</Button>
             </div>
           </div>
 
@@ -570,24 +555,18 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('spray-back')"
+                  @click="handleMoveTube('carve', 'spray')"
                   >&lt;</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('spray-forward')"
+                  @click="handleMoveTube('spray', 'carve')"
                   >&gt;</Button
                 >
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-4 w-full win-button"
-                @click="handleAction('spray')"
-                >喷印</Button
-              >
+              <Button size="sm" variant="outline" class="mt-4 w-full win-button">喷印</Button>
             </div>
           </div>
 
@@ -604,24 +583,18 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('carve-back')"
+                  @click="handleMoveTube('weight', 'carve')"
                   >&lt;</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('carve-forward')"
+                  @click="handleMoveTube('carve', 'weight')"
                   >&gt;</Button
                 >
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-4 w-full win-button"
-                @click="handleAction('carve')"
-                >刻印</Button
-              >
+              <Button size="sm" variant="outline" class="mt-4 w-full win-button">刻印</Button>
             </div>
           </div>
 
@@ -638,32 +611,20 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('weight-back')"
+                  @click="handleMoveTube('align', 'weight')"
                   >&lt;</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('weight-forward')"
+                  @click="handleMoveTube('weight', 'align')"
                   >&gt;</Button
                 >
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAction('weight')"
-                  >称重</Button
-                >
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAction('weight-stop')"
-                  >停止称重</Button
-                >
+                <Button size="sm" variant="outline" class="win-button">称重</Button>
+                <Button size="sm" variant="outline" class="win-button">停止称重</Button>
               </div>
             </div>
           </div>
@@ -684,24 +645,18 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('length-back')"
+                  @click="handleMoveTube('plan', 'align')"
                   >&lt;</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('length-forward')"
+                  @click="handleMoveTube('align', 'plan')"
                   >&gt;</Button
                 >
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-4 w-full win-button"
-                @click="handleAction('length')"
-                >测长</Button
-              >
+              <Button size="sm" variant="outline" class="mt-4 w-full win-button">测长</Button>
             </div>
           </div>
 
@@ -840,7 +795,7 @@ onMounted(() => {
                     size="sm"
                     variant="outline"
                     class="win-button"
-                    @click="handleAction('position-release')"
+                    @click="handleMoveTube('position-release')"
                     >步进梁释放</Button
                   >
                   <div class="justify-self-center">
@@ -856,7 +811,7 @@ onMounted(() => {
                     size="sm"
                     variant="outline"
                     class="win-button"
-                    @click="handleAction('position-release')"
+                    @click="handleMoveTube('position-release')"
                     >内保步进梁释放</Button
                   >
                   <div class="justify-self-center">
@@ -955,7 +910,7 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('basket-refresh')"
+                  @click="handleMoveTube('basket-refresh')"
                   >刷新</Button
                 >
               </div>
@@ -1005,21 +960,21 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('insert-tube-head')"
+                  @click="handleMoveTube('insert-tube-head')"
                   >插入头部</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('insert-tube')"
+                  @click="handleMoveTube('insert-tube')"
                   >插入钢管</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button win-button--danger"
-                  @click="handleAction('delete-tube')"
+                  @click="handleMoveTube('delete-tube')"
                   >删除钢管</Button
                 >
               </div>
@@ -1065,10 +1020,10 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction('manual-waste')"
+                  @click="handleMoveTube('manual-waste')"
                   >手动入筐</Button
                 >
-                <Button size="sm" class="win-button" @click="handleAction('bundle-waste')"
+                <Button size="sm" class="win-button" @click="handleMoveTube('bundle-waste')"
                   >废料成筐</Button
                 >
               </div>
@@ -1211,7 +1166,7 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAction(item.key)"
+                  @click="handleMoveTube(item.key)"
                   >启动</Button
                 >
               </div>

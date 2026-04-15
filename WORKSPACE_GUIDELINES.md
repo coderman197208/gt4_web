@@ -399,7 +399,7 @@ request.delete<T>(url, config)      // DELETE
 
 - Global singleton Socket.IO connection
 - Auto-reconnect enabled (1-5 second delays)
-- Composable `useWebSocket()` returns: `isConnected`, `error`, `subscribe()`, `sendCommand()`, `onDataPush()`, `offDataPush()`
+- Composable `useWebSocket()` returns: `isConnected`, `error`, `subscribe()`, `sendUserCommand()`, `onDataPush()`, `offDataPush()`
 - 取消订阅通过 `subscribe([])` 传入空数组实现
 - Service remembers the latest subscribed tags and restores them after reconnect
 - Internal data push handler auto-parses JSON and updates Pinia store

@@ -403,8 +403,15 @@ onMounted(() => {
                   class="win-input-edit h-7 text-right w-20"
                 />
               </div>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-3 gap-2">
                 <Button size="sm" variant="outline" class="win-button">打捆</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleMoveTube('backbuffer', 'basket')"
+                  >&lt;</Button
+                >
                 <Button
                   size="sm"
                   variant="outline"
@@ -438,14 +445,7 @@ onMounted(() => {
               </svg>
             </div>
 
-            <div class="mt-4 grid grid-cols-3 gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleMoveTube('scaptroller', 'backbuffer')"
-                >&lt;&lt;</Button
-              >
+            <div class="mt-4 grid grid-cols-2 gap-2">
               <Button
                 size="sm"
                 variant="outline"

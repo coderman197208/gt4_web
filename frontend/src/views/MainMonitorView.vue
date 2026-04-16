@@ -474,8 +474,8 @@ onMounted(() => {
             <Label class="win-panel__title">废料辊道</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.waste" color="red" :size="60" />
-                <ConveyorRoller :active="processRunning.waste" color="amber" :size="60" />
+                <Tube :active="processRunning.waste" color="darkCyan" :size="60" />
+                <ConveyorRoller :active="processRunning.waste" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.waste" color="red" :size="18" />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
@@ -511,8 +511,8 @@ onMounted(() => {
             <Label class="win-panel__title">色环</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.circle" color="blue" :size="60" />
-                <ConveyorRoller :active="processRunning.circle" color="blue" :size="60" />
+                <Tube :active="processRunning.circle" color="darkCyan" :size="60" />
+                <ConveyorRoller :active="processRunning.circle" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.circle" color="red" :size="18" />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
@@ -539,7 +539,7 @@ onMounted(() => {
             <Label class="win-panel__title">喷印</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.spray" color="green" :size="60" />
+                <Tube :active="processRunning.spray" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.spray" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.spray" color="red" :size="18" />
               </div>
@@ -567,7 +567,7 @@ onMounted(() => {
             <Label class="win-panel__title">刻印</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.carve" color="green" :size="60" />
+                <Tube :active="processRunning.carve" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.carve" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.carve" color="red" :size="18" />
               </div>
@@ -595,7 +595,7 @@ onMounted(() => {
             <Label class="win-panel__title">称重</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.weight" color="green" :size="60" />
+                <Tube :active="processRunning.weight" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.weight" color="green" :size="60" />
                 <IndicatorLight :active="processRunning.weight" color="red" :size="18" />
               </div>
@@ -626,8 +626,8 @@ onMounted(() => {
             <Label class="win-panel__title">定位</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.length" color="cyan" :size="60" />
-                <ConveyorRoller :active="processRunning.length" color="cyan" :size="60" />
+                <Tube :active="processRunning.length" color="darkCyan" :size="60" />
+                <ConveyorRoller :active="processRunning.length" color="green" :size="60" />
                 <div class="flex items-center gap-2">
                   <IndicatorLight :active="processRunning.length" color="red" :size="18" />
                   <IndicatorLight :active="true" color="red" :size="18" />

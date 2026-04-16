@@ -32,6 +32,7 @@ const onFillMap: Record<TubeColor, string> = {
   orange: 'fill-orange-500',
   cyan: 'fill-cyan-400',
   white: 'fill-white',
+  darkCyan: 'fill-[#20b2aa]',
 };
 
 // -- 灭灯颜色映射 (暗淡/低饱和) --
@@ -44,13 +45,14 @@ const offFillMap: Record<TubeColor | 'gray', string> = {
   orange: 'fill-orange-900/50 dark:fill-orange-800/30',
   cyan: 'fill-cyan-900/50 dark:fill-cyan-800/30',
   white: 'fill-gray-200 dark:fill-gray-500',
+  darkCyan: 'fill-[#20b2aa]/50 dark:fill-[#20b2aa]/30',
 };
 
 const fillClass = computed(() => {
   return props.active ? onFillMap[props.color] : offFillMap[props.offColor];
 });
 
-const tubeAspectRatio = 42 / 58;
+const tubeAspectRatio = 42 / 67;
 
 const sizeValue = computed(() => {
   return typeof props.size === 'number' ? `${props.size}px` : props.size;
@@ -71,13 +73,29 @@ const widthValue = computed(() => {
     :class="cn('inline-block shrink-0', props.class)"
     :width="widthValue"
     :height="sizeValue"
-    viewBox="44 24 42 58"
+    viewBox="44 15 42 67"
     xmlns="http://www.w3.org/2000/svg"
   >
+    <!-- 填充区域：包含整体轮廓，解决 fill 颜色未填充全部的问题 -->
     <path
-      d="M64.167,26.661 C69.178,26.577 72.010,28.798 73.469,33.142 C76.058,40.855 78.858,48.496 81.454,56.206 C83.920,63.529 81.322,71.649 75.207,76.228 C69.476,80.520 61.754,80.681 55.651,76.637 C48.884,72.153 46.168,64.969 48.134,57.138 C50.286,48.565 53.947,40.511 56.617,32.117 C57.707,28.693 60.559,27.424 64.167,26.661 M58.858,46.900 C49.223,52.545 46.796,62.251 52.862,70.885 C57.005,76.782 64.833,79.064 70.872,76.135 C77.853,72.749 81.880,64.379 79.745,57.689 C76.519,47.579 70.038,44.064 58.858,46.900 M56.192,40.395 C56.142,41.918 54.621,43.501 56.601,45.186 C63.154,42.754 69.745,42.821 76.143,46.719 C74.697,44.616 74.349,42.293 73.580,40.129 C72.751,37.794 71.973,35.433 71.004,33.155 C68.919,28.253 64.934,27.306 60.671,30.466 C57.534,32.792 57.931,36.667 56.192,40.395z"
+      d="M 46.6 55.8 L 54.4 28 A 10.6 10.6 0 0 1 75.6 28 L 83.4 55.8 A 19 19 0 1 1 46.6 55.8 Z"
       :class="fillClass"
-      class="stroke-muted-foreground/30"
+    />
+    <!-- 轮廓线：侧面与远端弧线，实现了两侧直线与近端圆的精确相切 -->
+    <path
+      d="M 46.6 55.8 L 54.4 28 A 10.6 10.6 0 0 1 75.6 28 L 83.4 55.8"
+      fill="none"
+      class="stroke-muted-foreground/80"
+      stroke-width="2"
+      stroke-linejoin="round"
+    />
+    <!-- 轮廓线：近端圆 -->
+    <circle
+      cx="65"
+      cy="60.5"
+      r="19"
+      fill="none"
+      class="stroke-muted-foreground/80"
       stroke-width="2"
       stroke-linejoin="round"
     />

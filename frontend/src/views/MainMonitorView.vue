@@ -17,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tube } from '@/components/ui/tube';
 import { TubeBasket } from '@/components/ui/tube-basket';
+import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 import type { SetFeedNumCmd, MoveTubeCmd } from '@gt4_web/shared';
@@ -476,7 +477,12 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.waste" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.waste" color="green" :size="60" />
-                <IndicatorLight :active="processRunning.waste" color="red" :size="18" />
+                <IndicatorLight
+                  :active="processRunning.waste"
+                  color="red"
+                  :size="18"
+                  class="mt-2"
+                />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
@@ -494,7 +500,7 @@ onMounted(() => {
                   >&gt;</Button
                 >
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-2 grid grid-cols-2 gap-2">
                 <Button size="sm" variant="outline" class="win-button">入废料筐</Button>
                 <TubeBasket
                   :active="false"
@@ -513,7 +519,12 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.circle" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.circle" color="green" :size="60" />
-                <IndicatorLight :active="processRunning.circle" color="red" :size="18" />
+                <IndicatorLight
+                  :active="processRunning.circle"
+                  color="red"
+                  :size="18"
+                  class="mt-2"
+                />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
@@ -531,7 +542,7 @@ onMounted(() => {
                   >&gt;</Button
                 >
               </div>
-              <Button size="sm" variant="outline" class="mt-4 w-full win-button">色环</Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button">色环</Button>
             </div>
           </div>
 
@@ -541,7 +552,12 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.spray" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.spray" color="green" :size="60" />
-                <IndicatorLight :active="processRunning.spray" color="red" :size="18" />
+                <IndicatorLight
+                  :active="processRunning.spray"
+                  color="red"
+                  :size="18"
+                  class="mt-2"
+                />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
@@ -559,7 +575,7 @@ onMounted(() => {
                   >&gt;</Button
                 >
               </div>
-              <Button size="sm" variant="outline" class="mt-4 w-full win-button">喷印</Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button">喷印</Button>
             </div>
           </div>
 
@@ -569,7 +585,12 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.carve" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.carve" color="green" :size="60" />
-                <IndicatorLight :active="processRunning.carve" color="red" :size="18" />
+                <IndicatorLight
+                  :active="processRunning.carve"
+                  color="red"
+                  :size="18"
+                  class="mt-2"
+                />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
@@ -587,7 +608,7 @@ onMounted(() => {
                   >&gt;</Button
                 >
               </div>
-              <Button size="sm" variant="outline" class="mt-4 w-full win-button">刻印</Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button">刻印</Button>
             </div>
           </div>
 
@@ -597,7 +618,12 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.weight" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.weight" color="green" :size="60" />
-                <IndicatorLight :active="processRunning.weight" color="red" :size="18" />
+                <IndicatorLight
+                  :active="processRunning.weight"
+                  color="red"
+                  :size="18"
+                  class="mt-2"
+                />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
@@ -615,7 +641,7 @@ onMounted(() => {
                   >&gt;</Button
                 >
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-2 grid grid-cols-2 gap-2">
                 <Button size="sm" variant="outline" class="win-button">称重</Button>
                 <Button size="sm" variant="outline" class="win-button">停止称重</Button>
               </div>
@@ -628,7 +654,7 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.length" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.length" color="green" :size="60" />
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 mt-2">
                   <IndicatorLight :active="processRunning.length" color="red" :size="18" />
                   <IndicatorLight :active="true" color="red" :size="18" />
                 </div>
@@ -656,7 +682,7 @@ onMounted(() => {
                   >上料</Button
                 >
               </div>
-              <Button size="sm" variant="outline" class="mt-4 w-full win-button">测长</Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button">测长</Button>
             </div>
           </div>
 
@@ -789,6 +815,7 @@ onMounted(() => {
           <div class="flex h-full flex-col gap-3">
             <div class="win-panel flex items-start justify-left gap-2">
               <SelectSwitch :active="stationReady.release" color="green" :size="128" />
+              <!-- <SvgToggle :model-value="stationReady.release" :width="200" :height="50" /> -->
               <div class="win-panel flex flex-1 h-full flex-col">
                 <div class="grid grid-cols-[120px_1fr] gap-2 items-center justify-items-stretch">
                   <Button

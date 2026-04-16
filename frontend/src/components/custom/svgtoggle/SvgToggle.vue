@@ -3,17 +3,17 @@
     <svg
       :width="width"
       :height="height"
-      viewBox="0 0 100 50"
+      viewBox="0 0 200 50"
       xmlns="http://www.w3.org/2000/svg"
       class="drop-shadow-sm transition-all duration-300"
     >
       <rect
         x="0"
         y="0"
-        width="100"
+        width="200"
         height="50"
-        rx="25"
-        :class="modelValue ? 'fill-blue-500' : 'fill-gray-300'"
+        rx="5"
+        :class="modelValue ? 'fill-green-600' : 'fill-red-600'"
         class="transition-colors duration-300"
       />
 
@@ -30,9 +30,9 @@
       </text>
 
       <circle
-        :cx="modelValue ? 75 : 25"
+        :cx="modelValue ? 175 : 25"
         cy="25"
-        r="20"
+        r="15"
         fill="white"
         class="transition-all duration-300 ease-in-out"
       />
@@ -54,7 +54,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  width: 100,
+  width: 200,
   height: 50,
 });
 

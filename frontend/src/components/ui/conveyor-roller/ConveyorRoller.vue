@@ -56,9 +56,9 @@ const widthValue = computed(() => {
 
 const heightValue = computed(() => {
   if (typeof props.size === 'number') {
-    return `${props.size * 0.6}px`;
+    return `${props.size * (80 / 170)}px`;
   }
-  return `calc(${props.size} * 0.6)`;
+  return `calc(${props.size} * ${80 / 170})`;
 });
 </script>
 
@@ -69,14 +69,14 @@ const heightValue = computed(() => {
     :class="cn('inline-block shrink-0', props.class)"
     :width="widthValue"
     :height="heightValue"
-    viewBox="0 0 100 60"
+    viewBox="0 0 170 80"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      d="M 0 0 L 50 30 L 0 60 Z M 100 0 L 50 30 L 100 60 Z"
+      d="M 170 80 L 0 80 L 0 0 L 85 48 L 170 0 Z"
       :class="fillClass"
       class="stroke-muted-foreground/30"
-      stroke-width="2"
+      stroke-width="3"
       stroke-linejoin="round"
     />
   </svg>

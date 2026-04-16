@@ -403,15 +403,8 @@ onMounted(() => {
                   class="win-input-edit h-7 text-right w-20"
                 />
               </div>
-              <div class="grid grid-cols-3 gap-2">
+              <div class="grid grid-cols-2 gap-2">
                 <Button size="sm" variant="outline" class="win-button">打捆</Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('backbuffer', 'basket')"
-                  >&lt;</Button
-                >
                 <Button
                   size="sm"
                   variant="outline"
@@ -450,7 +443,7 @@ onMounted(() => {
                 size="sm"
                 variant="outline"
                 class="win-button"
-                @click="handleMoveTube('scaptroller', 'backbuffer')"
+                @click="handleMoveTube('backbuffer', 'basket')"
                 >&lt;</Button
               >
               <Button
@@ -481,16 +474,16 @@ onMounted(() => {
             <Label class="win-panel__title">废料辊道</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.waste" color="amber" :size="60" />
+                <Tube :active="processRunning.waste" color="red" :size="60" />
                 <ConveyorRoller :active="processRunning.waste" color="amber" :size="60" />
-                <IndicatorLight :active="processRunning.waste" color="red" :size="18" glow />
+                <IndicatorLight :active="processRunning.waste" color="red" :size="18" />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleMoveTube('circle', 'scraptroller')"
+                  @click="handleMoveTube('scraptroller', 'backbuffer')"
                   >&lt;</Button
                 >
                 <Button
@@ -520,14 +513,14 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.circle" color="blue" :size="60" />
                 <ConveyorRoller :active="processRunning.circle" color="blue" :size="60" />
-                <IndicatorLight :active="processRunning.circle" color="red" :size="18" glow />
+                <IndicatorLight :active="processRunning.circle" color="red" :size="18" />
               </div>
               <div class="mt-4 grid grid-cols-2 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleMoveTube('spray', 'circle')"
+                  @click="handleMoveTube('circle', 'scraptroller')"
                   >&lt;</Button
                 >
                 <Button
@@ -555,7 +548,7 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleMoveTube('carve', 'spray')"
+                  @click="handleMoveTube('spray', 'circle')"
                   >&lt;</Button
                 >
                 <Button
@@ -583,7 +576,7 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleMoveTube('weight', 'carve')"
+                  @click="handleMoveTube('carve', 'spray')"
                   >&lt;</Button
                 >
                 <Button
@@ -611,7 +604,7 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleMoveTube('align', 'weight')"
+                  @click="handleMoveTube('weight', 'carve')"
                   >&lt;</Button
                 >
                 <Button
@@ -640,12 +633,12 @@ onMounted(() => {
                   <IndicatorLight :active="true" color="red" :size="18" />
                 </div>
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleMoveTube('plan', 'align')"
+                  @click="handleMoveTube('align', 'weight')"
                   >&lt;</Button
                 >
                 <Button
@@ -654,6 +647,13 @@ onMounted(() => {
                   class="win-button"
                   @click="handleMoveTube('align', 'plan')"
                   >&gt;</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleMoveTube('plan', 'align')"
+                  >上料</Button
                 >
               </div>
               <Button size="sm" variant="outline" class="mt-4 w-full win-button">测长</Button>

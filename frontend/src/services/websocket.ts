@@ -199,14 +199,14 @@ export function useWebSocket() {
   /**
    * 发送操作命令到后端（通过WebSocket转发至Redis）
    * @param cmdName 命令名称
-   * @param cmdPara 命令参数（对象，会被序列化为JSON字符串）
+   * @param cmdPara 命令参数对象
    * 调用方式：
    * // 有参数
    * sendUserCommand('command1', { feed_num: 10 });
    * // 无参数
    * sendUserCommand('command2');
    */
-  function sendUserCommand(cmdName: string, cmdPara?: unknown): void {
+  function sendUserCommand(cmdName: string, cmdPara?: Record<string, unknown>): void {
     if (!socketInstance) {
       console.error('[WebSocket] Socket未初始化，无法发送命令');
       return;
@@ -214,7 +214,7 @@ export function useWebSocket() {
 
     const message: CmdPushMessage = { cmd_name: cmdName };
     if (cmdPara !== undefined) {
-      message.cmd_para = typeof cmdPara === 'string' ? cmdPara : JSON.stringify(cmdPara);
+      message.cmd_para = cmdPara;
     }
     socketInstance.emit('cmd:push', message);
     console.log('[WebSocket] 已发送操作命令:', message);

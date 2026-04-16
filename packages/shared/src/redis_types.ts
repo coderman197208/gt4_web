@@ -28,7 +28,7 @@ export interface SubscribeRequest {
 // WebSocket 操作命令发送消息（字段名与C++端一致）
 export interface CmdPushMessage {
   cmd_name: string; // 操作命令名称
-  cmd_para?: string; // JSON字符串格式的命令参数（C++业务后端需要解析），无参数时可省略
+  cmd_para?: Record<string, unknown>; // 命令参数对象，无参数时可省略
 }
 
 // WebSocket 数据推送消息

@@ -74,7 +74,7 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
 
       const payload = JSON.stringify({
         cmd_name: data.cmd_name,
-        cmd_para: data.cmd_para ?? '',
+        cmd_para: data.cmd_para ?? {},
       });
 
       getRedisDataClient()

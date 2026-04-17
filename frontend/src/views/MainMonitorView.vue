@@ -5,7 +5,6 @@ import { ConveyorRoller } from '@/components/ui/conveyor-roller';
 import { IndicatorLight } from '@/components/ui/indicator-light';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { SelectSwitch } from '@/components/ui/select-switch';
 import {
   Table,
   TableBody,
@@ -360,8 +359,7 @@ function handleMoveTube(from: string, to = '') {
 
 // 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
 onMounted(() => {
-  subscribe(['PlanInfo']);
-  console.log('[MainMonitorView] 已订阅 PlanInfo');
+  subscribe(['PlanInfo', 'ALIGN_POS_TUBE_INFO']);
 });
 </script>
 
@@ -657,7 +655,11 @@ onMounted(() => {
             <Label class="win-panel__title">定位</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
-                <Tube :active="processRunning.length" color="darkCyan" :size="60" />
+                <Tube
+                  :active="(realtimeStore.alignPosTubeInfo?.length ?? 0) > 0"
+                  color="darkCyan"
+                  :size="60"
+                />
                 <ConveyorRoller :active="processRunning.length" color="green" :size="60" />
                 <div class="flex items-center gap-2 mt-2">
                   <IndicatorLight :active="processRunning.length" color="red" :size="18" />

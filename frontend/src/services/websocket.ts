@@ -30,22 +30,36 @@ let hasConnectedOnce = false;
 const isConnected = ref(false);
 const error = ref<string | null>(null);
 
+function parseDataPushValue(message: DataPushMessage): unknown {
+  const rawValue = message.value.trim();
+
+  if (rawValue === '') {
+    console.warn('[WebSocket] 收到空数据推送，按 null 处理:', message.tag);
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawValue);
+  } catch (err) {
+    console.error('[WebSocket] 解析推送数据失败:', err, message);
+    return undefined;
+  }
+}
+
 // 把更新 Pinia store 的内部处理器提取成固定函数，并且新增一个外部监听器集合，
 // 只跟踪通过 onDataPush 注册的回调。这样offDataPush 在无参时只会清理外部回调，不会碰内部处理器；
 // 有参时也只移除指定的外部回调。
 function handleInternalDataPush(message: DataPushMessage) {
-  try {
-    console.log('[WebSocket] 收到数据推送:', message);
+  console.log('[WebSocket] 收到数据推送:', message);
 
-    // 解析JSON数据
-    const parsedValue = JSON.parse(message.value);
-
-    // 更新Pinia store
-    const store = useRealtimeDataStore();
-    store.updateData(message.tag, parsedValue);
-  } catch (err) {
-    console.error('[WebSocket] 解析推送数据失败:', err, message);
+  const parsedValue = parseDataPushValue(message);
+  if (parsedValue === undefined) {
+    return;
   }
+
+  // 更新Pinia store
+  const store = useRealtimeDataStore();
+  store.updateData(message.tag, parsedValue);
 }
 
 /**

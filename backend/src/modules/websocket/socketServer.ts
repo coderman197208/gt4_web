@@ -7,6 +7,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
 import type { SubscribeRequest, CmdPushMessage, DataPushMessage } from '@gt4_web/shared';
+import { normalizeRealtimeTagValue } from '../redis/realtimeValueNormalizer';
 import { SubscriptionManager } from './subscriptionManager.js';
 import { getRedisDataClient } from '../redis/redisClient.js';
 
@@ -55,7 +56,8 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
         try {
           const value = await redisDataClient.get(tag);
           if (value === null) continue;
-          socket.emit('data:push', { tag, value } as DataPushMessage);
+          const normalizedValue = normalizeRealtimeTagValue(tag, value);
+          socket.emit('data:push', { tag, value: normalizedValue } as DataPushMessage);
         } catch (err) {
           console.error(`[SocketServer] 初始推送 tag "${tag}" 失败:`, err);
         }

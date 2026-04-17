@@ -13,6 +13,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const tag2 = ref<Tag2Data | null>(null);
   const tag3 = ref<Tag3Data | null>(null);
   const planInfo = ref<PlanInfo | null>(null);
+  const alignPosTubeInfo = ref<PlanInfo[] | null>(null); // 定位工位管子信息，假设结构与 PlanInfo 相同
 
   /**
    * 更新指定tag的数据
@@ -37,6 +38,11 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         planInfo.value = value as PlanInfo;
         console.log('[RealtimeDataStore] planInfo 数据已更新:', planInfo.value);
         break;
+      case 'ALIGN_POS_TUBE_INFO':
+        // 这里假设 ALIGN_POS_TUBE_INFO 的数据结构与 PlanInfo 相同，如果不同需要定义新的类型并进行类型断言
+        alignPosTubeInfo.value = value as PlanInfo[];
+        console.log('[RealtimeDataStore] alignPosTubeInfo 数据已更新:', alignPosTubeInfo.value);
+        break;
       default:
         console.warn(`[RealtimeDataStore] 未知的tag: ${tag}`);
     }
@@ -50,6 +56,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     tag2.value = null;
     tag3.value = null;
     planInfo.value = null;
+    alignPosTubeInfo.value = null;
     console.log('[RealtimeDataStore] 所有数据已重置');
   }
 
@@ -59,6 +66,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     tag2,
     tag3,
     planInfo,
+    alignPosTubeInfo,
     // 方法
     updateData,
     resetData,

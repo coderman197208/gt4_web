@@ -76,3 +76,20 @@ export interface PlanInfo {
   feed_num: number; // 投料支数
   tube_no: number; // 管号
 }
+
+export interface TubeInfo {
+  order_no: string; // 合同号
+  item_no: string; // 项目号
+  roll_no: string; // 轧批号
+  melt_no: string; // 炉号
+  lot_no: string; // 试批号
+  tube_no: number; // 管号
+  flow_no: number; // 流水号
+  lotno_coupling: string; // 接箍批号
+  meltno_coupling: string; // 接箍炉号
+  length: number; // 长度(米)
+  weight: number; // 重量(KG)
+  lengthOk: boolean; // 长度合格
+  weightOk: boolean; // 重量合格
+  bSprayed: boolean; // 是否喷印过
+}

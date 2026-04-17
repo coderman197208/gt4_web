@@ -5,6 +5,7 @@
 
 import type { DataPushMessage } from '@gt4_web/shared';
 import { getRedisDataClient, getRedisSubClient } from './redisClient.js';
+import { normalizeRealtimeTagValue } from './realtimeValueNormalizer';
 import { getSocketServer, getSubscriptionManager } from '../websocket/socketServer.js';
 
 /**
@@ -40,9 +41,11 @@ export function startRedisSubscriber(): void {
       }
 
       // 构造推送消息，与 mockDataGenerator 格式一致
+      const normalizedValue = normalizeRealtimeTagValue(tagName, tagValue);
+
       const message: DataPushMessage = {
         tag: tagName,
-        value: tagValue,
+        value: normalizedValue,
       };
 
       // 推送给所有订阅了此 tag 的前端
@@ -51,7 +54,9 @@ export function startRedisSubscriber(): void {
         io.to(socketId).emit('data:push', message);
       });
 
-      // console.log(`[RedisSubscriber] 推送 ${tagName} 给 ${subscribers.length} 个订阅者`);
+      console.log(
+        `[RedisSubscriber] 推送 ${tagName} 给 ${subscribers.length} 个订阅者，值: ${normalizedValue}`,
+      );
     } catch (err) {
       console.error(`[RedisSubscriber] 处理 tag "${tagName}" 时出错:`, err);
     }

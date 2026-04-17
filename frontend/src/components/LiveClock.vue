@@ -1,5 +1,5 @@
 <template>
-  <time :datetime="currentTime" class="text-lg font-mono">
+  <time :datetime="formattedTime" class="text-lg font-mono">
     {{ formattedTime }}
   </time>
 </template>

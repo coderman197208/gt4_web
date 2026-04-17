@@ -24,14 +24,10 @@ const props = withDefaults(defineProps<Props>(), {
 const viewportRef = ref<HTMLElement | null>(null);
 const viewportSize = reactive({
   width: props.designWidth,
-  height: props.designHeight,
 });
 
 const scale = computed(() => {
-  const widthScale = viewportSize.width / props.designWidth;
-  const heightScale = viewportSize.height / props.designHeight;
-
-  return Math.min(widthScale, heightScale);
+  return viewportSize.width / props.designWidth;
 });
 
 const viewportContentClass = computed(() => [
@@ -47,17 +43,14 @@ const viewportContentStyle = computed(() => {
   return {
     width: `${props.designWidth}px`,
     height: `${props.designHeight}px`,
-    left: `${Math.max((viewportSize.width - props.designWidth * scale.value) / 2, 0)}px`,
-    top: `${Math.max((viewportSize.height - props.designHeight * scale.value) / 2, 0)}px`,
     transform: `scale(${scale.value})`,
   };
 });
 
 let resizeObserver: ResizeObserver | null = null;
 
-function updateViewportSize(width: number, height: number) {
+function updateViewportSize(width: number) {
   viewportSize.width = width;
-  viewportSize.height = height;
 }
 
 onMounted(() => {
@@ -65,7 +58,7 @@ onMounted(() => {
     return;
   }
 
-  updateViewportSize(viewportRef.value.clientWidth, viewportRef.value.clientHeight);
+  updateViewportSize(viewportRef.value.clientWidth);
 
   resizeObserver = new ResizeObserver((entries) => {
     const entry = entries[0];
@@ -74,7 +67,7 @@ onMounted(() => {
       return;
     }
 
-    updateViewportSize(entry.contentRect.width, entry.contentRect.height);
+    updateViewportSize(entry.contentRect.width);
   });
 
   resizeObserver.observe(viewportRef.value);

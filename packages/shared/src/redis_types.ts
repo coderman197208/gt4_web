@@ -25,12 +25,6 @@ export interface SubscribeRequest {
   tags: string[]; // 要订阅的标签列表，如 ['tag1', 'tag2', 'tag3']
 }
 
-// WebSocket 操作命令发送消息（字段名与C++端一致）
-export interface CmdPushMessage {
-  cmd_name: string; // 操作命令名称
-  cmd_para?: Record<string, unknown>; // 命令参数对象，无参数时可省略
-}
-
 // WebSocket 数据推送消息
 export interface DataPushMessage {
   tag: string; // 标签名称
@@ -59,6 +53,14 @@ export interface SetFeedNumCmd {
 export interface MoveTubeCmd {
   from: string;
   to: string;
+}
+
+export type UserCommandPayload = SetFeedNumCmd | MoveTubeCmd | Record<string, unknown>;
+
+// WebSocket 操作命令发送消息（字段名与C++端一致）
+export interface CmdPushMessage {
+  cmd_name: string; // 操作命令名称
+  cmd_para?: UserCommandPayload; // 命令参数对象，无参数时可省略
 }
 
 // ==================== 以下是生产数据类型定义 ====================

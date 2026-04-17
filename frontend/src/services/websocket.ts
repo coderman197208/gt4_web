@@ -5,7 +5,12 @@
 
 import { ref } from 'vue';
 import { io, Socket } from 'socket.io-client';
-import type { SubscribeRequest, DataPushMessage, CmdPushMessage } from '@gt4_web/shared';
+import type {
+  SubscribeRequest,
+  DataPushMessage,
+  CmdPushMessage,
+  UserCommandPayload,
+} from '@gt4_web/shared';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 
 // 全局单例Socket实例
@@ -206,7 +211,7 @@ export function useWebSocket() {
    * // 无参数
    * sendUserCommand('command2');
    */
-  function sendUserCommand(cmdName: string, cmdPara?: Record<string, unknown>): void {
+  function sendUserCommand(cmdName: string, cmdPara?: UserCommandPayload): void {
     if (!socketInstance) {
       console.error('[WebSocket] Socket未初始化，无法发送命令');
       return;

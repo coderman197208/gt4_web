@@ -366,7 +366,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="main-monitor-view h-full w-full overflow-hidden bg-[#c8c8c8] p-2 text-slate-900">
+  <div class="main-monitor-view h-full w-full overflow-hidden bg-[#d8d8d8] p-2 text-slate-900">
     <div class="grid h-full grid-rows-[minmax(0,2.5fr)_minmax(0,2.5fr)_auto_minmax(0,3fr)] gap-4">
       <div class="win-group mt-2">
         <div class="win-group__title">主控信息</div>
@@ -382,23 +382,23 @@ onMounted(() => {
             </div> -->
             <div class="grid gap-2">
               <div class="flex items-center justify-between mt-4">
-                <span>合同号</span>
+                <span class="font-bold">合同号</span>
                 <span class="win-value">{{ mainForm.basketOrderNo }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>炉号</span>
+                <span class="font-bold">炉号</span>
                 <span class="win-value">{{ mainForm.basketMeltNo }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>试批号</span>
+                <span class="font-bold">试批号</span>
                 <span class="win-value">{{ mainForm.basketLotNo }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>料筐支数</span>
+                <span class="font-bold">料筐支数</span>
                 <span class="win-value">{{ mainForm.feedCount }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <Label class="shrink-0 text-base">成捆支数</Label>
+                <Label class="shrink-0 text-base font-bold">成捆支数</Label>
                 <Input
                   v-model="mainForm.basketBundleCount"
                   class="win-input-edit h-7 text-right w-20"
@@ -457,15 +457,15 @@ onMounted(() => {
             </div>
             <div class="grid gap-1 mt-4">
               <div class="flex items-center justify-between">
-                <span>缓冲区支数</span>
+                <span class="font-bold">缓冲区支数</span>
                 <span class="win-value">000</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>最近管捆号</span>
+                <span class="font-bold">最近管捆号</span>
                 <span class="win-value">{{ mainForm.lastBundleNo }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>下一流水号</span>
+                <span class="font-bold">下一流水号</span>
                 <span class="win-value">{{ mainForm.bundleFlowNo }}</span>
               </div>
             </div>
@@ -484,7 +484,7 @@ onMounted(() => {
                   class="mt-2"
                 />
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -492,6 +492,7 @@ onMounted(() => {
                   @click="handleMoveTube('scraptroller', 'backbuffer')"
                   >&lt;</Button
                 >
+                <Button size="sm" variant="outline" class="win-button">&times;</Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -526,7 +527,7 @@ onMounted(() => {
                   class="mt-2"
                 />
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -534,6 +535,7 @@ onMounted(() => {
                   @click="handleMoveTube('circle', 'scraptroller')"
                   >&lt;</Button
                 >
+                <Button size="sm" variant="outline" class="win-button">&times;</Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -559,7 +561,7 @@ onMounted(() => {
                   class="mt-2"
                 />
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -567,6 +569,7 @@ onMounted(() => {
                   @click="handleMoveTube('spray', 'circle')"
                   >&lt;</Button
                 >
+                <Button size="sm" variant="outline" class="win-button">&times;</Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -592,7 +595,7 @@ onMounted(() => {
                   class="mt-2"
                 />
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -600,6 +603,7 @@ onMounted(() => {
                   @click="handleMoveTube('carve', 'spray')"
                   >&lt;</Button
                 >
+                <Button size="sm" variant="outline" class="win-button">&times;</Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -625,7 +629,7 @@ onMounted(() => {
                   class="mt-2"
                 />
               </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
+              <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -633,6 +637,7 @@ onMounted(() => {
                   @click="handleMoveTube('weight', 'carve')"
                   >&lt;</Button
                 >
+                <Button size="sm" variant="outline" class="win-button">&times;</Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -659,7 +664,7 @@ onMounted(() => {
                   <IndicatorLight :active="true" color="red" :size="18" />
                 </div>
               </div>
-              <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="mt-4 grid grid-cols-4 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -667,6 +672,7 @@ onMounted(() => {
                   @click="handleMoveTube('align', 'weight')"
                   >&lt;</Button
                 >
+                <Button size="sm" variant="outline" class="win-button">&times;</Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -690,7 +696,7 @@ onMounted(() => {
             <Label class="win-panel__title">投料区</Label>
             <div class="mt-2 grid flex-1 gap-2 text-xs">
               <div class="flex items-center gap-2">
-                <Label class="text-base w-20 text-right">合同号</Label>
+                <Label class="text-base w-22 text-right font-bold">合同号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.order_no || ''"
                   class="win-input-edit h-7 text-center flex-1"
@@ -698,7 +704,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-20 text-right">支数</Label>
+                <Label class="text-base w-22 text-right font-bold">支数</Label>
                 <Input
                   :model-value="String(realtimeStore.planInfo?.feed_num ?? '')"
                   class="win-input-edit h-7 text-center flex-1"
@@ -706,7 +712,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-20 text-right">轧批号</Label>
+                <Label class="text-base w-22 text-right font-bold">轧批号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.roll_no || ''"
                   class="win-input-edit h-7 text-center flex-1"
@@ -714,7 +720,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-20 text-right">试批号</Label>
+                <Label class="text-base w-22 text-right font-bold">试批号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.lot_no || ''"
                   class="win-input-edit h-7 text-center flex-1"
@@ -722,7 +728,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-20 text-right">炉号</Label>
+                <Label class="text-base w-22 text-right font-bold">炉号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.melt_no || ''"
                   class="win-input-edit h-7 text-center flex-1"
@@ -730,7 +736,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-20 text-right">下一流水号</Label>
+                <Label class="text-base w-22 text-right font-bold">下一流水号</Label>
                 <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
             </div>
@@ -741,13 +747,21 @@ onMounted(() => {
       <div class="grid min-h-0 grid-cols-[minmax(0,4fr)_minmax(250px,1fr)] gap-2">
         <div class="win-group">
           <div class="win-group__title">测量点料流详细信息</div>
-          <div class="win-table-shell h-full min-h-0 overflow-hidden">
-            <!-- <div class="win-table-head border-b border-[#8b8b8b]">
+          <div class="flex min-w-0">
+            <div class="grid w-[40px] shrink-0 grid-cols-1 pt-[30px]">
+              <div class="flex h-9 items-center text-sm font-bold">定位</div>
+              <div class="flex h-9 items-center text-sm font-bold">称重</div>
+              <div class="flex h-9 items-center text-sm font-bold">刻印</div>
+              <div class="flex h-9 items-center text-sm font-bold">喷印</div>
+              <div class="flex h-9 items-center text-sm font-bold">色环</div>
+              <div class="flex h-9 items-center text-sm font-bold">出废</div>
+            </div>
+            <div class="win-table-shell h-full min-h-0 min-w-0 flex-1 overflow-hidden">
               <Table class="table-fixed">
                 <colgroup>
                   <col
                     v-for="column in trackTableColumns"
-                    :key="`track-head-col-${column.label}`"
+                    :key="`track-body-col-${column.label}`"
                     :style="{ width: getTrackTableColumnWidth(column.weight) }"
                   />
                 </colgroup>
@@ -758,118 +772,103 @@ onMounted(() => {
                     </TableHead>
                   </TableRow>
                 </TableHeader>
+                <TableBody class="[&_tr]:h-9">
+                  <TableRow v-for="row in trackRows" :key="row.flowNo">
+                    <TableCell>{{ row.flowNo }}</TableCell>
+                    <TableCell>{{ row.tubeNo }}</TableCell>
+                    <TableCell>{{ row.orderNo }}</TableCell>
+                    <TableCell>{{ row.itemNo }}</TableCell>
+                    <TableCell>{{ row.rollNo }}</TableCell>
+                    <TableCell>{{ row.meltNo }}</TableCell>
+                    <TableCell>{{ row.lotNo }}</TableCell>
+                    <TableCell>{{ row.length }}</TableCell>
+                    <TableCell>
+                      <IndicatorLight
+                        :active="row.lengthOk"
+                        color="green"
+                        off-color="red"
+                        :size="16"
+                      />
+                    </TableCell>
+                    <TableCell>{{ row.weight }}</TableCell>
+                    <TableCell>
+                      <IndicatorLight
+                        :active="row.weightOk"
+                        color="green"
+                        off-color="red"
+                        :size="16"
+                      />
+                    </TableCell>
+                    <TableCell>{{ row.meltNoCoupling }}</TableCell>
+                    <TableCell>{{ row.lotNoCoupling }}</TableCell>
+                  </TableRow>
+                </TableBody>
               </Table>
-            </div> -->
-            <Table class="table-fixed">
-              <colgroup>
-                <col
-                  v-for="column in trackTableColumns"
-                  :key="`track-body-col-${column.label}`"
-                  :style="{ width: getTrackTableColumnWidth(column.weight) }"
-                />
-              </colgroup>
-              <TableHeader>
-                <TableRow>
-                  <TableHead v-for="column in trackTableColumns" :key="column.label">
-                    {{ column.label }}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody class="[&_tr]:h-9">
-                <TableRow v-for="row in trackRows" :key="row.flowNo">
-                  <TableCell>{{ row.flowNo }}</TableCell>
-                  <TableCell>{{ row.tubeNo }}</TableCell>
-                  <TableCell>{{ row.orderNo }}</TableCell>
-                  <TableCell>{{ row.itemNo }}</TableCell>
-                  <TableCell>{{ row.rollNo }}</TableCell>
-                  <TableCell>{{ row.meltNo }}</TableCell>
-                  <TableCell>{{ row.lotNo }}</TableCell>
-                  <TableCell>{{ row.length }}</TableCell>
-                  <TableCell>
-                    <IndicatorLight
-                      :active="row.lengthOk"
-                      color="green"
-                      off-color="red"
-                      :size="16"
-                    />
-                  </TableCell>
-                  <TableCell>{{ row.weight }}</TableCell>
-                  <TableCell>
-                    <IndicatorLight
-                      :active="row.weightOk"
-                      color="green"
-                      off-color="red"
-                      :size="16"
-                    />
-                  </TableCell>
-                  <TableCell>{{ row.meltNoCoupling }}</TableCell>
-                  <TableCell>{{ row.lotNoCoupling }}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            </div>
           </div>
         </div>
 
         <div class="win-group">
           <div class="win-group__title">设备状态</div>
-          <div class="flex h-full flex-col gap-3">
-            <div class="win-panel flex items-start justify-left gap-2">
-              <SelectSwitch :active="stationReady.release" color="green" :size="128" />
-              <!-- <SvgToggle :model-value="stationReady.release" :width="200" :height="50" /> -->
-              <div class="win-panel flex flex-1 h-full flex-col">
-                <div class="grid grid-cols-[120px_1fr] gap-2 items-center justify-items-stretch">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    class="win-button"
-                    @click="handleMoveTube('position-release')"
-                    >步进梁释放</Button
-                  >
-                  <div class="justify-self-center">
-                    <IndicatorLight
-                      :active="stationReady.release"
-                      color="green"
-                      :size="20"
-                      class="translate-y-[2px]"
-                    />
-                  </div>
+          <div class="flex h-full gap-3">
+            <div class="win-panel flex flex-1 items-start justify-left gap-2">
+              <div class="grid grid-cols-[120px_1fr] gap-4 items-center mt-2 w-full">
+                <SvgToggle :model-value="stationReady.release" :width="120" :height="30" />
+                <div class="justify-self-center font-bold">L1信号状态</div>
 
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    class="win-button"
-                    @click="handleMoveTube('position-release')"
-                    >内保步进梁释放</Button
-                  >
-                  <div class="justify-self-center">
-                    <IndicatorLight
-                      :active="stationReady.release"
-                      color="green"
-                      :size="20"
-                      class="translate-y-[2px]"
-                    />
-                  </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleMoveTube('position-release')"
+                  >L2所有工位释放</Button
+                >
+                <div class="justify-self-center">
+                  <IndicatorLight
+                    :active="stationReady.release"
+                    color="green"
+                    :size="20"
+                    class="translate-y-[2px]"
+                  />
+                </div>
 
-                  <div class="justify-self-center">步进梁原位</div>
-                  <div class="justify-self-center">
-                    <IndicatorLight
-                      :active="stationReady.beamHome"
-                      color="green"
-                      :size="20"
-                      class="translate-y-[2px]"
-                    />
-                  </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleMoveTube('position-release')"
+                  >内保步进梁释放</Button
+                >
+                <div class="justify-self-center">
+                  <IndicatorLight
+                    :active="stationReady.release"
+                    color="green"
+                    :size="20"
+                    class="translate-y-[2px]"
+                  />
+                </div>
+
+                <div class="justify-self-center">
+                  <Label class="text-sm font-bold">步进梁原位指示</Label>
+                </div>
+                <div class="justify-self-center">
+                  <IndicatorLight
+                    :active="stationReady.beamHome"
+                    color="green"
+                    :size="20"
+                    class="translate-y-[2px]"
+                  />
                 </div>
               </div>
             </div>
 
-            <div class="win-panel grid grid-cols-2 gap-2 text-sm">
+            <div class="win-panel grid gap-2 text-sm w-[100px]">
               <div
                 v-for="item in stationIndicators"
                 :key="item.key"
                 class="flex items-center justify-evenly gap-2"
               >
-                <span>{{ item.label }}</span>
+                <span class="font-bold">{{ item.label }}</span>
                 <IndicatorLight :active="stationReady[item.key]" color="green" :size="18" />
               </div>
             </div>
@@ -1207,7 +1206,7 @@ onMounted(() => {
 
 <style scoped>
 .main-monitor-view {
-  background: #c8c8c8;
+  background: #d8d8d8;
   font-family: SimSun, NSimSun, 'Microsoft YaHei', serif;
 }
 
@@ -1226,7 +1225,7 @@ onMounted(() => {
   top: -11px;
   left: 12px;
   padding: 0 6px;
-  background: #c8c8c8;
+  background: #d8d8d8;
   color: #6f1616;
   font-size: 15px;
   font-weight: 700;

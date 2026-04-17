@@ -22,11 +22,11 @@
         y="50%"
         dominant-baseline="middle"
         text-anchor="middle"
-        font-size="12"
+        font-size="18"
         fill="white"
         class="select-none pointer-events-none font-bold"
       >
-        {{ modelValue ? 'ON' : 'OFF' }}
+        {{ modelValue ? '释放' : '封锁' }}
       </text>
 
       <circle

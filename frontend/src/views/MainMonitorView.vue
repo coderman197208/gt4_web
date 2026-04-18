@@ -359,7 +359,7 @@ function handleMoveTube(from: string, to = '') {
 
 // 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
 onMounted(() => {
-  subscribe(['PlanInfo', 'ALIGN_POS_TUBE_INFO']);
+  subscribe(['PlanInfo', 'ALIGN_POS_TUBE_INFO', 'ALIGN_POS_ON', 'LEN_MEA_FINISH']);
 });
 </script>
 
@@ -479,7 +479,7 @@ onMounted(() => {
                   :active="processRunning.waste"
                   color="red"
                   :size="18"
-                  class="mt-2"
+                  class="mt-2 invisible"
                 />
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -522,7 +522,7 @@ onMounted(() => {
                   :active="processRunning.circle"
                   color="red"
                   :size="18"
-                  class="mt-2"
+                  class="mt-2 invisible"
                 />
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -552,12 +552,12 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.spray" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.spray" color="green" :size="60" />
-                <IndicatorLight
-                  :active="processRunning.spray"
-                  color="red"
-                  :size="18"
-                  class="mt-2"
-                />
+                <div class="flex items-center gap-1 mt-2">
+                  <Label class="text-sm font-bold">封锁</Label>
+                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
+                  <Label class="text-sm font-bold">测长完成</Label>
+                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
+                </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
@@ -590,7 +590,7 @@ onMounted(() => {
                   :active="processRunning.carve"
                   color="red"
                   :size="18"
-                  class="mt-2"
+                  class="mt-2 invisible"
                 />
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -620,12 +620,10 @@ onMounted(() => {
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube :active="processRunning.weight" color="darkCyan" :size="60" />
                 <ConveyorRoller :active="processRunning.weight" color="green" :size="60" />
-                <IndicatorLight
-                  :active="processRunning.weight"
-                  color="red"
-                  :size="18"
-                  class="mt-2"
-                />
+                <div class="flex items-center gap-2 mt-2">
+                  <Label class="text-sm font-bold">工位封锁</Label>
+                  <IndicatorLight :active="processRunning.weight" color="red" :size="18" />
+                </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
@@ -660,11 +658,8 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller :active="processRunning.length" color="green" :size="60" />
-                <div class="flex items-center gap-2 mt-2">
-                  <IndicatorLight :active="processRunning.length" color="red" :size="18" />
-                  <IndicatorLight :active="true" color="red" :size="18" />
-                </div>
+                <ConveyorRoller :active="realtimeStore.alignPosOn" color="green" :size="60" />
+                <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
               </div>
               <div class="mt-4 grid grid-cols-4 gap-2">
                 <Button

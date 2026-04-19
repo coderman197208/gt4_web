@@ -35,6 +35,11 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const tag3 = ref<Tag3Data | null>(null);
   const planInfo = ref<PlanInfo | null>(null);
   const alignPosTubeInfo = ref<TubeInfo[] | null>(null); // 定位工位管子信息
+  const weightPosTubeInfo = ref<TubeInfo[] | null>(null); // 称重工位管子信息
+  const carvePosTubeInfo = ref<TubeInfo[] | null>(null); // 刻印工位管子信息
+  const sprayPosTubeInfo = ref<TubeInfo[] | null>(null); // 喷涂工位管子信息
+  const circlePosTubeInfo = ref<TubeInfo[] | null>(null); // 色环工位管子信息
+  const scraptPosTubeInfo = ref<TubeInfo[] | null>(null); // 出废工位管子信息
   const alignPosOn = ref<boolean>(false); // 定位工位有料信号状态
   const lenMeaFinish = ref<boolean>(false); // 测长完成信号状态
 
@@ -67,6 +72,26 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         alignPosTubeInfo.value = value as TubeInfo[];
         console.log('[RealtimeDataStore] alignPosTubeInfo 数据已更新:', alignPosTubeInfo.value);
         break;
+      case 'WEIGHT_POS_TUBE_INFO':
+        weightPosTubeInfo.value = value as TubeInfo[];
+        console.log('[RealtimeDataStore] weightPosTubeInfo 数据已更新:', weightPosTubeInfo.value);
+        break;
+      case 'CARVE_POS_TUBE_INFO':
+        carvePosTubeInfo.value = value as TubeInfo[];
+        console.log('[RealtimeDataStore] carvePosTubeInfo 数据已更新:', carvePosTubeInfo.value);
+        break;
+      case 'SPRAY_POS_TUBE_INFO':
+        sprayPosTubeInfo.value = value as TubeInfo[];
+        console.log('[RealtimeDataStore] sprayPosTubeInfo 数据已更新:', sprayPosTubeInfo.value);
+        break;
+      case 'CIRCLE_POS_TUBE_INFO':
+        circlePosTubeInfo.value = value as TubeInfo[];
+        console.log('[RealtimeDataStore] circlePosTubeInfo 数据已更新:', circlePosTubeInfo.value);
+        break;
+      case 'SCRAPT_POS_TUBE_INFO':
+        scraptPosTubeInfo.value = value as TubeInfo[];
+        console.log('[RealtimeDataStore] scraptPosTubeInfo 数据已更新:', scraptPosTubeInfo.value);
+        break;
       case 'ALIGN_POS_ON':
         alignPosOn.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] alignPosOn 数据已更新:', alignPosOn.value);
@@ -90,6 +115,11 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     tag3.value = null;
     planInfo.value = null;
     alignPosTubeInfo.value = null;
+    weightPosTubeInfo.value = null;
+    carvePosTubeInfo.value = null;
+    sprayPosTubeInfo.value = null;
+    circlePosTubeInfo.value = null;
+    scraptPosTubeInfo.value = null;
     alignPosOn.value = false;
     lenMeaFinish.value = false;
     console.log('[RealtimeDataStore] 所有数据已重置');
@@ -103,6 +133,11 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     // 实际数据
     planInfo,
     alignPosTubeInfo,
+    weightPosTubeInfo,
+    carvePosTubeInfo,
+    sprayPosTubeInfo,
+    circlePosTubeInfo,
+    scraptPosTubeInfo,
     alignPosOn,
     lenMeaFinish,
     // 方法

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
+import { computed, reactive, ref, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { ConveyorRoller } from '@/components/ui/conveyor-roller';
 import { IndicatorLight } from '@/components/ui/indicator-light';
@@ -19,9 +19,10 @@ import { TubeBasket } from '@/components/ui/tube-basket';
 import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
-import type { SetFeedNumCmd, MoveTubeCmd } from '@gt4_web/shared';
+import type { SetFeedNumCmd, MoveTubeCmd, TubeInfo } from '@gt4_web/shared';
 
-interface TrackRow {
+interface TubeTrackRow {
+  stationKey: string;
   flowNo: string;
   tubeNo: string;
   orderNo: string;
@@ -118,97 +119,36 @@ const processStatus = reactive({
   l3Comm: true,
 });
 
-const trackRows = ref<TrackRow[]>([
-  {
-    flowNo: '00001',
-    tubeNo: 'T240001',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.06',
-    lengthOk: true,
-    weight: '2222.88',
-    weightOk: true,
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
-  {
-    flowNo: '00002',
-    tubeNo: 'T240002',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.08',
-    lengthOk: true,
-    weight: '222.91',
-    weightOk: false,
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
-  {
-    flowNo: '00003',
-    tubeNo: 'T240002',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.08',
-    lengthOk: true,
-    weight: '222.91',
-    weightOk: false,
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
-  {
-    flowNo: '00004',
-    tubeNo: 'T240002',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.08',
-    lengthOk: true,
-    weight: '222.91',
-    weightOk: false,
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
-  {
-    flowNo: '00005',
-    tubeNo: 'T240002',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.08',
-    lengthOk: true,
-    weight: '222.91',
-    weightOk: false,
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
-  {
-    flowNo: '00006',
-    tubeNo: 'T240002',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.08',
-    lengthOk: true,
-    weight: '222.91',
-    weightOk: false,
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
+function formatRealtimeValue(value: string | number | null | undefined): string {
+  return value == null ? '' : String(value);
+}
+
+function toTrackRow(stationKey: string, tubeInfo?: TubeInfo | null): TubeTrackRow {
+  return {
+    stationKey,
+    flowNo: formatRealtimeValue(tubeInfo?.flow_no),
+    tubeNo: formatRealtimeValue(tubeInfo?.tube_no),
+    orderNo: formatRealtimeValue(tubeInfo?.order_no),
+    itemNo: formatRealtimeValue(tubeInfo?.item_no),
+    rollNo: formatRealtimeValue(tubeInfo?.roll_no),
+    meltNo: formatRealtimeValue(tubeInfo?.melt_no),
+    lotNo: formatRealtimeValue(tubeInfo?.lot_no),
+    length: formatRealtimeValue(tubeInfo?.length),
+    lengthOk: tubeInfo?.lengthOk ?? false,
+    weight: formatRealtimeValue(tubeInfo?.weight),
+    weightOk: tubeInfo?.weightOk ?? false,
+    meltNoCoupling: formatRealtimeValue(tubeInfo?.meltno_coupling),
+    lotNoCoupling: formatRealtimeValue(tubeInfo?.lotno_coupling),
+  };
+}
+
+const trackRows = computed<TubeTrackRow[]>(() => [
+  toTrackRow('align', realtimeStore.alignPosTubeInfo?.[0]),
+  toTrackRow('weight', realtimeStore.weightPosTubeInfo?.[0]),
+  toTrackRow('carve', realtimeStore.carvePosTubeInfo?.[0]),
+  toTrackRow('spray', realtimeStore.sprayPosTubeInfo?.[0]),
+  toTrackRow('circle', realtimeStore.circlePosTubeInfo?.[0]),
+  toTrackRow('scrapt', realtimeStore.scraptPosTubeInfo?.[0]),
 ]);
 
 const basketRows = ref<TubeDetailRow[]>([
@@ -359,7 +299,17 @@ function handleMoveTube(from: string, to = '') {
 
 // 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
 onMounted(() => {
-  subscribe(['PlanInfo', 'ALIGN_POS_TUBE_INFO', 'ALIGN_POS_ON', 'LEN_MEA_FINISH']);
+  subscribe([
+    'PlanInfo',
+    'ALIGN_POS_TUBE_INFO',
+    'WEIGHT_POS_TUBE_INFO',
+    'CARVE_POS_TUBE_INFO',
+    'SPRAY_POS_TUBE_INFO',
+    'CIRCLE_POS_TUBE_INFO',
+    'SCRAPT_POS_TUBE_INFO',
+    'ALIGN_POS_ON',
+    'LEN_MEA_FINISH',
+  ]);
 });
 </script>
 
@@ -770,7 +720,7 @@ onMounted(() => {
                   </TableRow>
                 </TableHeader>
                 <TableBody class="[&_tr]:h-9">
-                  <TableRow v-for="row in trackRows" :key="row.flowNo">
+                  <TableRow v-for="row in trackRows" :key="row.stationKey">
                     <TableCell>{{ row.flowNo }}</TableCell>
                     <TableCell>{{ row.tubeNo }}</TableCell>
                     <TableCell>{{ row.orderNo }}</TableCell>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, onMounted } from 'vue';
+import { computed, reactive, ref, onMounted, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { ConveyorRoller } from '@/components/ui/conveyor-roller';
 import { IndicatorLight } from '@/components/ui/indicator-light';
@@ -19,7 +19,7 @@ import { TubeBasket } from '@/components/ui/tube-basket';
 import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
-import type { SetFeedNumCmd, MoveTubeCmd, TubeInfo } from '@gt4_web/shared';
+import type { SetFeedNumCmd, MoveTubeCmd, ModifyTubeCmd, TubeInfo } from '@gt4_web/shared';
 
 interface TubeTrackRow {
   stationKey: string;
@@ -32,11 +32,29 @@ interface TubeTrackRow {
   lotNo: string;
   length: string;
   lengthOk: boolean;
+  showLengthOk: boolean;
   weight: string;
   weightOk: boolean;
+  showWeightOk: boolean;
   meltNoCoupling: string;
   lotNoCoupling: string;
+  hasTubeInfo: boolean;
 }
+
+type EditableTrackField =
+  | 'flowNo'
+  | 'tubeNo'
+  | 'orderNo'
+  | 'itemNo'
+  | 'rollNo'
+  | 'meltNo'
+  | 'lotNo'
+  | 'length'
+  | 'weight'
+  | 'meltNoCoupling'
+  | 'lotNoCoupling';
+
+type ToggleableTrackField = 'lengthOk' | 'weightOk';
 
 interface TubeDetailRow {
   flowNo: string;
@@ -124,6 +142,8 @@ function formatRealtimeValue(value: string | number | null | undefined): string 
 }
 
 function toTrackRow(stationKey: string, tubeInfo?: TubeInfo | null): TubeTrackRow {
+  const hasTubeInfo = tubeInfo != null;
+
   return {
     stationKey,
     flowNo: formatRealtimeValue(tubeInfo?.flow_no),
@@ -135,10 +155,13 @@ function toTrackRow(stationKey: string, tubeInfo?: TubeInfo | null): TubeTrackRo
     lotNo: formatRealtimeValue(tubeInfo?.lot_no),
     length: formatRealtimeValue(tubeInfo?.length),
     lengthOk: tubeInfo?.lengthOk ?? false,
+    showLengthOk: hasTubeInfo,
     weight: formatRealtimeValue(tubeInfo?.weight),
     weightOk: tubeInfo?.weightOk ?? false,
+    showWeightOk: hasTubeInfo,
     meltNoCoupling: formatRealtimeValue(tubeInfo?.meltno_coupling),
     lotNoCoupling: formatRealtimeValue(tubeInfo?.lotno_coupling),
+    hasTubeInfo,
   };
 }
 
@@ -148,8 +171,157 @@ const trackRows = computed<TubeTrackRow[]>(() => [
   toTrackRow('carve', realtimeStore.carvePosTubeInfo?.[0]),
   toTrackRow('spray', realtimeStore.sprayPosTubeInfo?.[0]),
   toTrackRow('circle', realtimeStore.circlePosTubeInfo?.[0]),
-  toTrackRow('scrapt', realtimeStore.scraptPosTubeInfo?.[0]),
+  toTrackRow('scraptroller', realtimeStore.scraptrollerPosTubeInfo?.[0]),
 ]);
+
+const trackRowDrafts = reactive<Record<string, TubeTrackRow>>({});
+const trackRowDirtyStates = reactive<Record<string, boolean>>({});
+
+const editableTrackRows = computed(() =>
+  trackRows.value.map((row) => ({
+    row,
+    draft: trackRowDrafts[row.stationKey] ?? row,
+  })),
+);
+
+function cloneTrackRow(row: TubeTrackRow): TubeTrackRow {
+  return { ...row };
+}
+
+function syncTrackRowDrafts(rows: TubeTrackRow[]): void {
+  const activeStationKeys = new Set(rows.map((row) => row.stationKey));
+
+  for (const row of rows) {
+    const existingDraft = trackRowDrafts[row.stationKey];
+
+    if (!existingDraft || !trackRowDirtyStates[row.stationKey] || !row.hasTubeInfo) {
+      trackRowDrafts[row.stationKey] = cloneTrackRow(row);
+      trackRowDirtyStates[row.stationKey] = false;
+      continue;
+    }
+
+    existingDraft.lengthOk = row.lengthOk;
+    existingDraft.showLengthOk = row.showLengthOk;
+    existingDraft.weightOk = row.weightOk;
+    existingDraft.showWeightOk = row.showWeightOk;
+    existingDraft.hasTubeInfo = row.hasTubeInfo;
+  }
+
+  for (const stationKey of Object.keys(trackRowDrafts)) {
+    if (!activeStationKeys.has(stationKey)) {
+      delete trackRowDrafts[stationKey];
+      delete trackRowDirtyStates[stationKey];
+    }
+  }
+}
+
+watch(
+  trackRows,
+  (rows) => {
+    syncTrackRowDrafts(rows);
+  },
+  { immediate: true },
+);
+
+function updateTrackRowDraft(
+  stationKey: string,
+  field: EditableTrackField,
+  value: string | number,
+): void {
+  const draft = trackRowDrafts[stationKey];
+  if (!draft || !draft.hasTubeInfo) {
+    return;
+  }
+
+  draft[field] = String(value);
+  trackRowDirtyStates[stationKey] = true;
+}
+
+function resetTrackRowDraft(stationKey: string): void {
+  const originalRow = trackRows.value.find((row) => row.stationKey === stationKey);
+  if (!originalRow) {
+    return;
+  }
+
+  trackRowDrafts[stationKey] = cloneTrackRow(originalRow);
+  trackRowDirtyStates[stationKey] = false;
+}
+
+function handleTrackRowFocusOut(stationKey: string, event: FocusEvent): void {
+  const currentRowElement = event.currentTarget as HTMLElement | null;
+  const nextFocusedElement = event.relatedTarget as Node | null;
+
+  if (currentRowElement?.contains(nextFocusedElement)) {
+    return;
+  }
+
+  if (trackRowDirtyStates[stationKey]) {
+    resetTrackRowDraft(stationKey);
+  }
+}
+
+function parseTrackRowNumber(value: string): number {
+  const normalizedValue = value.trim();
+  if (normalizedValue === '') {
+    return 0;
+  }
+
+  const parsedValue = Number(normalizedValue);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+}
+
+function buildModifyTubeCmd(stationKey: string, draft: TubeTrackRow): ModifyTubeCmd {
+  return {
+    seq_no: 0,
+    position_name: stationKey,
+    order_no: draft.orderNo.trim(),
+    item_no: draft.itemNo.trim(),
+    roll_no: draft.rollNo.trim(),
+    melt_no: draft.meltNo.trim(),
+    lot_no: draft.lotNo.trim(),
+    tube_no: parseTrackRowNumber(draft.tubeNo),
+    flow_no: parseTrackRowNumber(draft.flowNo),
+    length: parseTrackRowNumber(draft.length),
+    weight: parseTrackRowNumber(draft.weight),
+    lengthOk: draft.lengthOk,
+    weightOk: draft.weightOk,
+    lotno_coupling: draft.lotNoCoupling.trim(),
+    meltno_coupling: draft.meltNoCoupling.trim(),
+  };
+}
+
+function submitTrackRowEdit(stationKey: string, event?: KeyboardEvent): void {
+  const draft = trackRowDrafts[stationKey];
+  if (!draft || !draft.hasTubeInfo) {
+    return;
+  }
+
+  const cmd = buildModifyTubeCmd(stationKey, draft);
+
+  sendUserCommand('ModifyTubeCmd', cmd);
+  trackRowDirtyStates[stationKey] = false;
+  const currentInput = event?.target;
+  if (currentInput instanceof HTMLInputElement) {
+    currentInput.blur();
+  }
+  console.log('[MainMonitorView] 已发送 ModifyTubeCmd:', cmd);
+}
+
+function toggleTrackRowIndicator(stationKey: string, field: ToggleableTrackField): void {
+  const draft = trackRowDrafts[stationKey];
+  if (!draft || !draft.hasTubeInfo) {
+    return;
+  }
+
+  const nextDraft = {
+    ...draft,
+    [field]: !draft[field],
+  } as TubeTrackRow;
+
+  const cmd = buildModifyTubeCmd(stationKey, nextDraft);
+  sendUserCommand('ModifyTubeCmd', cmd);
+  console.log(`[MainMonitorView] 已发送 ${field} 切换后的 ModifyTubeCmd:`, cmd);
+}
 
 const basketRows = ref<TubeDetailRow[]>([
   {
@@ -306,7 +478,10 @@ onMounted(() => {
     'CARVE_POS_TUBE_INFO',
     'SPRAY_POS_TUBE_INFO',
     'CIRCLE_POS_TUBE_INFO',
+    'SCRAPTROLLER_POS_TUBE_INFO',
     'SCRAPT_POS_TUBE_INFO',
+    'BACKBUFFER_POS_TUBE_INFO',
+    'BASKET_POS_TUBE_INFO',
     'ALIGN_POS_ON',
     'LEN_MEA_FINISH',
   ]);
@@ -720,34 +895,191 @@ onMounted(() => {
                   </TableRow>
                 </TableHeader>
                 <TableBody class="[&_tr]:h-9">
-                  <TableRow v-for="row in trackRows" :key="row.stationKey">
-                    <TableCell>{{ row.flowNo }}</TableCell>
-                    <TableCell>{{ row.tubeNo }}</TableCell>
-                    <TableCell>{{ row.orderNo }}</TableCell>
-                    <TableCell>{{ row.itemNo }}</TableCell>
-                    <TableCell>{{ row.rollNo }}</TableCell>
-                    <TableCell>{{ row.meltNo }}</TableCell>
-                    <TableCell>{{ row.lotNo }}</TableCell>
-                    <TableCell>{{ row.length }}</TableCell>
+                  <TableRow
+                    v-for="editableRow in editableTrackRows"
+                    :key="editableRow.row.stationKey"
+                    @focusout="handleTrackRowFocusOut(editableRow.row.stationKey, $event)"
+                  >
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.flowNo"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'flowNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.flowNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.tubeNo"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'tubeNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.tubeNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.orderNo"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'orderNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.orderNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.itemNo"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'itemNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.itemNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.rollNo"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'rollNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.rollNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.meltNo"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'meltNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.meltNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.lotNo"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'lotNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.lotNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.length"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'length', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.length }}</span>
+                    </TableCell>
                     <TableCell>
                       <IndicatorLight
-                        :active="row.lengthOk"
+                        :active="editableRow.draft.lengthOk"
                         color="green"
                         off-color="red"
+                        :class="{
+                          invisible: !editableRow.draft.showLengthOk,
+                          'cursor-pointer': editableRow.row.hasTubeInfo,
+                        }"
                         :size="16"
+                        @click="toggleTrackRowIndicator(editableRow.row.stationKey, 'lengthOk')"
                       />
                     </TableCell>
-                    <TableCell>{{ row.weight }}</TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.weight"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'weight', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.weight }}</span>
+                    </TableCell>
                     <TableCell>
                       <IndicatorLight
-                        :active="row.weightOk"
+                        :active="editableRow.draft.weightOk"
                         color="green"
                         off-color="red"
+                        :class="{
+                          invisible: !editableRow.draft.showWeightOk,
+                          'cursor-pointer': editableRow.row.hasTubeInfo,
+                        }"
                         :size="16"
+                        @click="toggleTrackRowIndicator(editableRow.row.stationKey, 'weightOk')"
                       />
                     </TableCell>
-                    <TableCell>{{ row.meltNoCoupling }}</TableCell>
-                    <TableCell>{{ row.lotNoCoupling }}</TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.meltNoCoupling"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'meltNoCoupling', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        v-if="editableRow.row.hasTubeInfo"
+                        :model-value="editableRow.draft.lotNoCoupling"
+                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                        @update:model-value="
+                          updateTrackRowDraft(editableRow.row.stationKey, 'lotNoCoupling', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitTrackRowEdit(editableRow.row.stationKey, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

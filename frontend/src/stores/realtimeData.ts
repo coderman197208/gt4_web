@@ -39,7 +39,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const carvePosTubeInfo = ref<TubeInfo[] | null>(null); // 刻印工位管子信息
   const sprayPosTubeInfo = ref<TubeInfo[] | null>(null); // 喷涂工位管子信息
   const circlePosTubeInfo = ref<TubeInfo[] | null>(null); // 色环工位管子信息
-  const scraptPosTubeInfo = ref<TubeInfo[] | null>(null); // 出废工位管子信息
+  const scraptrollerPosTubeInfo = ref<TubeInfo[] | null>(null); // 出废工位管子信息
   const alignPosOn = ref<boolean>(false); // 定位工位有料信号状态
   const lenMeaFinish = ref<boolean>(false); // 测长完成信号状态
 
@@ -88,9 +88,12 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         circlePosTubeInfo.value = value as TubeInfo[];
         console.log('[RealtimeDataStore] circlePosTubeInfo 数据已更新:', circlePosTubeInfo.value);
         break;
-      case 'SCRAPT_POS_TUBE_INFO':
-        scraptPosTubeInfo.value = value as TubeInfo[];
-        console.log('[RealtimeDataStore] scraptPosTubeInfo 数据已更新:', scraptPosTubeInfo.value);
+      case 'SCRAPTROLLER_POS_TUBE_INFO':
+        scraptrollerPosTubeInfo.value = value as TubeInfo[];
+        console.log(
+          '[RealtimeDataStore] scraptrollerPosTubeInfo 数据已更新:',
+          scraptrollerPosTubeInfo.value,
+        );
         break;
       case 'ALIGN_POS_ON':
         alignPosOn.value = normalizeBooleanTagValue(value);
@@ -119,7 +122,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     carvePosTubeInfo.value = null;
     sprayPosTubeInfo.value = null;
     circlePosTubeInfo.value = null;
-    scraptPosTubeInfo.value = null;
+    scraptrollerPosTubeInfo.value = null;
     alignPosOn.value = false;
     lenMeaFinish.value = false;
     console.log('[RealtimeDataStore] 所有数据已重置');
@@ -137,7 +140,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     carvePosTubeInfo,
     sprayPosTubeInfo,
     circlePosTubeInfo,
-    scraptPosTubeInfo,
+    scraptrollerPosTubeInfo,
     alignPosOn,
     lenMeaFinish,
     // 方法

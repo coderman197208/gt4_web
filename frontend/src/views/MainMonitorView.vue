@@ -574,7 +574,7 @@ onMounted(() => {
                 size="sm"
                 variant="outline"
                 class="win-button"
-                @click="handleMoveTube('backbuffer', 'scaptroller')"
+                @click="handleMoveTube('backbuffer', 'scraptroller')"
                 >&gt;</Button
               >
             </div>

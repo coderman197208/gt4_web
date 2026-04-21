@@ -40,7 +40,13 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const sprayPosTubeInfo = ref<TubeInfo[] | null>(null); // 喷涂工位管子信息
   const circlePosTubeInfo = ref<TubeInfo[] | null>(null); // 色环工位管子信息
   const scraptrollerPosTubeInfo = ref<TubeInfo[] | null>(null); // 出废工位管子信息
+  const backbufferPosTubeInfo = ref<TubeInfo[] | null>(null); // 打包前缓冲区管子信息
   const alignPosOn = ref<boolean>(false); // 定位工位有料信号状态
+  const weightPosOn = ref<boolean>(false); // 称重工位有料信号状态
+  const carvePosOn = ref<boolean>(false); // 刻印工位有料信号状态
+  const sprayPosOn = ref<boolean>(false); // 喷涂工位有料信号状态
+  const circlePosOn = ref<boolean>(false); // 色环工位有料信号状态
+  const scraptrollerPosOn = ref<boolean>(false); // 出废工位有料信号状态
   const lenMeaFinish = ref<boolean>(false); // 测长完成信号状态
 
   /**
@@ -49,9 +55,9 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
    * @param value 数据值（已解析的对象或原始类型）
    */
   function updateData(tag: string, value: any): void {
-    // const normalizedTag = normalizeRealtimeTagName(tag);
+    const normalizedTag = normalizeRealtimeTagName(tag);
 
-    switch (tag) {
+    switch (normalizedTag) {
       case 'tag1':
         tag1.value = value as Tag1Data;
         console.log('[RealtimeDataStore] tag1 数据已更新:', tag1.value);
@@ -95,16 +101,46 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
           scraptrollerPosTubeInfo.value,
         );
         break;
+      case 'BACKBUFFER_POS_TUBE_INFO':
+        backbufferPosTubeInfo.value = value as TubeInfo[];
+        console.log(
+          '[RealtimeDataStore] backbufferPosTubeInfo 数据已更新:',
+          backbufferPosTubeInfo.value,
+        );
+        break;
       case 'ALIGN_POS_ON':
         alignPosOn.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] alignPosOn 数据已更新:', alignPosOn.value);
+        break;
+      case 'WEIGHT_POS_ON':
+        weightPosOn.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] weightPosOn 数据已更新:', weightPosOn.value);
+        break;
+      case 'CARVE_POS_ON':
+        carvePosOn.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] carvePosOn 数据已更新:', carvePosOn.value);
+        break;
+      case 'SPRAY_POS_ON':
+        sprayPosOn.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] sprayPosOn 数据已更新:', sprayPosOn.value);
+        break;
+      case 'CIRCLE_POS_ON':
+        circlePosOn.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] circlePosOn 数据已更新:', circlePosOn.value);
+        break;
+      case 'SCRAPTROLLER_POS_ON':
+        scraptrollerPosOn.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] scraptrollerPosOn 数据已更新:', scraptrollerPosOn.value);
         break;
       case 'LEN_MEA_FINISH':
         lenMeaFinish.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] lenMeaFinish 数据已更新:', lenMeaFinish.value);
         break;
       default:
-        console.warn(`[RealtimeDataStore] 未知的tag: ${JSON.stringify(tag)}`);
+        console.warn('[RealtimeDataStore] 未知的tag:', {
+          rawTag: tag,
+          normalizedTag,
+        });
         break;
     }
   }
@@ -123,7 +159,13 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     sprayPosTubeInfo.value = null;
     circlePosTubeInfo.value = null;
     scraptrollerPosTubeInfo.value = null;
+    backbufferPosTubeInfo.value = null;
     alignPosOn.value = false;
+    weightPosOn.value = false;
+    carvePosOn.value = false;
+    sprayPosOn.value = false;
+    circlePosOn.value = false;
+    scraptrollerPosOn.value = false;
     lenMeaFinish.value = false;
     console.log('[RealtimeDataStore] 所有数据已重置');
   }
@@ -141,7 +183,13 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     sprayPosTubeInfo,
     circlePosTubeInfo,
     scraptrollerPosTubeInfo,
+    backbufferPosTubeInfo,
     alignPosOn,
+    weightPosOn,
+    carvePosOn,
+    sprayPosOn,
+    circlePosOn,
+    scraptrollerPosOn,
     lenMeaFinish,
     // 方法
     updateData,

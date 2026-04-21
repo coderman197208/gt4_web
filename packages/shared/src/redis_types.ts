@@ -55,6 +55,7 @@ export interface MoveTubeCmd {
   to: string;
 }
 
+// 修改管子信息命令
 export interface ModifyTubeCmd {
   seq_no: number; // 序列号，确保管子的唯一性和顺序
   position_name: string; // 工位名称
@@ -73,10 +74,17 @@ export interface ModifyTubeCmd {
   meltno_coupling: string; // 接箍炉号
 }
 
+// 删除管子命令
+export interface DeleteTubeCmd {
+  seq_no: number; // 序列号，确保管子的唯一性和顺序
+  position_name: string; // 工位名称
+}
+
 export type UserCommandPayload =
   | SetFeedNumCmd
   | MoveTubeCmd
   | ModifyTubeCmd
+  | DeleteTubeCmd
   | Record<string, unknown>;
 
 // WebSocket 操作命令发送消息（字段名与C++端一致）

@@ -494,8 +494,8 @@ function buildBackbufferModifyTubeCmd(row: TubeDetailRow): ModifyTubeCmd {
     flow_no: parseTrackRowNumber(row.flowNo),
     length: parseTrackRowNumber(row.length),
     weight: parseTrackRowNumber(row.weight),
-    lengthOk: false,
-    weightOk: false,
+    length_ok: false,
+    weight_ok: false,
     lotno_coupling: (row.lotNoCoupling ?? '').trim(),
     meltno_coupling: (row.meltNoCoupling ?? '').trim(),
   };
@@ -950,11 +950,7 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller
-                  :active="realtimeStore.weightPosTubeInfo"
-                  color="green"
-                  :size="60"
-                />
+                <ConveyorRoller :active="realtimeStore.weightPosOn" color="green" :size="60" />
                 <div class="flex items-center gap-2 mt-2">
                   <Label class="text-sm font-bold">工位封锁</Label>
                   <IndicatorLight :active="realtimeStore.weightPosOn" color="red" :size="18" />

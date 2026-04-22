@@ -481,9 +481,9 @@ function handleBackbufferRowFocusOut(rowKey: string, event: FocusEvent): void {
   }
 }
 
-function buildBackbufferModifyTubeCmd(row: TubeDetailRow): ModifyTubeCmd {
+function buildBackbufferModifyTubeCmd(row: TubeDetailRow, seqNo = 0): ModifyTubeCmd {
   return {
-    seq_no: 0,
+    seq_no: seqNo,
     position_name: 'backbuffer',
     order_no: row.orderNo.trim(),
     item_no: row.itemNo.trim(),
@@ -494,20 +494,20 @@ function buildBackbufferModifyTubeCmd(row: TubeDetailRow): ModifyTubeCmd {
     flow_no: parseTrackRowNumber(row.flowNo),
     length: parseTrackRowNumber(row.length),
     weight: parseTrackRowNumber(row.weight),
-    length_ok: false,
-    weight_ok: false,
+    length_ok: true,
+    weight_ok: true,
     lotno_coupling: (row.lotNoCoupling ?? '').trim(),
     meltno_coupling: (row.meltNoCoupling ?? '').trim(),
   };
 }
 
-function submitBackbufferRowEdit(rowKey: string, event?: KeyboardEvent): void {
+function submitBackbufferRowEdit(rowKey: string, seqNo = 0, event?: KeyboardEvent): void {
   const draft = backbufferRowDrafts[rowKey];
   if (!draft || !draft.hasTubeInfo) {
     return;
   }
 
-  const cmd = buildBackbufferModifyTubeCmd(draft);
+  const cmd = buildBackbufferModifyTubeCmd(draft, seqNo);
   sendUserCommand('ModifyTubeCmd', cmd);
   backbufferRowDirtyStates[rowKey] = false;
   const currentInput = event?.target;
@@ -1458,7 +1458,7 @@ onMounted(() => {
                   </TableHeader>
                   <TableBody>
                     <TableRow
-                      v-for="editableRow in editableBackbufferRows"
+                      v-for="(editableRow, rowIndex) in editableBackbufferRows"
                       :key="editableRow.row.rowKey"
                       @focusout="
                         editableRow.row.rowKey &&
@@ -1474,7 +1474,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'flowNo', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.flowNo }}</span>
@@ -1488,7 +1488,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'tubeNo', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.tubeNo }}</span>
@@ -1502,7 +1502,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'orderNo', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.orderNo }}</span>
@@ -1516,7 +1516,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'itemNo', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.itemNo }}</span>
@@ -1530,7 +1530,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'rollNo', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.rollNo }}</span>
@@ -1544,7 +1544,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'meltNo', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.meltNo }}</span>
@@ -1558,7 +1558,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'lotNo', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.lotNo }}</span>
@@ -1572,7 +1572,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'length', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.length }}</span>
@@ -1586,7 +1586,7 @@ onMounted(() => {
                             updateBackbufferRowDraft(editableRow.row.rowKey, 'weight', $event)
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.weight }}</span>
@@ -1604,7 +1604,7 @@ onMounted(() => {
                             )
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
@@ -1622,7 +1622,7 @@ onMounted(() => {
                             )
                           "
                           @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, $event)
+                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
                           "
                         />
                         <span v-else>{{ editableRow.row.lotNoCoupling }}</span>

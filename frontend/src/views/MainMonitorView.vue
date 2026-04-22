@@ -838,7 +838,6 @@ onMounted(() => {
                   @click="handleMoveTube('circle', 'scraptroller')"
                   >&lt;</Button
                 >
-                <Button size="sm" variant="outline" class="win-button">&times;</Button>
                 <Button
                   size="sm"
                   variant="outline"

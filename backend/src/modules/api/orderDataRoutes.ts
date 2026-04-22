@@ -140,9 +140,9 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
         )
       `;
       return { message: '合同数据新增成功' };
-    } catch (err: any) {
+    } catch (err: unknown) {
       fastify.log.error(err);
-      if (err.code === '23505') {
+      if (typeof err === 'object' && err !== null && 'code' in err && err.code === '23505') {
         return reply.code(409).send({ message: '该合同号和项目号已存在' });
       }
       return reply.code(500).send({ message: '新增合同数据失败' });

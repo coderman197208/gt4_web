@@ -7,7 +7,7 @@ import type { Tag1Data, Tag2Data, Tag3Data, DataPushMessage } from '@gt4_web/sha
 import { getSocketServer, getSubscriptionManager } from './socketServer.js';
 
 // 初始数据
-let tag1Data: Tag1Data = {
+const tag1Data: Tag1Data = {
   ph: '123456',
   lh: '12345678',
   czh: '3456',

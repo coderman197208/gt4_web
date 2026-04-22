@@ -68,8 +68,8 @@ export interface ModifyTubeCmd {
   flow_no: number; // 流水号
   length: number; // 长度(米)
   weight: number; // 重量(KG)
-  lengthOk: boolean; // 长度合格
-  weightOk: boolean; // 重量合格
+  length_ok: boolean; // 长度合格
+  weight_ok: boolean; // 重量合格
   lotno_coupling: string; // 接箍批号
   meltno_coupling: string; // 接箍炉号
 }
@@ -117,8 +117,8 @@ export interface TubeInfo {
   flow_no: number; // 流水号
   length: number; // 长度(米)
   weight: number; // 重量(KG)
-  lengthOk: boolean; // 长度合格
-  weightOk: boolean; // 重量合格
+  length_ok: boolean; // 长度合格
+  weight_ok: boolean; // 重量合格
   lotno_coupling: string; // 接箍批号
   meltno_coupling: string; // 接箍炉号
 }

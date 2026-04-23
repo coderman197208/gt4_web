@@ -422,6 +422,10 @@ import {
 } from '@/components/ui/select';
 import { getOrderNos, getItemNos, getOrderData, updateOrderData, createOrderData } from '@/api';
 import type { OrderData } from '@gt4_web/shared';
+import type { SetCurrentContractCmd } from '@gt4_web/shared';
+import { useWebSocket } from '@/services/websocket';
+
+const { sendUserCommand } = useWebSocket();
 
 // 缓存查询到的完整记录，修改时以此为基础合并表单数据
 const cachedOrderData = ref<OrderData | null>(null);
@@ -768,6 +772,12 @@ async function handleQuery() {
 }
 
 function handleSetCurrentContract() {
+  const cmd: SetCurrentContractCmd = {
+    order_no: formData.order_no,
+    item_no: formData.item_no,
+  };
+  // 发送设置当前合同命令
+  sendUserCommand('SetCurrentContract', cmd);
   console.log('set current contract', formData.order_no);
 }
 

@@ -777,7 +777,7 @@ function handleSetCurrentContract() {
     item_no: formData.item_no,
   };
   // 发送设置当前合同命令
-  sendUserCommand('SetCurrentContract', cmd);
+  sendUserCommand('SetCurrentContractCmd', cmd);
   console.log('set current contract', formData.order_no);
 }
 

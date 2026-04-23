@@ -430,6 +430,17 @@ const { sendUserCommand } = useWebSocket();
 // 缓存查询到的完整记录，修改时以此为基础合并表单数据
 const cachedOrderData = ref<OrderData | null>(null);
 
+function formatDateForInput(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const today = new Date();
+const tenDaysAgo = new Date();
+tenDaysAgo.setDate(today.getDate() - 10);
+
 // 合同申请表单
 const requestForm = reactive({
   orderNo: '',
@@ -440,8 +451,8 @@ const requestForm = reactive({
 const queryForm = reactive({
   orderNo: '',
   itemNo: '',
-  dateFrom: '',
-  dateTo: '',
+  dateFrom: formatDateForInput(tenDaysAgo),
+  dateTo: formatDateForInput(today),
 });
 
 // 下拉选项
@@ -729,6 +740,7 @@ watch(
       console.error('查询合同号失败', err);
     }
   },
+  { immediate: true },
 );
 
 // 当合同号下拉列表选择项改变后，查询项目号列表

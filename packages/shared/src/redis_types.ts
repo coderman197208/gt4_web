@@ -80,11 +80,18 @@ export interface DeleteTubeCmd {
   position_name: string; // 工位名称
 }
 
+// 设置当前合同命令
+export interface SetCurrentContractCmd {
+  order_no: string; // 合同号
+  item_no: string; // 项目号
+}
+
 export type UserCommandPayload =
   | SetFeedNumCmd
   | MoveTubeCmd
   | ModifyTubeCmd
   | DeleteTubeCmd
+  | SetCurrentContractCmd
   | Record<string, unknown>;
 
 // WebSocket 操作命令发送消息（字段名与C++端一致）

@@ -399,6 +399,10 @@ const backbufferRows = computed<TubeDetailRow[]>(() =>
 
 const backbufferRowDrafts = reactive<Record<string, TubeDetailRow>>({});
 const backbufferRowDirtyStates = reactive<Record<string, boolean>>({});
+const selectedBackbufferRowIndex = ref<number | null>(null);
+const canDeleteBackbufferRow = computed(
+  () => backbufferRows.value.length > 0 && selectedBackbufferRowIndex.value != null,
+);
 
 const editableBackbufferRows = computed(() =>
   backbufferRows.value.map((row) => ({
@@ -440,9 +444,34 @@ watch(
   backbufferRows,
   (rows) => {
     syncBackbufferRowDrafts(rows);
+
+    if (
+      selectedBackbufferRowIndex.value != null &&
+      (selectedBackbufferRowIndex.value < 0 || selectedBackbufferRowIndex.value >= rows.length)
+    ) {
+      selectedBackbufferRowIndex.value = null;
+    }
   },
   { immediate: true },
 );
+
+function selectBackbufferRow(rowIndex: number): void {
+  selectedBackbufferRowIndex.value = rowIndex;
+}
+
+function handleDeleteBackbufferTube(): void {
+  if (!canDeleteBackbufferRow.value) {
+    return;
+  }
+
+  const sequenceNo = selectedBackbufferRowIndex.value;
+  if (sequenceNo == null) {
+    return;
+  }
+
+  handleDeleteTube('backbuffer', sequenceNo);
+  selectedBackbufferRowIndex.value = null;
+}
 
 function updateBackbufferRowDraft(
   rowKey: string,
@@ -1459,6 +1488,10 @@ onMounted(() => {
                     <TableRow
                       v-for="(editableRow, rowIndex) in editableBackbufferRows"
                       :key="editableRow.row.rowKey"
+                      :class="{
+                        'win-table-row--selected': selectedBackbufferRowIndex === rowIndex,
+                      }"
+                      @click="selectBackbufferRow(rowIndex)"
                       @focusout="
                         editableRow.row.rowKey &&
                         handleBackbufferRowFocusOut(editableRow.row.rowKey, $event)
@@ -1636,25 +1669,14 @@ onMounted(() => {
                 <span>总长 120.118</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('insert-tube-head')"
-                  >插入头部</Button
-                >
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('insert-tube')"
-                  >插入钢管</Button
-                >
+                <Button size="sm" variant="outline" class="win-button">插入头部</Button>
+                <Button size="sm" variant="outline" class="win-button">插入钢管</Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button win-button--danger"
-                  @click="handleMoveTube('delete-tube')"
+                  :disabled="!canDeleteBackbufferRow"
+                  @click="handleDeleteBackbufferTube()"
                   >删除钢管</Button
                 >
               </div>
@@ -2011,6 +2033,10 @@ onMounted(() => {
 
 .win-table-shell :deep(tbody tr:nth-child(even) td) {
   background: #d7d7d7;
+}
+
+.win-table-shell :deep(.win-table-row--selected td) {
+  background: #9fc5ff !important;
 }
 
 .win-tabs-list {

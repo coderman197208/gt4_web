@@ -1,8 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { config as loadEnv } from 'dotenv';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import './loadEnv.js';
 import type { HealthCheckResponse } from '@gt4_web/shared';
 import { initSocketServer } from './modules/websocket/socketServer.js';
 import { startMockDataGenerator } from './modules/websocket/mockDataGenerator.js';
@@ -10,9 +8,6 @@ import { startRedisSubscriber } from './modules/redis/redisSubscriber.js';
 import { registerMockRoutes } from './modules/api/mockRoutes.js';
 import { registerParameterSetRoutes } from './modules/api/parameterSetRoutes.js';
 import { registerOrderDataRoutes } from './modules/api/orderDataRoutes.js';
-
-const currentDir = dirname(fileURLToPath(import.meta.url));
-loadEnv({ path: resolve(currentDir, '../.env') });
 
 const fastify = Fastify({ logger: true });
 

@@ -15,6 +15,7 @@
     "@fastify/sensible": "^5.6.0",
     "@gt4_web/shared": "workspace:*",
     "@prisma/client": "^6.19.2",
+    "dotenv": "^16.4.7",
     "fastify": "^4.26.2",
     "ioredis": "^5.10.1",
     "socket.io": "^4.8.3"

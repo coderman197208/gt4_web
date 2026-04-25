@@ -1457,12 +1457,10 @@ onMounted(() => {
                 <span>总长 120.118</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('basket-refresh')"
-                  >刷新</Button
+                <Button size="sm" variant="outline" class="win-button">插入头部</Button>
+                <Button size="sm" variant="outline" class="win-button">插入钢管</Button>
+                <Button size="sm" variant="outline" class="win-button win-button--danger"
+                  >删除钢管</Button
                 >
               </div>
             </TabsContent>

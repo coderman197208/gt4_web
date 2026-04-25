@@ -374,6 +374,30 @@ const backbufferRows = computed<TubeDetailRow[]>(() =>
   ),
 );
 
+const scraptRows = computed<TubeDetailRow[]>(() =>
+  (realtimeStore.scrapPosTubeInfo ?? []).map((tubeInfo, index) =>
+    toTubeDetailRow('scrap', tubeInfo, index),
+  ),
+);
+
+const scraptSummary = computed(() => {
+  const scrapTubeInfos = realtimeStore.scrapPosTubeInfo ?? [];
+
+  const totalWeight = scrapTubeInfos.reduce(
+    (sum, tubeInfo) => sum + (Number.isFinite(tubeInfo.weight) ? tubeInfo.weight : 0),
+    0,
+  );
+  const totalLength = scrapTubeInfos.reduce(
+    (sum, tubeInfo) => sum + (Number.isFinite(tubeInfo.length) ? tubeInfo.length : 0),
+    0,
+  );
+
+  return {
+    totalWeight: totalWeight.toFixed(2),
+    totalLength: totalLength.toFixed(3),
+  };
+});
+
 function syncTubeDetailRowDrafts(
   rows: TubeDetailRow[],
   rowDrafts: Record<string, TubeDetailRow>,
@@ -648,19 +672,6 @@ function submitBackbufferRowEdit(rowKey: string, seqNo = 0, event?: KeyboardEven
     event,
   );
 }
-
-const scraptRows = ref<TubeDetailRow[]>([
-  {
-    flowNo: '0901',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2299',
-    meltNo: '01234560',
-    lotNo: '0123450',
-    length: '2.40',
-    weight: '0.52',
-  },
-]);
 
 const stationIndicators = [
   { key: 'length', label: '测长' },
@@ -1960,7 +1971,7 @@ onMounted(() => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow v-for="row in scraptRows" :key="`scrapt-${row.flowNo}`">
+                    <TableRow v-for="row in scraptRows" :key="row.rowKey ?? `scrapt-${row.flowNo}`">
                       <TableCell>{{ row.flowNo }}</TableCell>
                       <TableCell>{{ row.orderNo }}</TableCell>
                       <TableCell>{{ row.itemNo }}</TableCell>
@@ -1974,20 +1985,8 @@ onMounted(() => {
                 </Table>
               </div>
               <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
-                <span>总重 0.52</span>
-                <span>总长 120.118</span>
-              </div>
-              <div class="flex items-center justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('manual-waste')"
-                  >手动入筐</Button
-                >
-                <Button size="sm" class="win-button" @click="handleMoveTube('bundle-waste')"
-                  >废料成筐</Button
-                >
+                <span>总重 {{ scraptSummary.totalWeight }}</span>
+                <span>总长 {{ scraptSummary.totalLength }}</span>
               </div>
             </TabsContent>
           </Tabs>

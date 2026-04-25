@@ -344,38 +344,9 @@ function toggleTrackRowIndicator(stationKey: string, field: ToggleableTrackField
   console.log(`[MainMonitorView] 已发送 ${field} 切换后的 ModifyTubeCmd:`, cmd);
 }
 
-const basketRows = ref<TubeDetailRow[]>([
-  {
-    flowNo: '0001',
-    tubeNo: 'T240001',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.06',
-    weight: '2.88',
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
-  {
-    flowNo: '0002',
-    tubeNo: 'T240002',
-    orderNo: 'A123456789',
-    itemNo: '001',
-    rollNo: 'RL2301',
-    meltNo: '01234567',
-    lotNo: '0123456',
-    length: '12.08',
-    weight: '2.91',
-    meltNoCoupling: 'C1234567',
-    lotNoCoupling: 'C123456',
-  },
-]);
-
-function toTubeDetailRow(tubeInfo: TubeInfo, index: number): TubeDetailRow {
+function toTubeDetailRow(positionName: string, tubeInfo: TubeInfo, index: number): TubeDetailRow {
   return {
-    rowKey: `backbuffer-${index}`,
+    rowKey: `${positionName}-${index}`,
     hasTubeInfo: true,
     flowNo: formatRealtimeValue(tubeInfo.flow_no),
     tubeNo: formatRealtimeValue(tubeInfo.tube_no),
@@ -391,10 +362,156 @@ function toTubeDetailRow(tubeInfo: TubeInfo, index: number): TubeDetailRow {
   };
 }
 
+const basketRows = computed<TubeDetailRow[]>(() =>
+  (realtimeStore.basketPosTubeInfo ?? []).map((tubeInfo, index) =>
+    toTubeDetailRow('basket', tubeInfo, index),
+  ),
+);
+
 const backbufferRows = computed<TubeDetailRow[]>(() =>
   (realtimeStore.backbufferPosTubeInfo ?? []).map((tubeInfo, index) =>
-    toTubeDetailRow(tubeInfo, index),
+    toTubeDetailRow('backbuffer', tubeInfo, index),
   ),
+);
+
+function syncTubeDetailRowDrafts(
+  rows: TubeDetailRow[],
+  rowDrafts: Record<string, TubeDetailRow>,
+  rowDirtyStates: Record<string, boolean>,
+): void {
+  const activeRowKeys = new Set(
+    rows.map((row) => row.rowKey).filter((rowKey): rowKey is string => Boolean(rowKey)),
+  );
+
+  for (const row of rows) {
+    if (!row.rowKey) {
+      continue;
+    }
+
+    const existingDraft = rowDrafts[row.rowKey];
+    if (!existingDraft || !rowDirtyStates[row.rowKey] || !row.hasTubeInfo) {
+      rowDrafts[row.rowKey] = cloneTubeDetailRow(row);
+      rowDirtyStates[row.rowKey] = false;
+    }
+  }
+
+  for (const rowKey of Object.keys(rowDrafts)) {
+    if (!activeRowKeys.has(rowKey)) {
+      delete rowDrafts[rowKey];
+      delete rowDirtyStates[rowKey];
+    }
+  }
+}
+
+function updateTubeDetailRowDraft(
+  rowDrafts: Record<string, TubeDetailRow>,
+  rowDirtyStates: Record<string, boolean>,
+  rowKey: string,
+  field: EditableTubeDetailField,
+  value: string | number,
+): void {
+  const draft = rowDrafts[rowKey];
+  if (!draft || !draft.hasTubeInfo) {
+    return;
+  }
+
+  draft[field] = String(value);
+  rowDirtyStates[rowKey] = true;
+}
+
+function resetTubeDetailRowDraft(
+  rows: TubeDetailRow[],
+  rowDrafts: Record<string, TubeDetailRow>,
+  rowDirtyStates: Record<string, boolean>,
+  rowKey: string,
+): void {
+  const originalRow = rows.find((row) => row.rowKey === rowKey);
+  if (!originalRow) {
+    return;
+  }
+
+  rowDrafts[rowKey] = cloneTubeDetailRow(originalRow);
+  rowDirtyStates[rowKey] = false;
+}
+
+function handleTubeDetailRowFocusOut(
+  rows: TubeDetailRow[],
+  rowDrafts: Record<string, TubeDetailRow>,
+  rowDirtyStates: Record<string, boolean>,
+  rowKey: string,
+  event: FocusEvent,
+): void {
+  const currentRowElement = event.currentTarget as HTMLElement | null;
+  const nextFocusedElement = event.relatedTarget as Node | null;
+
+  if (currentRowElement?.contains(nextFocusedElement)) {
+    return;
+  }
+
+  if (rowDirtyStates[rowKey]) {
+    resetTubeDetailRowDraft(rows, rowDrafts, rowDirtyStates, rowKey);
+  }
+}
+
+function buildTubeDetailModifyTubeCmd(
+  positionName: string,
+  row: TubeDetailRow,
+  seqNo = 0,
+): ModifyTubeCmd {
+  return {
+    seq_no: seqNo,
+    position_name: positionName,
+    order_no: row.orderNo.trim(),
+    item_no: row.itemNo.trim(),
+    roll_no: row.rollNo.trim(),
+    melt_no: row.meltNo.trim(),
+    lot_no: row.lotNo.trim(),
+    tube_no: parseTrackRowNumber(row.tubeNo ?? ''),
+    flow_no: parseTrackRowNumber(row.flowNo),
+    length: parseTrackRowNumber(row.length),
+    weight: parseTrackRowNumber(row.weight),
+    length_ok: true,
+    weight_ok: true,
+    lotno_coupling: (row.lotNoCoupling ?? '').trim(),
+    meltno_coupling: (row.meltNoCoupling ?? '').trim(),
+  };
+}
+
+function submitTubeDetailRowEdit(
+  positionName: string,
+  rowDrafts: Record<string, TubeDetailRow>,
+  rowDirtyStates: Record<string, boolean>,
+  rowKey: string,
+  seqNo = 0,
+  event?: KeyboardEvent,
+): void {
+  const draft = rowDrafts[rowKey];
+  if (!draft || !draft.hasTubeInfo) {
+    return;
+  }
+
+  const cmd = buildTubeDetailModifyTubeCmd(positionName, draft, seqNo);
+  sendUserCommand('ModifyTubeCmd', cmd);
+  rowDirtyStates[rowKey] = false;
+  const currentInput = event?.target;
+  if (currentInput instanceof HTMLInputElement) {
+    currentInput.blur();
+  }
+  console.log(`[MainMonitorView] 已发送 ${positionName} ModifyTubeCmd:`, cmd);
+}
+
+const basketRowDrafts = reactive<Record<string, TubeDetailRow>>({});
+const basketRowDirtyStates = reactive<Record<string, boolean>>({});
+const selectedBasketRowIndex = ref<number | null>(null);
+const canDeleteBasketRow = computed(
+  () => basketRows.value.length > 0 && selectedBasketRowIndex.value != null,
+);
+
+const editableBasketRows = computed(() =>
+  basketRows.value.map((row) => ({
+    row,
+    draft: row.rowKey ? (basketRowDrafts[row.rowKey] ?? row) : row,
+  })),
 );
 
 const backbufferRowDrafts = reactive<Record<string, TubeDetailRow>>({});
@@ -415,35 +532,25 @@ function cloneTubeDetailRow(row: TubeDetailRow): TubeDetailRow {
   return { ...row };
 }
 
-function syncBackbufferRowDrafts(rows: TubeDetailRow[]): void {
-  const activeRowKeys = new Set(
-    rows.map((row) => row.rowKey).filter((rowKey): rowKey is string => Boolean(rowKey)),
-  );
+watch(
+  basketRows,
+  (rows) => {
+    syncTubeDetailRowDrafts(rows, basketRowDrafts, basketRowDirtyStates);
 
-  for (const row of rows) {
-    if (!row.rowKey) {
-      continue;
+    if (
+      selectedBasketRowIndex.value != null &&
+      (selectedBasketRowIndex.value < 0 || selectedBasketRowIndex.value >= rows.length)
+    ) {
+      selectedBasketRowIndex.value = null;
     }
-
-    const existingDraft = backbufferRowDrafts[row.rowKey];
-    if (!existingDraft || !backbufferRowDirtyStates[row.rowKey] || !row.hasTubeInfo) {
-      backbufferRowDrafts[row.rowKey] = cloneTubeDetailRow(row);
-      backbufferRowDirtyStates[row.rowKey] = false;
-    }
-  }
-
-  for (const rowKey of Object.keys(backbufferRowDrafts)) {
-    if (!activeRowKeys.has(rowKey)) {
-      delete backbufferRowDrafts[rowKey];
-      delete backbufferRowDirtyStates[rowKey];
-    }
-  }
-}
+  },
+  { immediate: true },
+);
 
 watch(
   backbufferRows,
   (rows) => {
-    syncBackbufferRowDrafts(rows);
+    syncTubeDetailRowDrafts(rows, backbufferRowDrafts, backbufferRowDirtyStates);
 
     if (
       selectedBackbufferRowIndex.value != null &&
@@ -454,6 +561,46 @@ watch(
   },
   { immediate: true },
 );
+
+function selectBasketRow(rowIndex: number): void {
+  selectedBasketRowIndex.value = rowIndex;
+}
+
+function handleDeleteBasketTube(): void {
+  if (!canDeleteBasketRow.value) {
+    return;
+  }
+
+  const sequenceNo = selectedBasketRowIndex.value;
+  if (sequenceNo == null) {
+    return;
+  }
+
+  handleDeleteTube('basket', sequenceNo);
+  selectedBasketRowIndex.value = null;
+}
+
+function updateBasketRowDraft(
+  rowKey: string,
+  field: EditableTubeDetailField,
+  value: string | number,
+): void {
+  updateTubeDetailRowDraft(basketRowDrafts, basketRowDirtyStates, rowKey, field, value);
+}
+
+function handleBasketRowFocusOut(rowKey: string, event: FocusEvent): void {
+  handleTubeDetailRowFocusOut(
+    basketRows.value,
+    basketRowDrafts,
+    basketRowDirtyStates,
+    rowKey,
+    event,
+  );
+}
+
+function submitBasketRowEdit(rowKey: string, seqNo = 0, event?: KeyboardEvent): void {
+  submitTubeDetailRowEdit('basket', basketRowDrafts, basketRowDirtyStates, rowKey, seqNo, event);
+}
 
 function selectBackbufferRow(rowIndex: number): void {
   selectedBackbufferRowIndex.value = rowIndex;
@@ -478,72 +625,28 @@ function updateBackbufferRowDraft(
   field: EditableTubeDetailField,
   value: string | number,
 ): void {
-  const draft = backbufferRowDrafts[rowKey];
-  if (!draft || !draft.hasTubeInfo) {
-    return;
-  }
-
-  draft[field] = String(value);
-  backbufferRowDirtyStates[rowKey] = true;
-}
-
-function resetBackbufferRowDraft(rowKey: string): void {
-  const originalRow = backbufferRows.value.find((row) => row.rowKey === rowKey);
-  if (!originalRow) {
-    return;
-  }
-
-  backbufferRowDrafts[rowKey] = cloneTubeDetailRow(originalRow);
-  backbufferRowDirtyStates[rowKey] = false;
+  updateTubeDetailRowDraft(backbufferRowDrafts, backbufferRowDirtyStates, rowKey, field, value);
 }
 
 function handleBackbufferRowFocusOut(rowKey: string, event: FocusEvent): void {
-  const currentRowElement = event.currentTarget as HTMLElement | null;
-  const nextFocusedElement = event.relatedTarget as Node | null;
-
-  if (currentRowElement?.contains(nextFocusedElement)) {
-    return;
-  }
-
-  if (backbufferRowDirtyStates[rowKey]) {
-    resetBackbufferRowDraft(rowKey);
-  }
-}
-
-function buildBackbufferModifyTubeCmd(row: TubeDetailRow, seqNo = 0): ModifyTubeCmd {
-  return {
-    seq_no: seqNo,
-    position_name: 'backbuffer',
-    order_no: row.orderNo.trim(),
-    item_no: row.itemNo.trim(),
-    roll_no: row.rollNo.trim(),
-    melt_no: row.meltNo.trim(),
-    lot_no: row.lotNo.trim(),
-    tube_no: parseTrackRowNumber(row.tubeNo ?? ''),
-    flow_no: parseTrackRowNumber(row.flowNo),
-    length: parseTrackRowNumber(row.length),
-    weight: parseTrackRowNumber(row.weight),
-    length_ok: true,
-    weight_ok: true,
-    lotno_coupling: (row.lotNoCoupling ?? '').trim(),
-    meltno_coupling: (row.meltNoCoupling ?? '').trim(),
-  };
+  handleTubeDetailRowFocusOut(
+    backbufferRows.value,
+    backbufferRowDrafts,
+    backbufferRowDirtyStates,
+    rowKey,
+    event,
+  );
 }
 
 function submitBackbufferRowEdit(rowKey: string, seqNo = 0, event?: KeyboardEvent): void {
-  const draft = backbufferRowDrafts[rowKey];
-  if (!draft || !draft.hasTubeInfo) {
-    return;
-  }
-
-  const cmd = buildBackbufferModifyTubeCmd(draft, seqNo);
-  sendUserCommand('ModifyTubeCmd', cmd);
-  backbufferRowDirtyStates[rowKey] = false;
-  const currentInput = event?.target;
-  if (currentInput instanceof HTMLInputElement) {
-    currentInput.blur();
-  }
-  console.log('[MainMonitorView] 已发送 backbuffer ModifyTubeCmd:', cmd);
+  submitTubeDetailRowEdit(
+    'backbuffer',
+    backbufferRowDrafts,
+    backbufferRowDirtyStates,
+    rowKey,
+    seqNo,
+    event,
+  );
 }
 
 const scraptRows = ref<TubeDetailRow[]>([
@@ -1436,18 +1539,172 @@ onMounted(() => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow v-for="row in basketRows" :key="`basket-${row.flowNo}`">
-                      <TableCell>{{ row.flowNo }}</TableCell>
-                      <TableCell>{{ row.tubeNo }}</TableCell>
-                      <TableCell>{{ row.orderNo }}</TableCell>
-                      <TableCell>{{ row.itemNo }}</TableCell>
-                      <TableCell>{{ row.rollNo }}</TableCell>
-                      <TableCell>{{ row.meltNo }}</TableCell>
-                      <TableCell>{{ row.lotNo }}</TableCell>
-                      <TableCell>{{ row.length }}</TableCell>
-                      <TableCell>{{ row.weight }}</TableCell>
-                      <TableCell>{{ row.meltNoCoupling }}</TableCell>
-                      <TableCell>{{ row.lotNoCoupling }}</TableCell>
+                    <TableRow
+                      v-for="(editableRow, rowIndex) in editableBasketRows"
+                      :key="editableRow.row.rowKey"
+                      :class="{
+                        'win-table-row--selected': selectedBasketRowIndex === rowIndex,
+                      }"
+                      @click="selectBasketRow(rowIndex)"
+                      @focusout="
+                        editableRow.row.rowKey &&
+                        handleBasketRowFocusOut(editableRow.row.rowKey, $event)
+                      "
+                    >
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.flowNo"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'flowNo', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.flowNo }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.tubeNo"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'tubeNo', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.tubeNo }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.orderNo"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'orderNo', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.orderNo }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.itemNo"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'itemNo', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.itemNo }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.rollNo"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'rollNo', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.rollNo }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.meltNo"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'meltNo', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.meltNo }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.lotNo"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'lotNo', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.lotNo }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.length"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'length', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.length }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.weight"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'weight', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.weight }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.meltNoCoupling"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'meltNoCoupling', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                          :model-value="editableRow.draft.lotNoCoupling"
+                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
+                          @update:model-value="
+                            updateBasketRowDraft(editableRow.row.rowKey, 'lotNoCoupling', $event)
+                          "
+                          @keydown.enter.prevent="
+                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                          "
+                        />
+                        <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
+                      </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -1459,7 +1716,12 @@ onMounted(() => {
               <div class="flex items-center justify-end gap-2">
                 <Button size="sm" variant="outline" class="win-button">插入头部</Button>
                 <Button size="sm" variant="outline" class="win-button">插入钢管</Button>
-                <Button size="sm" variant="outline" class="win-button win-button--danger"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button win-button--danger"
+                  :disabled="!canDeleteBasketRow"
+                  @click="handleDeleteBasketTube()"
                   >删除钢管</Button
                 >
               </div>

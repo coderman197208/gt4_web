@@ -80,8 +80,8 @@ GT4 Web 是一个面向工业 HMI 的全栈 TypeScript pnpm monorepo。高层规
 - 固定分辨率 HMI 页面应通过路由 `meta.hmiScale` 声明设计尺寸，由 `HomePage` 驱动 `HmiViewport` 统一缩放，而不是在页面内部自行实现第二套缩放逻辑。
 - WebSocket 订阅通过 `useWebSocket().subscribe(tags)` 管理；取消订阅传空数组，不要自行维护第二套 socket 状态。
 - 产品约束默认始终只有一个活跃页面，并且任一时刻只允许一个页面拥有 WebSocket 订阅；因此 `subscribe(tags)` 语义是全量替换当前订阅集合，重连后恢复最后一次订阅属于设计预期，不应按多页面并发订阅模型改造。
-- `useWebSocket()` 是单例服务；其内部 `data:push` 处理器负责把实时数据写入 `realtimeData` store。当前 store 维护 `tag1`、`tag2`、`tag3` 和 `PlanInfo`，新增实时 tag 时要一起更新共享类型与 store。
-- 操作命令通过 `useWebSocket().sendUserCommand(cmdName, cmdPara?)` 发送，后端经 Redis `operation_cmd` 频道转发给 C++ 业务后端；命令参数为对象时会自动序列化为 JSON 字符串。
+- `useWebSocket()` 是单例服务；其内部 `data:push` 处理器负责把实时数据写入 `realtimeData` store。当前store维护后端推送的实时tag数据，新增实时tag时要一起更新共享类型与store。
+- 操作命令通过 `useWebSocket().sendUserCommand(cmdName, cmdPara?)` 发送，后端经 Redis `operation_cmd` 频道转发给 C++ 业务后端。
 - Redis 相关开发注意事项:
   - 订阅客户端（SubClient）只能用于 Pub/Sub，不能执行 GET/SET 等普通命令；数据读写和 PUBLISH 使用 DataClient。
   - 新增 Redis 频道时需同时考虑 C++ 端的发布/订阅对应关系。

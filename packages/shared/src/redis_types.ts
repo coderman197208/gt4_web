@@ -76,7 +76,7 @@ export interface ModifyTubeCmd {
 
 // 删除管子命令
 export interface DeleteTubeCmd {
-  seq_no: number; // 序列号，确保管子的唯一性和顺序
+  seq_no: number; // 管子在当前工位的顺序号，0表示第一个管子，1表示第二个管子，以此类推，-1代表全部删除
   position_name: string; // 工位名称
 }
 

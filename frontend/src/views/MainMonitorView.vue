@@ -673,6 +673,10 @@ function submitBackbufferRowEdit(rowKey: string, seqNo = 0, event?: KeyboardEven
   );
 }
 
+function handleClearScrap(): void {
+  handleDeleteTube('scrapt', -1);
+}
+
 const stationIndicators = [
   { key: 'length', label: '测长' },
   { key: 'weight', label: '称重' },
@@ -944,7 +948,13 @@ onMounted(() => {
                 >
               </div>
               <div class="mt-2 grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" class="win-button">入废料筐</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleMoveTube('scraptroller', 'scrapt')"
+                  >入废料筐</Button
+                >
                 <TubeBasket
                   :active="false"
                   color="amber"
@@ -1987,6 +1997,15 @@ onMounted(() => {
               <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
                 <span>总重 {{ scraptSummary.totalWeight }}</span>
                 <span>总长 {{ scraptSummary.totalLength }}</span>
+              </div>
+              <div class="flex items-center justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button win-button--danger"
+                  @click="handleClearScrap()"
+                  >清空</Button
+                >
               </div>
             </TabsContent>
           </Tabs>

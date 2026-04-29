@@ -114,7 +114,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         basketPosTubeInfo.value = value as TubeInfo[];
         console.log('[RealtimeDataStore] basketPosTubeInfo 数据已更新:', basketPosTubeInfo.value);
         break;
-      case 'SCRAP_POS_TUBE_INFO':
+      case 'SCRAPT_POS_TUBE_INFO':
         scrapPosTubeInfo.value = value as TubeInfo[];
         console.log('[RealtimeDataStore] scrapPosTubeInfo 数据已更新:', scrapPosTubeInfo.value);
         break;

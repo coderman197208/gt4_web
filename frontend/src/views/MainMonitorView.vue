@@ -24,6 +24,7 @@ import type {
   MoveTubeCmd,
   ModifyTubeCmd,
   DeleteTubeCmd,
+  AddTubeCmd,
   TubeInfo,
 } from '@gt4_web/shared';
 
@@ -671,6 +672,15 @@ function submitBackbufferRowEdit(rowKey: string, seqNo = 0, event?: KeyboardEven
     seqNo,
     event,
   );
+}
+
+function handleAddTubeBackbuffer(position: 'head' | 'tail'): void {
+  const seqNo = position === 'head' ? 0 : -1;
+  sendUserCommand('AddTubeCmd', {
+    seq_no: seqNo,
+    position_name: 'backbuffer',
+  } as AddTubeCmd);
+  console.log(`[MainMonitorView] 已发送 AddTubeCmd: position backbuffer, seq_no ${seqNo}`);
 }
 
 function handleClearScrap(): void {
@@ -1735,8 +1745,20 @@ onMounted(() => {
                 <span>总长 120.118</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button size="sm" variant="outline" class="win-button">插入头部</Button>
-                <Button size="sm" variant="outline" class="win-button">插入钢管</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAddTubeBackbuffer('head')"
+                  >头部新增</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAddTubeBackbuffer('tail')"
+                  >尾部新增</Button
+                >
                 <Button
                   size="sm"
                   variant="outline"

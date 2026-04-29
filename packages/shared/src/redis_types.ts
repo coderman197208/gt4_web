@@ -80,6 +80,12 @@ export interface DeleteTubeCmd {
   position_name: string; // 工位名称
 }
 
+// 新增管子命令
+export interface AddTubeCmd {
+  seq_no: number; // 在此位置前插入管子，0表示第一个位置，1表示第二个位置，以此类推，-1代表在末尾添加
+  position_name: string; // 工位名称
+}
+
 // 设置当前合同命令
 export interface SetCurrentContractCmd {
   order_no: string; // 合同号
@@ -91,6 +97,7 @@ export type UserCommandPayload =
   | MoveTubeCmd
   | ModifyTubeCmd
   | DeleteTubeCmd
+  | AddTubeCmd
   | SetCurrentContractCmd
   | Record<string, unknown>;
 

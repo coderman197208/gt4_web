@@ -31,7 +31,7 @@ const router = createRouter({
         {
           path: '',
           name: 'home',
-          redirect: '/health-check',
+          redirect: '/main-monitor',
         },
         {
           path: 'health-check',

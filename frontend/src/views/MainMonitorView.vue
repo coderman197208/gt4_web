@@ -683,6 +683,15 @@ function handleAddTubeBackbuffer(position: 'head' | 'tail'): void {
   console.log(`[MainMonitorView] 已发送 AddTubeCmd: position backbuffer, seq_no ${seqNo}`);
 }
 
+function handleAddTubeBasketbuffer(position: 'head' | 'tail'): void {
+  const seqNo = position === 'head' ? 0 : -1;
+  sendUserCommand('AddTubeCmd', {
+    seq_no: seqNo,
+    position_name: 'basket',
+  } as AddTubeCmd);
+  console.log(`[MainMonitorView] 已发送 AddTubeCmd: position basket, seq_no ${seqNo}`);
+}
+
 function handleClearScrap(): void {
   handleDeleteTube('scrapt', -1);
 }
@@ -1749,14 +1758,14 @@ onMounted(() => {
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAddTubeBackbuffer('head')"
+                  @click="handleAddTubeBasketbuffer('head')"
                   >头部新增</Button
                 >
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
-                  @click="handleAddTubeBackbuffer('tail')"
+                  @click="handleAddTubeBasketbuffer('tail')"
                   >尾部新增</Button
                 >
                 <Button
@@ -1972,8 +1981,20 @@ onMounted(() => {
                 <span>总长 120.118</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button size="sm" variant="outline" class="win-button">插入头部</Button>
-                <Button size="sm" variant="outline" class="win-button">插入钢管</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAddTubeBackbuffer('head')"
+                  >头部新增</Button
+                >
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleAddTubeBackbuffer('tail')"
+                  >尾部新增</Button
+                >
                 <Button
                   size="sm"
                   variant="outline"

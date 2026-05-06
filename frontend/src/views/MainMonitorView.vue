@@ -792,6 +792,16 @@ function handleDeleteTube(stationKey: string, sequenceNo: number = 0) {
   console.log(`发送 DeleteTubeCmd: position ${stationKey}`);
 }
 
+function handleStartWeight() {
+  sendUserCommand('start_weight_cmd');
+  console.log('发送 start_weight_cmd');
+}
+
+function handleStopWeight() {
+  sendUserCommand('stop_weight_cmd');
+  console.log('发送 stop_weight_cmd');
+}
+
 // 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
 onMounted(() => {
   subscribe([
@@ -1162,8 +1172,12 @@ onMounted(() => {
                 >
               </div>
               <div class="mt-2 grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" class="win-button">称重</Button>
-                <Button size="sm" variant="outline" class="win-button">停止称重</Button>
+                <Button size="sm" variant="outline" class="win-button" @click="handleStartWeight"
+                  >称重</Button
+                >
+                <Button size="sm" variant="outline" class="win-button" @click="handleStopWeight"
+                  >停止称重</Button
+                >
               </div>
             </div>
           </div>
@@ -1210,7 +1224,9 @@ onMounted(() => {
                   >上料</Button
                 >
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button">测长</Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button" disabled
+                >测长</Button
+              >
             </div>
           </div>
 

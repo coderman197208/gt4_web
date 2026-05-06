@@ -834,19 +834,30 @@ onMounted(() => {
             <div class="grid gap-2">
               <div class="flex items-center justify-between mt-4">
                 <span class="font-bold">合同号</span>
-                <span class="win-value">{{ mainForm.basketOrderNo }}</span>
+                <span class="win-value">{{
+                  realtimeStore.basketPosTubeInfo?.[0]?.order_no ?? ''
+                }}</span>
+                <!-- <Input
+                  :model-value="realtimeStore.planInfo?.order_no || ''"
+                  class="win-input-edit h-7 text-center flex-1"
+                  readonly
+                /> -->
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">炉号</span>
-                <span class="win-value">{{ mainForm.basketMeltNo }}</span>
+                <span class="win-value">{{
+                  realtimeStore.basketPosTubeInfo?.[0]?.melt_no ?? ''
+                }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">试批号</span>
-                <span class="win-value">{{ mainForm.basketLotNo }}</span>
+                <span class="win-value">{{
+                  realtimeStore.basketPosTubeInfo?.[0]?.lot_no ?? ''
+                }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">料筐支数</span>
-                <span class="win-value">{{ mainForm.feedCount }}</span>
+                <span class="win-value">{{ realtimeStore.basketPosTubeInfo?.length ?? '' }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <Label class="shrink-0 text-base font-bold">成捆支数</Label>

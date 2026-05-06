@@ -411,6 +411,9 @@ import {
 } from '@/components/ui/select';
 import { getParameterSet, saveParameterSet, formToApi, apiToForm } from '@/api';
 import type { ParameterSetForm } from '@/api';
+import { useWebSocket } from '@/services/websocket';
+
+const { sendUserCommand } = useWebSocket();
 
 // 表单数据
 const formData = reactive<ParameterSetForm>({
@@ -520,6 +523,7 @@ async function handleConfirm() {
   try {
     const apiData = formToApi(formData);
     await saveParameterSet(apiData);
+    sendUserCommand('parameter_set_updated'); // 发送参数更新通知
     toast.success('参数保存成功');
   } catch {
     toast.error('参数保存失败');

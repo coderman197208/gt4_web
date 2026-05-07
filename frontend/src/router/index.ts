@@ -52,6 +52,12 @@ const router = createRouter({
           path: 'bundle-manage',
           name: 'bundle-manage',
           component: BundleManageView,
+          meta: {
+            hmiScale: {
+              designWidth: 1920,
+              designHeight: 1080,
+            },
+          },
         },
         {
           path: 'component-test',

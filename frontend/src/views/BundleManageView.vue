@@ -4,50 +4,18 @@
     <div class="flex-shrink-0 p-3 space-y-3">
       <!-- 查询条件 groupBox2 -->
       <div class="border rounded-lg p-4 relative">
-        <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-          查询条件
-        </div>
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2">
-            <Label class="whitespace-nowrap">合同号</Label>
-            <Select v-model="queryForm.orderNo">
-              <SelectTrigger class="w-32">
-                <SelectValue placeholder="请选择" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="item in orderNoOptions" :key="item" :value="item">
-                  {{ item }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div class="flex items-center gap-2">
-            <Label class="whitespace-nowrap">项目号</Label>
-            <Select v-model="queryForm.itemNo">
-              <SelectTrigger class="w-32">
-                <SelectValue placeholder="请选择" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="item in itemNoOptions" :key="item" :value="item">
-                  {{ item }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div class="flex items-center gap-2">
-            <Label class="whitespace-nowrap">管捆号</Label>
-            <Select v-model="queryForm.bundleNo">
-              <SelectTrigger class="w-32">
-                <SelectValue placeholder="请选择" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="item in bundleNoOptions" :key="item" :value="item">
-                  {{ item }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Label class="whitespace-nowrap">查询日期</Label>
+          <Input type="date" class="w-40" />
           <Button variant="outline" @click="handleQuery">执行查询</Button>
+          <Label class="whitespace-nowrap">合同号</Label>
+          <Input type="text" class="w-40" />
+          <Label class="whitespace-nowrap">管捆号</Label>
+          <Input type="text" class="w-40" />
+          <Button variant="outline">新增</Button>
+          <Button variant="outline">删除</Button>
+          <Button variant="outline">保存</Button>
+          <Button variant="outline" @click="handlePrintTag">标签打印</Button>
         </div>
       </div>
     </div>
@@ -55,7 +23,7 @@
     <!-- 主内容区域 -->
     <div class="flex-1 flex overflow-hidden p-3 pt-0 gap-3">
       <!-- 左侧：管捆列表表格 -->
-      <div class="w-[560px] flex-shrink-0 flex flex-col">
+      <div class="w-[560px] flex-shrink-0 flex flex-col pt-4">
         <div class="border rounded-lg flex-1 flex flex-col min-h-0">
           <!-- 固定表头 -->
           <div class="border-b">
@@ -67,8 +35,8 @@
                   <TableHead class="w-[80px]">管捆号</TableHead>
                   <TableHead class="w-[80px]">轧批号</TableHead>
                   <TableHead class="w-[80px]">炉号</TableHead>
-                  <TableHead class="w-[80px]">批号</TableHead>
-                  <TableHead class="w-[50px]">标志</TableHead>
+                  <TableHead class="w-[80px]">试批号</TableHead>
+                  <TableHead class="w-[50px]">发送标记</TableHead>
                 </TableRow>
               </TableHeader>
             </Table>
@@ -99,261 +67,186 @@
       </div>
 
       <!-- 中间：管捆基本信息编辑 -->
-      <div class="flex-1 overflow-y-auto">
-        <div class="space-y-3">
-          <!-- groupBox1: 管捆基本信息编辑 -->
-          <div class="border rounded-lg p-4 relative">
-            <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-              管捆基本信息编辑
-            </div>
+      <div class="flex-1 flex flex-col pt-4">
+        <!-- groupBox1: 管捆基本信息编辑 -->
+        <div class="border rounded-lg p-4 relative flex-1 flex flex-col">
+          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
+            管捆基本信息编辑
+          </div>
 
-            <!-- 第一行：合同号、项目号、轧批号、炉号、批号、管捆号 -->
-            <div class="grid grid-cols-6 gap-3 mb-3">
-              <div class="space-y-1">
-                <Label class="text-xs">合同号</Label>
-                <Input v-model="formData.orderNo" readonly />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">项目号</Label>
-                <Input v-model="formData.itemNo" readonly />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">轧批号</Label>
-                <Input v-model="formData.rollNo" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">炉号</Label>
-                <Input v-model="formData.meltNo" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">批号</Label>
-                <Input v-model="formData.lotNo" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">管捆号</Label>
-                <Input v-model="formData.bundleNo" readonly />
-              </div>
+          <!-- 第一行：合同号、项目号、轧批号、炉号、批号、管捆号 -->
+          <div class="grid grid-cols-6 gap-3 mb-3">
+            <div class="space-y-1">
+              <Label class="text-xs">合同号</Label>
+              <Input v-model="formData.orderNo" readonly />
             </div>
-
-            <!-- 第二行：外径、壁厚、最短、最长、根数、最后管号 -->
-            <div class="grid grid-cols-6 gap-3 mb-3">
-              <div class="space-y-1">
-                <Label class="text-xs">外径(毫米)</Label>
-                <Input v-model="formData.diameter" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">壁厚(毫米)</Label>
-                <Input v-model="formData.wall_thickness" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">最短</Label>
-                <Input v-model="formData.lengthFrom" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">最长</Label>
-                <Input v-model="formData.lengthTo" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">根数</Label>
-                <Input v-model="formData.count" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">最后管号</Label>
-                <Input v-model="formData.lastFlowNo" />
-              </div>
+            <div class="space-y-1">
+              <Label class="text-xs">项目号</Label>
+              <Input v-model="formData.itemNo" readonly />
             </div>
-
-            <!-- 第三行：生产时间、管捆状态、班组、作业点代码、去向代码 -->
-            <div class="grid grid-cols-6 gap-3 mb-3">
-              <div class="space-y-1 col-span-2">
-                <Label class="text-xs">生产时间</Label>
-                <Input v-model="formData.produceTime" class="bg-teal-200" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">管捆状态</Label>
-                <Input v-model="formData.bundleType" class="bg-teal-200" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">班组</Label>
-                <Select v-model="formData.shiftNo">
-                  <SelectTrigger class="bg-teal-200">
-                    <SelectValue placeholder="选择" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem v-for="item in shiftOptions" :key="item" :value="item">
-                      {{ item }}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">作业点代码</Label>
-                <Input v-model="formData.produceJobPoint" class="bg-teal-200" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">去向代码</Label>
-                <Input v-model="formData.directionCode" class="bg-teal-200" />
-              </div>
+            <div class="space-y-1">
+              <Label class="text-xs">管捆号</Label>
+              <Input v-model="formData.bundleNo" readonly />
             </div>
-
-            <!-- 第四行：理论重量、米制重量、英制重量、理论长度、米制长度、英制长度 -->
-            <div class="grid grid-cols-6 gap-3 mb-3">
-              <div class="space-y-1">
-                <Label class="text-xs">理论重量</Label>
-                <Input v-model="formData.theoryWeight" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">米制重量</Label>
-                <Input v-model="formData.weightMetric" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">英制重量</Label>
-                <Input v-model="formData.weightEng" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">理论长度</Label>
-                <Input v-model="formData.theoryTotalLength" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">米制长度</Label>
-                <Input v-model="formData.lengthMetric" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">英制长度</Label>
-                <Input v-model="formData.lengthEng" />
-              </div>
+            <div class="space-y-1">
+              <Label class="text-xs">轧批号</Label>
+              <Input v-model="formData.rollNo" />
             </div>
-
-            <!-- 第五行：材质正文、标准正文、品名细分类 -->
-            <div class="grid grid-cols-6 gap-3 mb-3">
-              <div class="space-y-1 col-span-2">
-                <Label class="text-xs">材质正文</Label>
-                <Input v-model="formData.matText" />
-              </div>
-              <div class="space-y-1 col-span-3">
-                <Label class="text-xs">标准正文</Label>
-                <Input v-model="formData.stdText" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">品名细分类</Label>
-                <Input v-model="formData.prodCname" />
-              </div>
+            <div class="space-y-1">
+              <Label class="text-xs">炉号</Label>
+              <Input v-model="formData.meltNo" />
             </div>
-
-            <!-- 第六行：钢级正文、管端类型符号、螺纹类型符号 -->
-            <div class="grid grid-cols-6 gap-3 mb-3">
-              <div class="space-y-1 col-span-4">
-                <Label class="text-xs">钢级正文</Label>
-                <Input v-model="formData.sgText" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">管端类型符号</Label>
-                <Input v-model="formData.endTypeSign" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">螺纹类型符号</Label>
-                <Input v-model="formData.threadTypeSign" />
-              </div>
-            </div>
-
-            <!-- 第七行：公接头炉号、公接头试批号、母接头炉号、母接头试批号、接箍炉号、接箍批号 -->
-            <div class="grid grid-cols-6 gap-3 mb-3">
-              <div class="space-y-1">
-                <Label class="text-xs">公接头炉号</Label>
-                <Input v-model="formData.malePonoIdCoupling" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">公接头试批号</Label>
-                <Input v-model="formData.maleLotNoThread" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">母接头炉号</Label>
-                <Input v-model="formData.femalePonoIdCoupling" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">母接头试批号</Label>
-                <Input v-model="formData.femaleLotNoThread" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">接箍炉号</Label>
-                <Input v-model="formData.ponoIdCoupling" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">接箍批号</Label>
-                <Input v-model="formData.lotNoThread" />
-              </div>
-            </div>
-
-            <!-- 第八行：焊缝试批号、原合同号、删除标记、规格输入 -->
-            <div class="grid grid-cols-6 gap-3">
-              <div class="space-y-1">
-                <Label class="text-xs">焊缝试批号</Label>
-                <Input v-model="formData.seamLotNo" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">原合同号</Label>
-                <Input v-model="formData.orderNoOld" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">删除标记</Label>
-                <Input v-model="formData.delFlag" />
-              </div>
-              <div class="space-y-1 col-span-3">
-                <Label class="text-xs">规格输入(为空时则是外径+壁厚)</Label>
-                <Input v-model="formData.specInput" />
-              </div>
+            <div class="space-y-1">
+              <Label class="text-xs">试批号</Label>
+              <Input v-model="formData.lotNo" />
             </div>
           </div>
 
-          <!-- 底部操作按钮区域 -->
-          <div class="flex items-center gap-3 flex-wrap">
-            <Button variant="outline" @click="handleSendBundleTele">成捆电文补发</Button>
-            <Button variant="outline" @click="handleDeleteBundle">删除管捆</Button>
-            <Button variant="outline" @click="handleBundleTube">按管子数据成捆</Button>
-            <Button variant="outline" @click="handlePrintTag">标签打印</Button>
-            <div class="flex items-center gap-2">
-              <input id="ckbPaperTag" v-model="ckbPaperTag" type="checkbox" class="h-4 w-4" />
-              <Label for="ckbPaperTag" class="text-xs">纸标签</Label>
+          <!-- 第二行：外径、壁厚、最短、最长、根数、最后管号 -->
+          <div class="grid grid-cols-6 gap-3 mb-3">
+            <div class="space-y-1">
+              <Label class="text-xs">外径</Label>
+              <Input v-model="formData.diameter" />
             </div>
-            <div class="flex items-center gap-2">
-              <input id="ckbEmTag" v-model="ckbEmTag" type="checkbox" class="h-4 w-4" />
-              <Label for="ckbEmTag" class="text-xs">塑料标签</Label>
+            <div class="space-y-1">
+              <Label class="text-xs">壁厚</Label>
+              <Input v-model="formData.wall_thickness" />
             </div>
-            <Button variant="outline" @click="handleFreeFormatSet">自由格式设定</Button>
+            <div class="space-y-1">
+              <Label class="text-xs">最短</Label>
+              <Input v-model="formData.lengthFrom" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">最长</Label>
+              <Input v-model="formData.lengthTo" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">根数</Label>
+              <Input v-model="formData.count" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">最后管号</Label>
+              <Input v-model="formData.lastFlowNo" />
+            </div>
           </div>
 
-          <div class="flex items-center gap-3 flex-wrap">
-            <Button variant="outline" @click="handleLenEngToMetric">英制长度转米制长度</Button>
-            <Button variant="outline" @click="handleWeiEngToMetric">英制重量转米制重量</Button>
+          <!-- 第三行：生产时间、管捆状态、班组、作业点代码、去向代码 -->
+          <div class="grid grid-cols-6 gap-3 mb-3">
+            <div class="space-y-1 col-span-2">
+              <Label class="text-xs">生产时间</Label>
+              <!-- <Input v-model="formData.produceTime" class="bg-teal-200" /> -->
+              <Input v-model="formData.produceTime" type="date" class="w-40" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">管捆状态</Label>
+              <Input v-model="formData.bundleType" class="bg-teal-200" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">班组</Label>
+              <Select v-model="formData.shiftNo">
+                <SelectTrigger class="w-full bg-teal-200">
+                  <SelectValue placeholder="选择" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="item in shiftOptions" :key="item" :value="item">
+                    {{ item }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">作业点代码</Label>
+              <Input v-model="formData.produceJobPoint" class="bg-teal-200" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">去向代码</Label>
+              <Input v-model="formData.directionCode" class="bg-teal-200" />
+            </div>
           </div>
 
-          <div class="flex items-center gap-3 flex-wrap">
-            <Button variant="outline" @click="handleLenMetricToEng">米制长度转英制长度</Button>
-            <Button variant="outline" @click="handleWeiMetricToEng">米制重量转英制重量</Button>
+          <!-- 第四行：理论重量、米制重量、英制重量、理论长度、米制长度、英制长度 -->
+          <div class="grid grid-cols-6 gap-3 mb-3">
+            <div class="space-y-1">
+              <Label class="text-xs">理论重量</Label>
+              <Input v-model="formData.theoryWeight" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">理论长度</Label>
+              <Input v-model="formData.theoryTotalLength" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">米制重量</Label>
+              <Input v-model="formData.weightMetric" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">英制重量</Label>
+              <Input v-model="formData.weightEng" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">米制长度</Label>
+              <Input v-model="formData.lengthMetric" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">英制长度</Label>
+              <Input v-model="formData.lengthEng" />
+            </div>
+          </div>
+
+          <!-- 第五行：材质正文、标准正文、品名细分类 -->
+          <div class="grid grid-cols-3 gap-3 mb-3">
+            <div class="space-y-1">
+              <Label class="text-xs">材质正文</Label>
+              <Input v-model="formData.matText" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">标准正文</Label>
+              <Input v-model="formData.stdText" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">钢级正文</Label>
+              <Input v-model="formData.sgText" />
+            </div>
+          </div>
+
+          <!-- 第六行：钢级正文、管端类型符号、螺纹类型符号 -->
+          <div class="grid grid-cols-6 gap-3 mb-3">
+            <div class="space-y-1">
+              <Label class="text-xs">管端类型符号</Label>
+              <Input v-model="formData.endTypeSign" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">螺纹类型符号</Label>
+              <Input v-model="formData.threadTypeSign" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">管端型式</Label>
+              <Input v-model="formData.threadTypeSign" />
+            </div>
+          </div>
+
+          <!-- 第七行：公接头炉号、公接头试批号、母接头炉号、母接头试批号、接箍炉号、接箍批号 -->
+          <div class="grid grid-cols-6 gap-3 mb-3">
+            <div class="space-y-1">
+              <Label class="text-xs">接箍炉号</Label>
+              <Input v-model="formData.ponoIdCoupling" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">接箍批号</Label>
+              <Input v-model="formData.lotNoThread" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">螺纹类型</Label>
+              <Input v-model="formData.lotNoThread" />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 右侧：管号信息 groupBox3 -->
-      <div class="w-[520px] flex-shrink-0 flex flex-col">
-        <div class="border rounded-lg p-4 relative flex-1 flex flex-col min-h-0">
+      <div class="w-[520px] flex-shrink-0 flex flex-col pt-4">
+        <div class="border rounded-lg p-4 relative flex-1 flex flex-col">
           <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
             管号信息
-          </div>
-
-          <!-- 流水号生成区域 -->
-          <div class="flex items-center gap-3 mb-3">
-            <Label class="whitespace-nowrap text-xs font-bold">流水号生成：</Label>
-            <div class="flex items-center gap-2">
-              <div class="text-xs text-center">流水号起</div>
-              <Input v-model="flowNoFrom" class="w-24 bg-teal-200" />
-            </div>
-            <span class="font-bold">~</span>
-            <div class="flex items-center gap-2">
-              <div class="text-xs text-center">流水号止</div>
-              <Input v-model="flowNoTo" class="w-24 bg-teal-200" />
-            </div>
-            <Button variant="default" @click="handleFlowNoCreate">流水号生成</Button>
           </div>
 
           <!-- 管号数据表格 -->
@@ -393,11 +286,7 @@
               </Table>
             </div>
           </div>
-
-          <!-- 保存按钮 -->
-          <div class="mt-3 flex justify-center">
-            <Button variant="outline" class="w-32" @click="handleSave">保存</Button>
-          </div>
+          <Button variant="outline" class="w-32 mt-3">管号删除</Button>
         </div>
       </div>
     </div>
@@ -431,11 +320,6 @@ const queryForm = reactive({
   itemNo: '',
   bundleNo: '',
 });
-
-// 下拉选项
-const orderNoOptions = ref<string[]>([]);
-const itemNoOptions = ref<string[]>([]);
-const bundleNoOptions = ref<string[]>([]);
 
 // 班组选项
 const shiftOptions = ref([
@@ -510,10 +394,6 @@ const formData = reactive({
   specInput: '',
 });
 
-// 复选框
-const ckbPaperTag = ref(false);
-const ckbEmTag = ref(false);
-
 // 流水号生成
 const flowNoFrom = ref('');
 const flowNoTo = ref('');
@@ -561,48 +441,13 @@ function handleSave() {
   console.log('save', formData);
 }
 
-// 成捆电文补发
-function handleSendBundleTele() {
-  console.log('send bundle telegram');
-}
-
 // 删除管捆
 function handleDeleteBundle() {
   console.log('delete bundle');
 }
 
-// 按管子数据成捆
-function handleBundleTube() {
-  console.log('bundle tube');
-}
-
 // 标签打印
 function handlePrintTag() {
   console.log('print tag', { paper: ckbPaperTag.value, em: ckbEmTag.value });
-}
-
-// 自由格式设定
-function handleFreeFormatSet() {
-  console.log('free format set');
-}
-
-// 英制长度转米制长度
-function handleLenEngToMetric() {
-  console.log('len eng to metric');
-}
-
-// 英制重量转米制重量
-function handleWeiEngToMetric() {
-  console.log('wei eng to metric');
-}
-
-// 米制长度转英制长度
-function handleLenMetricToEng() {
-  console.log('len metric to eng');
-}
-
-// 米制重量转英制重量
-function handleWeiMetricToEng() {
-  console.log('wei metric to eng');
 }
 </script>

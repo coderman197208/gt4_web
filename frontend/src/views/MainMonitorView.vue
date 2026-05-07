@@ -902,7 +902,7 @@ onMounted(() => {
               </svg> -->
               <svg
                 viewBox="0 85 271.666 100"
-                class="h-12 fill-cyan-500/70 stroke-slate-500"
+                class="h-12 fill-gray-800/70 stroke-slate-500"
                 preserveAspectRatio="xMidYMid meet"
               >
                 <path
@@ -930,7 +930,9 @@ onMounted(() => {
             <div class="grid gap-1 mt-4">
               <div class="flex items-center justify-between">
                 <span class="font-bold">缓冲区支数</span>
-                <span class="win-value">000</span>
+                <span class="win-value">{{
+                  realtimeStore.backbufferPosTubeInfo?.length ?? ''
+                }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">最近管捆号</span>

@@ -1,7 +1,7 @@
 <template>
   <div class="h-full w-full flex flex-col overflow-hidden p-4">
     <!-- 主内容区域 -->
-    <div class="flex-1 flex gap-4 overflow-hidden">
+    <div class="flex-1 flex gap-4 overflow-hidden pt-4">
       <!-- 左侧：标签打印 -->
       <div class="w-[420px] flex-shrink-0">
         <div class="border rounded-lg p-4 relative h-full flex flex-col">
@@ -116,7 +116,7 @@
       </div>
 
       <!-- 中间列：针刻印 + 喷印要求 -->
-      <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+      <div class="flex-1 flex flex-col gap-4 overflow-visible">
         <!-- 针刻印 -->
         <div class="border rounded-lg p-4 relative flex-1">
           <div
@@ -203,7 +203,7 @@
         </div>
       </div>
 
-      <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+      <div class="flex-1 flex flex-col gap-4 overflow-visible">
         <!-- 右侧：通配符说明 -->
         <div class="w-[200px] flex-shrink-0">
           <div class="border rounded-lg p-4 relative">

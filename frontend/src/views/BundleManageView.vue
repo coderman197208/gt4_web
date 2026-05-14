@@ -1,17 +1,19 @@
 <template>
   <div class="h-full w-full flex flex-col overflow-hidden">
-    <!-- 页面标题栏 + 查询条件 -->
+    <!-- 查询条件 -->
     <div class="flex-shrink-0 p-3 space-y-3">
-      <!-- 查询条件 groupBox2 -->
+      <!-- 查询条件 -->
       <div class="border rounded-lg p-4 relative">
         <div class="flex items-center gap-4">
           <Label class="whitespace-nowrap">查询日期</Label>
           <Input type="date" class="w-40" />
+          <Label class="whitespace-nowrap">管捆号</Label>
+          <Input type="text" class="w-40" />
           <Button variant="outline" @click="handleQuery">执行查询</Button>
           <Label class="whitespace-nowrap">合同号</Label>
           <Input type="text" class="w-40" />
-          <Label class="whitespace-nowrap">管捆号</Label>
-          <Input type="text" class="w-40" />
+          <Label class="whitespace-nowrap">项目号</Label>
+          <Input type="text" class="w-20" />
           <Button variant="outline">新增</Button>
           <Button variant="outline">删除</Button>
           <Button variant="outline">保存</Button>
@@ -22,9 +24,12 @@
 
     <!-- 主内容区域 -->
     <div class="flex-1 flex overflow-hidden p-3 pt-0 gap-3">
-      <!-- 左侧：管捆列表表格 -->
+      <!-- 左侧：管捆列表 -->
       <div class="w-[560px] flex-shrink-0 flex flex-col pt-4">
-        <div class="border rounded-lg flex-1 flex flex-col min-h-0">
+        <div class="border rounded-lg p-4 relative flex-1 flex flex-col">
+          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
+            管捆列表
+          </div>
           <!-- 固定表头 -->
           <div class="border-b">
             <Table>
@@ -66,16 +71,15 @@
         </div>
       </div>
 
-      <!-- 中间：管捆基本信息编辑 -->
+      <!-- 中间：管捆信息 -->
       <div class="flex-1 flex flex-col pt-4">
-        <!-- groupBox1: 管捆基本信息编辑 -->
         <div class="border rounded-lg p-4 relative flex-1 flex flex-col">
           <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-            管捆基本信息编辑
+            管捆信息
           </div>
 
-          <!-- 第一行：合同号、项目号、轧批号、炉号、批号、管捆号 -->
-          <div class="grid grid-cols-6 gap-3 mb-3">
+          <!-- 第一行：合同号、项目号、管捆号、轧批号、炉号、试批号 -->
+          <div class="grid grid-cols-6 gap-3 my-3">
             <div class="space-y-1">
               <Label class="text-xs">合同号</Label>
               <Input v-model="formData.orderNo" readonly />
@@ -102,7 +106,7 @@
             </div>
           </div>
 
-          <!-- 第二行：外径、壁厚、最短、最长、根数、最后管号 -->
+          <!-- 第二行：外径、壁厚、最短、最长、根数、最后流水号 -->
           <div class="grid grid-cols-6 gap-3 mb-3">
             <div class="space-y-1">
               <Label class="text-xs">外径</Label>
@@ -130,12 +134,15 @@
             </div>
           </div>
 
-          <!-- 第三行：生产时间、管捆状态、班组、作业点代码、去向代码 -->
+          <!-- 第三行：生产日期、生产时间、管捆状态、班组、作业点代码、去向代码 -->
           <div class="grid grid-cols-6 gap-3 mb-3">
-            <div class="space-y-1 col-span-2">
+            <div class="space-y-1">
+              <Label class="text-xs">生产日期</Label>
+              <Input v-model="formData.produceDate" />
+            </div>
+            <div class="space-y-1">
               <Label class="text-xs">生产时间</Label>
-              <!-- <Input v-model="formData.produceTime" class="bg-teal-200" /> -->
-              <Input v-model="formData.produceTime" type="date" class="w-40" />
+              <Input v-model="formData.produceTime" />
             </div>
             <div class="space-y-1">
               <Label class="text-xs">管捆状态</Label>
@@ -164,7 +171,7 @@
             </div>
           </div>
 
-          <!-- 第四行：理论重量、米制重量、英制重量、理论长度、米制长度、英制长度 -->
+          <!-- 第四行：理论重量、理论长度、米制重量、英制重量、米制长度、英制长度 -->
           <div class="grid grid-cols-6 gap-3 mb-3">
             <div class="space-y-1">
               <Label class="text-xs">理论重量</Label>
@@ -192,7 +199,7 @@
             </div>
           </div>
 
-          <!-- 第五行：材质正文、标准正文、品名细分类 -->
+          <!-- 第五行：材质正文、标准正文、钢级正文 -->
           <div class="grid grid-cols-3 gap-3 mb-3">
             <div class="space-y-1">
               <Label class="text-xs">材质正文</Label>
@@ -208,7 +215,7 @@
             </div>
           </div>
 
-          <!-- 第六行：钢级正文、管端类型符号、螺纹类型符号 -->
+          <!-- 第六行：管端类型符号、螺纹类型符号、管端型式 -->
           <div class="grid grid-cols-6 gap-3 mb-3">
             <div class="space-y-1">
               <Label class="text-xs">管端类型符号</Label>
@@ -224,7 +231,7 @@
             </div>
           </div>
 
-          <!-- 第七行：公接头炉号、公接头试批号、母接头炉号、母接头试批号、接箍炉号、接箍批号 -->
+          <!-- 第七行: 接箍炉号、接箍批号、螺纹类型 -->
           <div class="grid grid-cols-6 gap-3 mb-3">
             <div class="space-y-1">
               <Label class="text-xs">接箍炉号</Label>
@@ -242,21 +249,21 @@
         </div>
       </div>
 
-      <!-- 右侧：管号信息 groupBox3 -->
+      <!-- 右侧：管子信息 -->
       <div class="w-[520px] flex-shrink-0 flex flex-col pt-4">
         <div class="border rounded-lg p-4 relative flex-1 flex flex-col">
           <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem]">
-            管号信息
+            管子信息
           </div>
 
-          <!-- 管号数据表格 -->
+          <!-- 管子数据表格 -->
           <div class="border rounded flex-1 flex flex-col min-h-0">
             <!-- 固定表头 -->
             <div class="border-b">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead class="w-[90px]">短尺标记</TableHead>
+                    <TableHead class="w-[100px]">管号</TableHead>
                     <TableHead class="w-[100px]">流水号</TableHead>
                     <TableHead class="w-[120px]">长度（米）</TableHead>
                     <TableHead class="w-[120px]">重量（千克）</TableHead>
@@ -273,7 +280,6 @@
                     :key="index"
                     :class="{ 'bg-accent': selectedTubeIndex === index }"
                     class="cursor-pointer"
-                    @click="selectTube(index)"
                   >
                     <TableCell class="w-[90px]">
                       <input v-model="row.shortFlag" type="checkbox" class="h-4 w-4" />
@@ -286,7 +292,10 @@
               </Table>
             </div>
           </div>
-          <Button variant="outline" class="w-32 mt-3">管号删除</Button>
+          <div class="flex items-center gap-3 mt-3">
+            <Button variant="outline" class="w-32 mt-3">管子新增</Button>
+            <Button variant="outline" class="w-32 mt-3">管子删除</Button>
+          </div>
         </div>
       </div>
     </div>
@@ -322,20 +331,7 @@ const queryForm = reactive({
 });
 
 // 班组选项
-const shiftOptions = ref([
-  '夜甲',
-  '夜乙',
-  '夜丙',
-  '夜丁',
-  '早甲',
-  '早乙',
-  '早丙',
-  '早丁',
-  '中甲',
-  '中乙',
-  '中丙',
-  '中丁',
-]);
+const shiftOptions = ref(['夜甲', '夜乙', '夜丙', '夜丁', '早甲', '早乙', '早丙', '早丁']);
 
 // 管捆列表
 const bundleList = ref<
@@ -394,10 +390,6 @@ const formData = reactive({
   specInput: '',
 });
 
-// 流水号生成
-const flowNoFrom = ref('');
-const flowNoTo = ref('');
-
 // 管子流水号数据表格
 const tubeFlowData = ref<
   Array<{
@@ -426,16 +418,6 @@ function selectBundle(index: number) {
   formData.lotNo = selected.lotNo;
 }
 
-// 选择管子
-function selectTube(index: number) {
-  selectedTubeIndex.value = index;
-}
-
-// 流水号生成
-function handleFlowNoCreate() {
-  console.log('flow no create', flowNoFrom.value, flowNoTo.value);
-}
-
 // 保存
 function handleSave() {
   console.log('save', formData);
@@ -447,7 +429,5 @@ function handleDeleteBundle() {
 }
 
 // 标签打印
-function handlePrintTag() {
-  console.log('print tag', { paper: ckbPaperTag.value, em: ckbEmTag.value });
-}
+function handlePrintTag() {}
 </script>

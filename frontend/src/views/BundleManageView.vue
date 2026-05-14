@@ -222,27 +222,23 @@
               <Input v-model="formData.endTypeSign" />
             </div>
             <div class="space-y-1">
+              <Label class="text-xs">管端型式</Label>
+              <Input v-model="formData.threadTypeSign" />
+            </div>
+            <div class="space-y-1">
               <Label class="text-xs">螺纹类型符号</Label>
               <Input v-model="formData.threadTypeSign" />
             </div>
             <div class="space-y-1">
-              <Label class="text-xs">管端型式</Label>
-              <Input v-model="formData.threadTypeSign" />
+              <Label class="text-xs">螺纹类型</Label>
+              <Input v-model="formData.lotNoThread" />
             </div>
-          </div>
-
-          <!-- 第七行: 接箍炉号、接箍批号、螺纹类型 -->
-          <div class="grid grid-cols-6 gap-3 mb-3">
             <div class="space-y-1">
               <Label class="text-xs">接箍炉号</Label>
               <Input v-model="formData.ponoIdCoupling" />
             </div>
             <div class="space-y-1">
               <Label class="text-xs">接箍批号</Label>
-              <Input v-model="formData.lotNoThread" />
-            </div>
-            <div class="space-y-1">
-              <Label class="text-xs">螺纹类型</Label>
               <Input v-model="formData.lotNoThread" />
             </div>
           </div>

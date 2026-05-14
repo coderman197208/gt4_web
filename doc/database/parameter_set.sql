@@ -1,14 +1,8 @@
----
-table name: parameter_set
-description: 生产参数数据库表.
----
+-- public.parameter_set definition
 
-# 创建脚本及字段定义：
+-- DROP TABLE public.parameter_set;
 
-```sql
--- DROP TABLE parameter_set;
-
-CREATE TABLE parameter_set (
+CREATE TABLE public.parameter_set (
     order_no varchar(10) DEFAULT '',
     item_no varchar(3) DEFAULT '',
 	diameter numeric(5, 2) DEFAULT 0,
@@ -116,4 +110,3 @@ COMMENT ON COLUMN parameter_set.tube_no IS '测长工位下一根管号';
 COMMENT ON COLUMN parameter_set.qrcode_spray_enable IS '二维码喷印';
 COMMENT ON COLUMN parameter_set.weight_per_meter IS '米重';
 COMMENT ON COLUMN parameter_set.weight_ew IS 'EW值';
-```

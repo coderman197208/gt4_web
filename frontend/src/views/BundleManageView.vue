@@ -129,7 +129,7 @@
               <Input v-model="formData.count" />
             </div>
             <div class="space-y-1">
-              <Label class="text-xs">最后管号</Label>
+              <Label class="text-xs">最后流水号</Label>
               <Input v-model="formData.lastFlowNo" />
             </div>
           </div>
@@ -389,7 +389,6 @@ const formData = reactive({
 // 管子流水号数据表格
 const tubeFlowData = ref<
   Array<{
-    shortFlag: boolean;
     flowNo: string;
     lengthMetric: string;
     weightMetric: string;

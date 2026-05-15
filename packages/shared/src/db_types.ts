@@ -276,3 +276,132 @@ export interface OrderData {
   stamp_req_7_manual: string | null;
   stamp_req_8_manual: string | null;
 }
+
+// ==================== 管捆数据类型定义 ====================
+
+// 管捆主键
+export interface BundleRecordKey {
+  order_no: string;
+  item_no: string;
+  bundle_no: string;
+}
+
+// 管捆数据（对应 api_bundle_data_t 表）
+export interface BundleRecord {
+  order_no: string;
+  item_no: string;
+  bundle_no: string;
+  roll_no: string | null;
+  melt_no: string | null;
+  lot_no: string | null;
+  prod_code: string | null;
+  prod_cname: string | null;
+  mat_no: string | null;
+  mat_text: string | null;
+  std_sg_code: string | null;
+  std_text: string | null;
+  sg_text: string | null;
+  diameter: number | null;
+  wall_thickness: number | null;
+  weight: number | null;
+  weight_eng: number | null;
+  total_length: number | null;
+  length_eng: number | null;
+  length_from: number | null;
+  length_to: number | null;
+  tube: number | null;
+  bundle_type: string | null;
+  produce_time: string | null;
+  ban_ci: string | null;
+  product_job_point: string | null;
+  direction_code: string | null;
+  theory_weight: number | null;
+  theory_total_length: number | null;
+  last_flow_no: number | null;
+  end_type_code: string | null;
+  end_type_sign: string | null;
+  thread_type_code: string | null;
+  thread_type_sign: string | null;
+  coupling_type_code: string | null;
+  coupling_type_sign: string | null;
+  pono_id_coupling: string | null;
+  lot_no_thread: string | null;
+  order_no_old: string | null;
+  toc: string | null;
+  send_flag: string | null;
+  gross_weight: number | null;
+  end_type: string | null;
+  thread_type: string | null;
+  diameter_down_ctrl: number | null;
+  diameter_up_ctrl: number | null;
+  wal_thick_down_ctrl: number | null;
+  wal_thick_up_ctrl: number | null;
+  weight_per_meter: number | null;
+  weight_ew: number | null;
+  room_no: string | null;
+}
+
+// 管子数据（对应 api_tube_data_t 表）
+export interface TubeRecord {
+  order_no: string;
+  item_no: string;
+  bundle_no: string;
+  weight: number | null;
+  length: number | null;
+  flow_no: number;
+  tube_no: number | null;
+}
+
+// 管捆查询参数
+export interface BundleQueryParams {
+  query_date?: string;
+  bundle_no?: string | null;
+}
+
+// 管捆明细查询参数
+export interface BundleDetailParams extends BundleRecordKey {}
+
+// 新建管捆草稿查询参数
+export interface BundleDraftBootstrapParams {
+  order_no: string;
+  item_no: string;
+}
+
+// 重号校验参数
+export interface BundleDuplicateCheckParams {
+  order_no: string;
+  item_no: string;
+  bundle_no: string;
+  original_bundle_no?: string | null;
+}
+
+// 管捆明细响应
+export interface BundleDetailResponse {
+  bundle: BundleRecord;
+  tubes: TubeRecord[];
+}
+
+// 新建管捆草稿响应
+export interface BundleDraftBootstrapResponse {
+  bundle: BundleRecord;
+  source_order: OrderData;
+}
+
+// 重号校验响应
+export interface BundleDuplicateCheckResponse {
+  duplicate: boolean;
+  message: string;
+}
+
+// 管捆保存载荷
+export interface BundleSavePayload {
+  bundle: BundleRecord;
+  tubes: TubeRecord[];
+  original_key?: BundleRecordKey | null;
+}
+
+// 管捆保存响应
+export interface BundleSaveResponse {
+  success: boolean;
+  message: string;
+}

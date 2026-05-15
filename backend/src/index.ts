@@ -8,6 +8,7 @@ import { startRedisSubscriber } from './modules/redis/redisSubscriber.js';
 import { registerMockRoutes } from './modules/api/mockRoutes.js';
 import { registerParameterSetRoutes } from './modules/api/parameterSetRoutes.js';
 import { registerOrderDataRoutes } from './modules/api/orderDataRoutes.js';
+import { registerBundleDataRoutes } from './modules/api/bundleDataRoutes.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -36,6 +37,9 @@ fastify.register(registerParameterSetRoutes);
 
 // 注册合同数据 API 路由
 fastify.register(registerOrderDataRoutes);
+
+// 注册管捆数据 API 路由
+fastify.register(registerBundleDataRoutes);
 
 const port = Number(process.env.PORT || 5001);
 const host = '0.0.0.0';

@@ -63,4 +63,19 @@ export { getParameterSet, saveParameterSet, formToApi, apiToForm } from './param
 export type { ParameterSetForm } from './parameterSet';
 
 // 导出合同数据相关API
-export { getOrderNos, getItemNos, getOrderData, updateOrderData, createOrderData } from './orderData';
+export {
+  getOrderNos,
+  getItemNos,
+  getOrderData,
+  updateOrderData,
+  createOrderData,
+} from './orderData';
+
+// 导出管捆数据相关API
+export {
+  getBundles,
+  getBundleDetail,
+  getBundleDraftBootstrap,
+  checkBundleDuplicate,
+  saveBundleDraft,
+} from './bundleData';

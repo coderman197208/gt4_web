@@ -1,5 +1,7 @@
 import { request } from './client';
 import type {
+  BundleDeleteParams,
+  BundleDeleteResponse,
   BundleDetailParams,
   BundleDetailResponse,
   BundleDraftBootstrapParams,
@@ -18,6 +20,10 @@ export function getBundles(params: BundleQueryParams) {
 
 export function getBundleDetail(params: BundleDetailParams) {
   return request.get<BundleDetailResponse>('/bundles/detail', { params });
+}
+
+export function deleteBundle(params: BundleDeleteParams) {
+  return request.delete<BundleDeleteResponse>('/bundles', { params });
 }
 
 export function getBundleDraftBootstrap(params: BundleDraftBootstrapParams) {

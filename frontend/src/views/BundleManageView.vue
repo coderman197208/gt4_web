@@ -15,7 +15,9 @@
           <Label class="whitespace-nowrap">项目号</Label>
           <Input v-model="queryState.itemNo" type="text" class="w-20" />
           <Button variant="outline" @click="handleCreateDraft"> 新增 </Button>
-          <Button variant="outline" @click="handleDeleteBundle"> 删除 </Button>
+          <Button variant="outline" :disabled="isDeleting" @click="handleDeleteBundle">
+            {{ isDeleting ? '删除中...' : '删除' }}
+          </Button>
           <Button variant="outline" :disabled="isSaving" @click="handleSave">
             {{ isSaving ? '保存中...' : '保存' }}
           </Button>
@@ -361,6 +363,7 @@ import { nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import type { BundleRecord, BundleRecordKey, OrderData, TubeRecord } from '@gt4_web/shared';
 import {
   checkBundleDuplicate,
+  deleteBundle,
   getBundleDetail,
   getBundleDraftBootstrap,
   getBundles,
@@ -450,6 +453,7 @@ const statusMessage = ref('');
 const duplicateMessage = ref('');
 const isLoadingQuery = ref(false);
 const isSaving = ref(false);
+const isDeleting = ref(false);
 
 let duplicateTimer: number | null = null;
 let duplicateRequestId = 0;
@@ -964,8 +968,52 @@ async function handleSave() {
   }
 }
 
-function handleDeleteBundle() {
-  window.alert('当前变更未包含独立删除功能');
+async function handleDeleteBundle() {
+  if (!originalBundleKey.value) {
+    window.alert('当前没有可删除的已保存管捆记录');
+    return;
+  }
+
+  const deleteKey = originalBundleKey.value;
+  const confirmed = window.confirm(
+    `确认删除当前选中的管捆 ${deleteKey.bundle_no} 吗？此操作会同时删除对应的所有管子数据。`,
+  );
+  if (!confirmed) {
+    return;
+  }
+
+  isDeleting.value = true;
+
+  try {
+    const result = await deleteBundle(deleteKey);
+    const remainingRows = bundleResults.value.filter(
+      (row) =>
+        !(
+          row.order_no === deleteKey.order_no &&
+          row.item_no === deleteKey.item_no &&
+          row.bundle_no === deleteKey.bundle_no
+        ),
+    );
+
+    bundleResults.value = remainingRows;
+    window.alert(result.message);
+
+    if (remainingRows.length === 0) {
+      selectedBundleIndex.value = null;
+      resetDraftState();
+      statusMessage.value = '删除成功，当前查询结果中已无更多管捆记录';
+      return;
+    }
+
+    const nextIndex = Math.min(selectedBundleIndex.value ?? 0, remainingRows.length - 1);
+    statusMessage.value = result.message;
+    await selectBundle(remainingRows[nextIndex], nextIndex);
+  } catch (error) {
+    console.error(error);
+    window.alert(getErrorMessage(error, '删除管捆失败'));
+  } finally {
+    isDeleting.value = false;
+  }
 }
 
 function handlePrintTag() {

@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client';
 import { FastifyInstance } from 'fastify';
 import type {
+  BundleDeleteParams,
+  BundleDeleteResponse,
   BundleDetailParams,
   BundleDetailResponse,
   BundleDraftBootstrapParams,
@@ -402,6 +404,51 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
       } catch (error) {
         fastify.log.error(error);
         return reply.code(500).send({ message: '查询管捆明细失败' } as never);
+      }
+    },
+  );
+
+  fastify.delete<{ Querystring: BundleDeleteParams; Reply: BundleDeleteResponse }>(
+    '/api/bundles',
+    async (request, reply) => {
+      const { order_no, item_no, bundle_no } = request.query;
+      if (!order_no || !item_no || !bundle_no) {
+        return reply.code(400).send({ success: false, message: '请提供合同号、项目号和管捆号' });
+      }
+
+      try {
+        const result = await prisma.$transaction(async (tx) => {
+          const deletedTubes = await tx.$executeRaw(Prisma.sql`
+            DELETE FROM api_tube_data_t
+            WHERE order_no = ${order_no}
+              AND item_no = ${item_no}
+              AND bundle_no = ${bundle_no}
+          `);
+
+          const deletedBundles = await tx.$executeRaw(Prisma.sql`
+            DELETE FROM api_bundle_data_t
+            WHERE order_no = ${order_no}
+              AND item_no = ${item_no}
+              AND bundle_no = ${bundle_no}
+          `);
+
+          return {
+            deletedBundles,
+            deletedTubes,
+          };
+        });
+
+        if (result.deletedBundles === 0 && result.deletedTubes === 0) {
+          return reply.code(404).send({ success: false, message: '未找到要删除的管捆记录' });
+        }
+
+        return {
+          success: true,
+          message: `管捆删除成功，已删除 ${result.deletedBundles} 条管捆记录和 ${result.deletedTubes} 条管子记录`,
+        };
+      } catch (error) {
+        fastify.log.error(error);
+        return reply.code(500).send({ success: false, message: '删除管捆失败' });
       }
     },
   );

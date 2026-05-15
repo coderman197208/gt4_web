@@ -375,6 +375,9 @@ export interface BundleDuplicateCheckParams {
   original_bundle_no?: string | null;
 }
 
+// 管捆删除参数
+export interface BundleDeleteParams extends BundleRecordKey {}
+
 // 管捆明细响应
 export interface BundleDetailResponse {
   bundle: BundleRecord;
@@ -402,6 +405,12 @@ export interface BundleSavePayload {
 
 // 管捆保存响应
 export interface BundleSaveResponse {
+  success: boolean;
+  message: string;
+}
+
+// 管捆删除响应
+export interface BundleDeleteResponse {
   success: boolean;
   message: string;
 }

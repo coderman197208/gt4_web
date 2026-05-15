@@ -73,6 +73,7 @@ export {
 
 // 导出管捆数据相关API
 export {
+  deleteBundle,
   getBundles,
   getBundleDetail,
   getBundleDraftBootstrap,

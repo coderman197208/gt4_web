@@ -84,6 +84,12 @@ const router = createRouter({
           path: 'parameter-setting',
           name: 'parameter-setting',
           component: ParameterSettingView,
+          meta: {
+            hmiScale: {
+              designWidth: 1920,
+              designHeight: 1080,
+            },
+          },
         },
         {
           path: 'mode-setting',

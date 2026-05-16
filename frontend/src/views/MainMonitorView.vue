@@ -20,7 +20,6 @@ import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { useWebSocket } from '@/services/websocket';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 import type {
-  SetFeedNumCmd,
   MoveTubeCmd,
   ModifyTubeCmd,
   DeleteTubeCmd,
@@ -93,7 +92,7 @@ type EditableTubeDetailField =
   | 'meltNoCoupling'
   | 'lotNoCoupling';
 
-const { isConnected, error, subscribe, sendUserCommand } = useWebSocket();
+const { subscribe, sendUserCommand } = useWebSocket();
 const realtimeStore = useRealtimeDataStore();
 
 const mainForm = reactive({
@@ -830,7 +829,9 @@ onMounted(() => {
   <div class="main-monitor-view h-full w-full overflow-hidden bg-[#d8d8d8] p-2 text-slate-900">
     <div class="grid h-full grid-rows-[minmax(0,2.5fr)_minmax(0,2.5fr)_auto_minmax(0,3fr)] gap-4">
       <div class="win-group mt-2">
-        <div class="win-group__title">主控信息</div>
+        <div class="win-group__title">
+          主控信息
+        </div>
         <div
           class="grid h-full min-h-0 grid-cols-[0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_1.3fr] gap-2"
         >
@@ -844,7 +845,7 @@ onMounted(() => {
             <div class="grid gap-2">
               <div class="flex items-center justify-between mt-4">
                 <span class="font-bold">合同号</span>
-                <span class="win-value">{{
+                <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.order_no ?? ''
                 }}</span>
                 <!-- <Input
@@ -855,19 +856,21 @@ onMounted(() => {
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">炉号</span>
-                <span class="win-value">{{
+                <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.melt_no ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">试批号</span>
-                <span class="win-value">{{
+                <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.lot_no ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">料筐支数</span>
-                <span class="win-value">{{ realtimeStore.basketPosTubeInfo?.length ?? '' }}</span>
+                <span class="font-bold text-[#1d47a4]">{{
+                  realtimeStore.basketPosTubeInfo?.length ?? ''
+                }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <Label class="shrink-0 text-base font-bold">成捆支数</Label>
@@ -877,14 +880,21 @@ onMounted(() => {
                 />
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" class="win-button">打捆</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                >
+                  打捆
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('basket', 'backbuffer')"
-                  >&gt;</Button
                 >
+                  &gt;
+                </Button>
               </div>
             </div>
           </div>
@@ -917,30 +927,32 @@ onMounted(() => {
                 variant="outline"
                 class="win-button"
                 @click="handleMoveTube('backbuffer', 'basket')"
-                >&lt;</Button
               >
+                &lt;
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
                 class="win-button"
                 @click="handleMoveTube('backbuffer', 'scraptroller')"
-                >&gt;</Button
               >
+                &gt;
+              </Button>
             </div>
             <div class="grid gap-1 mt-4">
               <div class="flex items-center justify-between">
                 <span class="font-bold">缓冲区支数</span>
-                <span class="win-value">{{
+                <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.backbufferPosTubeInfo?.length ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">最近管捆号</span>
-                <span class="win-value">{{ mainForm.lastBundleNo }}</span>
+                <span class="font-bold text-[#1d47a4]">{{ mainForm.lastBundleNo }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="font-bold">下一流水号</span>
-                <span class="win-value">{{ mainForm.bundleFlowNo }}</span>
+                <span class="font-bold text-[#1d47a4]">{{ mainForm.bundleFlowNo }}</span>
               </div>
             </div>
           </div>
@@ -972,22 +984,25 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('scraptroller', 'backbuffer')"
-                  >&lt;</Button
                 >
+                  &lt;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleDeleteTube('scraptroller', 0)"
-                  >&times;</Button
                 >
+                  &times;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('scraptroller', 'circle')"
-                  >&gt;</Button
                 >
+                  &gt;
+                </Button>
               </div>
               <div class="mt-2 grid grid-cols-2 gap-2">
                 <Button
@@ -995,8 +1010,9 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('scraptroller', 'scrapt')"
-                  >入废料筐</Button
                 >
+                  入废料筐
+                </Button>
                 <TubeBasket
                   :active="false"
                   color="amber"
@@ -1017,7 +1033,11 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller :active="realtimeStore.circlePosOn" color="green" :size="60" />
+                <ConveyorRoller
+                  :active="realtimeStore.circlePosOn"
+                  color="green"
+                  :size="60"
+                />
                 <IndicatorLight
                   :active="processRunning.circle"
                   color="red"
@@ -1031,24 +1051,33 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('circle', 'scraptroller')"
-                  >&lt;</Button
                 >
+                  &lt;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleDeleteTube('circle', 0)"
-                  >&times;</Button
                 >
+                  &times;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('circle', 'spray')"
-                  >&gt;</Button
                 >
+                  &gt;
+                </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button">色环</Button>
+              <Button
+                size="sm"
+                variant="outline"
+                class="mt-2 w-full win-button"
+              >
+                色环
+              </Button>
             </div>
           </div>
 
@@ -1061,12 +1090,24 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller :active="realtimeStore.sprayPosOn" color="green" :size="60" />
+                <ConveyorRoller
+                  :active="realtimeStore.sprayPosOn"
+                  color="green"
+                  :size="60"
+                />
                 <div class="flex items-center gap-1 mt-2">
                   <Label class="text-sm font-bold">封锁</Label>
-                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
+                  <IndicatorLight
+                    :active="realtimeStore.lenMeaFinish"
+                    color="green"
+                    :size="18"
+                  />
                   <Label class="text-sm font-bold">测长完成</Label>
-                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
+                  <IndicatorLight
+                    :active="realtimeStore.lenMeaFinish"
+                    color="green"
+                    :size="18"
+                  />
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -1075,24 +1116,33 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('spray', 'circle')"
-                  >&lt;</Button
                 >
+                  &lt;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleDeleteTube('spray', 0)"
-                  >&times;</Button
                 >
+                  &times;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('spray', 'carve')"
-                  >&gt;</Button
                 >
+                  &gt;
+                </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button">喷印</Button>
+              <Button
+                size="sm"
+                variant="outline"
+                class="mt-2 w-full win-button"
+              >
+                喷印
+              </Button>
             </div>
           </div>
 
@@ -1105,8 +1155,16 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller :active="realtimeStore.carvePosOn" color="green" :size="60" />
-                <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
+                <ConveyorRoller
+                  :active="realtimeStore.carvePosOn"
+                  color="green"
+                  :size="60"
+                />
+                <IndicatorLight
+                  color="red"
+                  :size="18"
+                  class="mt-2 invisible"
+                />
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
@@ -1114,24 +1172,33 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('carve', 'spray')"
-                  >&lt;</Button
                 >
+                  &lt;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleDeleteTube('carve', 0)"
-                  >&times;</Button
                 >
+                  &times;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('carve', 'weight')"
-                  >&gt;</Button
                 >
+                  &gt;
+                </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button">刻印</Button>
+              <Button
+                size="sm"
+                variant="outline"
+                class="mt-2 w-full win-button"
+              >
+                刻印
+              </Button>
             </div>
           </div>
 
@@ -1144,10 +1211,18 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller :active="realtimeStore.weightPosOn" color="green" :size="60" />
+                <ConveyorRoller
+                  :active="realtimeStore.weightPosOn"
+                  color="green"
+                  :size="60"
+                />
                 <div class="flex items-center gap-2 mt-2">
                   <Label class="text-sm font-bold">工位封锁</Label>
-                  <IndicatorLight :active="realtimeStore.weightPosOn" color="red" :size="18" />
+                  <IndicatorLight
+                    :active="realtimeStore.weightPosOn"
+                    color="red"
+                    :size="18"
+                  />
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -1156,30 +1231,43 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('weight', 'carve')"
-                  >&lt;</Button
                 >
+                  &lt;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleDeleteTube('weight', 0)"
-                  >&times;</Button
                 >
+                  &times;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('weight', 'align')"
-                  >&gt;</Button
                 >
+                  &gt;
+                </Button>
               </div>
               <div class="mt-2 grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" class="win-button" @click="handleStartWeight"
-                  >称重</Button
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleStartWeight"
                 >
-                <Button size="sm" variant="outline" class="win-button" @click="handleStopWeight"
-                  >停止称重</Button
+                  称重
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="win-button"
+                  @click="handleStopWeight"
                 >
+                  停止称重
+                </Button>
               </div>
             </div>
           </div>
@@ -1193,8 +1281,16 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller :active="realtimeStore.alignPosOn" color="green" :size="60" />
-                <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
+                <ConveyorRoller
+                  :active="realtimeStore.alignPosOn"
+                  color="green"
+                  :size="60"
+                />
+                <IndicatorLight
+                  color="red"
+                  :size="18"
+                  class="mt-2 invisible"
+                />
               </div>
               <div class="mt-4 grid grid-cols-4 gap-2">
                 <Button
@@ -1202,33 +1298,42 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('align', 'weight')"
-                  >&lt;</Button
                 >
+                  &lt;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleDeleteTube('align', 0)"
-                  >&times;</Button
                 >
+                  &times;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('align', 'plan')"
-                  >&gt;</Button
                 >
+                  &gt;
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('plan', 'align')"
-                  >上料</Button
                 >
+                  上料
+                </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button" disabled
-                >测长</Button
+              <Button
+                size="sm"
+                variant="outline"
+                class="mt-2 w-full win-button"
+                disabled
               >
+                测长
+              </Button>
             </div>
           </div>
 
@@ -1277,7 +1382,10 @@ onMounted(() => {
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-22 text-right font-bold">下一流水号</Label>
-                <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center flex-1" />
+                <Input
+                  v-model="mainForm.flowNo"
+                  class="win-input-edit h-7 text-center flex-1"
+                />
               </div>
             </div>
           </div>
@@ -1286,15 +1394,29 @@ onMounted(() => {
 
       <div class="grid min-h-0 grid-cols-[minmax(0,4fr)_minmax(250px,1fr)] gap-2">
         <div class="win-group">
-          <div class="win-group__title">测量点料流详细信息</div>
+          <div class="win-group__title">
+            测量点料流详细信息
+          </div>
           <div class="flex min-w-0">
             <div class="grid w-[40px] shrink-0 grid-cols-1 pt-[30px]">
-              <div class="flex h-9 items-center text-sm font-bold">定位</div>
-              <div class="flex h-9 items-center text-sm font-bold">称重</div>
-              <div class="flex h-9 items-center text-sm font-bold">刻印</div>
-              <div class="flex h-9 items-center text-sm font-bold">喷印</div>
-              <div class="flex h-9 items-center text-sm font-bold">色环</div>
-              <div class="flex h-9 items-center text-sm font-bold">出废</div>
+              <div class="flex h-9 items-center text-sm font-bold">
+                定位
+              </div>
+              <div class="flex h-9 items-center text-sm font-bold">
+                称重
+              </div>
+              <div class="flex h-9 items-center text-sm font-bold">
+                刻印
+              </div>
+              <div class="flex h-9 items-center text-sm font-bold">
+                喷印
+              </div>
+              <div class="flex h-9 items-center text-sm font-bold">
+                色环
+              </div>
+              <div class="flex h-9 items-center text-sm font-bold">
+                出废
+              </div>
             </div>
             <div class="win-table-shell h-full min-h-0 min-w-0 flex-1 overflow-hidden">
               <Table class="table-fixed">
@@ -1303,11 +1425,14 @@ onMounted(() => {
                     v-for="column in trackTableColumns"
                     :key="`track-body-col-${column.label}`"
                     :style="{ width: getTrackTableColumnWidth(column.weight) }"
-                  />
+                  >
                 </colgroup>
                 <TableHeader>
                   <TableRow>
-                    <TableHead v-for="column in trackTableColumns" :key="column.label">
+                    <TableHead
+                      v-for="column in trackTableColumns"
+                      :key="column.label"
+                    >
                       {{ column.label }}
                     </TableHead>
                   </TableRow>
@@ -1506,20 +1631,29 @@ onMounted(() => {
         </div>
 
         <div class="win-group">
-          <div class="win-group__title">设备状态</div>
+          <div class="win-group__title">
+            设备状态
+          </div>
           <div class="flex h-full gap-3">
             <div class="win-panel flex flex-1 items-start justify-left gap-2">
               <div class="grid grid-cols-[120px_1fr] gap-4 items-center mt-2 w-full">
-                <SvgToggle :model-value="stationReady.release" :width="120" :height="30" />
-                <div class="justify-self-center font-bold">L1信号状态</div>
+                <SvgToggle
+                  :model-value="stationReady.release"
+                  :width="120"
+                  :height="30"
+                />
+                <div class="justify-self-center font-bold">
+                  L1信号状态
+                </div>
 
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('position-release')"
-                  >L2所有工位释放</Button
                 >
+                  L2所有工位释放
+                </Button>
                 <div class="justify-self-center">
                   <IndicatorLight
                     :active="stationReady.release"
@@ -1534,8 +1668,9 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube('position-release')"
-                  >内保步进梁释放</Button
                 >
+                  内保步进梁释放
+                </Button>
                 <div class="justify-self-center">
                   <IndicatorLight
                     :active="stationReady.release"
@@ -1566,7 +1701,11 @@ onMounted(() => {
                 class="flex items-center justify-evenly gap-2"
               >
                 <span class="font-bold">{{ item.label }}</span>
-                <IndicatorLight :active="stationReady[item.key]" color="green" :size="18" />
+                <IndicatorLight
+                  :active="stationReady[item.key]"
+                  color="green"
+                  :size="18"
+                />
               </div>
             </div>
           </div>
@@ -1574,7 +1713,9 @@ onMounted(() => {
       </div>
 
       <div class="win-group">
-        <div class="win-group__title">喷印字符串</div>
+        <div class="win-group__title">
+          喷印字符串
+        </div>
         <div class="px-3 py-2 font-mono text-lg font-bold text-slate-800">
           {{ sprayString }}
         </div>
@@ -1582,15 +1723,38 @@ onMounted(() => {
 
       <div class="grid min-h-0 grid-cols-[minmax(0,3.4fr)_minmax(420px,2fr)] gap-2">
         <div class="win-group">
-          <div class="win-group__title">管子详细信息</div>
-          <Tabs default-value="basket" class="flex h-full min-h-0 flex-row gap-3">
+          <div class="win-group__title">
+            管子详细信息
+          </div>
+          <Tabs
+            default-value="basket"
+            class="flex h-full min-h-0 flex-row gap-3"
+          >
             <TabsList class="win-tabs-list flex flex-col justify-start gap-1 w-20 shrink-0">
-              <TabsTrigger value="basket" class="win-tab-trigger w-full">料筐</TabsTrigger>
-              <TabsTrigger value="backbuffer" class="win-tab-trigger w-full">缓冲区</TabsTrigger>
-              <TabsTrigger value="scrapt" class="win-tab-trigger w-full">废料筐</TabsTrigger>
+              <TabsTrigger
+                value="basket"
+                class="win-tab-trigger w-full"
+              >
+                料筐
+              </TabsTrigger>
+              <TabsTrigger
+                value="backbuffer"
+                class="win-tab-trigger w-full"
+              >
+                缓冲区
+              </TabsTrigger>
+              <TabsTrigger
+                value="scrapt"
+                class="win-tab-trigger w-full"
+              >
+                废料筐
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="basket" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
+            <TabsContent
+              value="basket"
+              class="flex min-h-0 flex-1 flex-col gap-3 mt-0"
+            >
               <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
                 <Table class="table-fixed">
                   <colgroup>
@@ -1598,13 +1762,16 @@ onMounted(() => {
                       v-for="column in tubeTableColumns"
                       :key="`basket-col-${column.label}`"
                       :style="{ width: getTubeTableColumnWidth(column.weight) }"
-                    />
+                    >
                   </colgroup>
                   <TableHeader>
                     <TableRow>
-                      <TableHead v-for="column in tubeTableColumns" :key="column.label">{{
-                        column.label
-                      }}</TableHead>
+                      <TableHead
+                        v-for="column in tubeTableColumns"
+                        :key="column.label"
+                      >
+                        {{ column.label }}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1617,7 +1784,7 @@ onMounted(() => {
                       @click="selectBasketRow(rowIndex)"
                       @focusout="
                         editableRow.row.rowKey &&
-                        handleBasketRowFocusOut(editableRow.row.rowKey, $event)
+                          handleBasketRowFocusOut(editableRow.row.rowKey, $event)
                       "
                     >
                       <TableCell>
@@ -1788,27 +1955,33 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleAddTubeBasketbuffer('head')"
-                  >头部新增</Button
                 >
+                  头部新增
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleAddTubeBasketbuffer('tail')"
-                  >尾部新增</Button
                 >
+                  尾部新增
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button win-button--danger"
+                  class="win-button"
                   :disabled="!canDeleteBasketRow"
                   @click="handleDeleteBasketTube()"
-                  >删除钢管</Button
                 >
+                  删除钢管
+                </Button>
               </div>
             </TabsContent>
 
-            <TabsContent value="backbuffer" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
+            <TabsContent
+              value="backbuffer"
+              class="flex min-h-0 flex-1 flex-col gap-3 mt-0"
+            >
               <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
                 <Table class="table-fixed">
                   <colgroup>
@@ -1816,13 +1989,16 @@ onMounted(() => {
                       v-for="column in tubeTableColumns"
                       :key="`buffer-col-${column.label}`"
                       :style="{ width: getTubeTableColumnWidth(column.weight) }"
-                    />
+                    >
                   </colgroup>
                   <TableHeader>
                     <TableRow>
-                      <TableHead v-for="column in tubeTableColumns" :key="column.label">{{
-                        column.label
-                      }}</TableHead>
+                      <TableHead
+                        v-for="column in tubeTableColumns"
+                        :key="column.label"
+                      >
+                        {{ column.label }}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1835,7 +2011,7 @@ onMounted(() => {
                       @click="selectBackbufferRow(rowIndex)"
                       @focusout="
                         editableRow.row.rowKey &&
-                        handleBackbufferRowFocusOut(editableRow.row.rowKey, $event)
+                          handleBackbufferRowFocusOut(editableRow.row.rowKey, $event)
                       "
                     >
                       <TableCell>
@@ -2015,27 +2191,33 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleAddTubeBackbuffer('head')"
-                  >头部新增</Button
                 >
+                  头部新增
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   class="win-button"
                   @click="handleAddTubeBackbuffer('tail')"
-                  >尾部新增</Button
                 >
+                  尾部新增
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button win-button--danger"
+                  class="win-button"
                   :disabled="!canDeleteBackbufferRow"
                   @click="handleDeleteBackbufferTube()"
-                  >删除钢管</Button
                 >
+                  删除钢管
+                </Button>
               </div>
             </TabsContent>
 
-            <TabsContent value="scrapt" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
+            <TabsContent
+              value="scrapt"
+              class="flex min-h-0 flex-1 flex-col gap-3 mt-0"
+            >
               <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
                 <Table class="table-fixed">
                   <colgroup>
@@ -2043,17 +2225,23 @@ onMounted(() => {
                       v-for="column in scraptTableColumns"
                       :key="`scrapt-col-${column.label}`"
                       :style="{ width: getScraptTableColumnWidth(column.weight) }"
-                    />
+                    >
                   </colgroup>
                   <TableHeader>
                     <TableRow>
-                      <TableHead v-for="column in scraptTableColumns" :key="column.label">{{
-                        column.label
-                      }}</TableHead>
+                      <TableHead
+                        v-for="column in scraptTableColumns"
+                        :key="column.label"
+                      >
+                        {{ column.label }}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow v-for="row in scraptRows" :key="row.rowKey ?? `scrapt-${row.flowNo}`">
+                    <TableRow
+                      v-for="row in scraptRows"
+                      :key="row.rowKey ?? `scrapt-${row.flowNo}`"
+                    >
                       <TableCell>{{ row.flowNo }}</TableCell>
                       <TableCell>{{ row.orderNo }}</TableCell>
                       <TableCell>{{ row.itemNo }}</TableCell>
@@ -2074,10 +2262,11 @@ onMounted(() => {
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button win-button--danger"
+                  class="win-button"
                   @click="handleClearScrap()"
-                  >清空</Button
                 >
+                  清空
+                </Button>
               </div>
             </TabsContent>
           </Tabs>
@@ -2085,7 +2274,9 @@ onMounted(() => {
 
         <div class="grid min-h-0 grid-rows-[minmax(0,1.8fr)_minmax(0,1fr)] gap-4">
           <div class="win-group">
-            <div class="win-group__title">生产统计信息</div>
+            <div class="win-group__title">
+              生产统计信息
+            </div>
             <div class="flex h-full flex-col gap-2">
               <div class="mb-2 flex items-center gap-4 text-s font-semibold text-[#1d47a4]">
                 <span>合同号 {{ productionStats.statOrderNo }}</span>
@@ -2120,7 +2311,7 @@ onMounted(() => {
               </div>
 
               <div class="grid grid-cols-[150px_1fr_1fr_1fr] gap-3">
-                <Label class="text-sm font-bold"></Label>
+                <Label class="text-sm font-bold" />
                 <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.orderWeightEng"
@@ -2137,7 +2328,7 @@ onMounted(() => {
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">英尺</Label>
                 </div>
-                <Label class="text-xs font-bold"></Label>
+                <Label class="text-xs font-bold" />
               </div>
 
               <div class="grid grid-cols-[150px_1fr_1fr_1fr] gap-3">
@@ -2200,7 +2391,9 @@ onMounted(() => {
           </div>
 
           <div class="win-group">
-            <div class="win-group__title">进程工作状态</div>
+            <div class="win-group__title">
+              进程工作状态
+            </div>
             <div class="grid h-full grid-cols-5 gap-2">
               <div
                 v-for="item in processStatusCards"
@@ -2219,8 +2412,9 @@ onMounted(() => {
                   variant="outline"
                   class="win-button"
                   @click="handleMoveTube(item.key)"
-                  >启动</Button
                 >
+                  启动
+                </Button>
               </div>
             </div>
           </div>
@@ -2258,17 +2452,11 @@ onMounted(() => {
   line-height: 1.2;
 }
 
-.win-panel,
-.win-stat-block,
-.win-status-row,
-.win-spray-string {
+.win-panel {
   border: 1px solid #8a8a8a;
   border-radius: 2px;
   background: #d8d8d8;
   box-shadow: inset 0 1px 0 #f4f4f4;
-}
-
-.win-panel {
   padding: 8px;
 }
 
@@ -2278,30 +2466,34 @@ onMounted(() => {
   font-weight: 700;
 }
 
-.win-value {
-  color: #1d47a4;
-  font-weight: 700;
-}
-
-.win-input-edit,
-.win-input-readonly {
+.win-input-edit {
   border-radius: 2px;
+  /* border-color: #4a7471;
+  background: #20b2aa;
+  color: #111827; */
+  border-color: #7a7a7a;
+  background-color: #ffffff;
+  color: #000000;
   font-size: 16px;
   font-weight: 700;
-  box-shadow: none;
-}
-
-.win-input-edit {
-  border-color: #4a7471;
-  background: #20b2aa;
-  color: #111827;
+  cursor: default;
 }
 
 .win-input-readonly {
-  border-color: #8b8b8b;
-  background: #c0c0c0;
-  color: #1d47a4;
+  border-radius: 2px;
+  border-color: #7a7a7a;
+  background: #f5f5f5;
+  color: #222222;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: default;
 }
+
+/* 使用 Tailwind 的实用程序类来实现只读输入框的样式
+.win-input-readonly {
+  @apply border-input bg-muted text-foreground;
+}
+*/
 
 .win-button {
   border-color: #8a8a8a;
@@ -2315,22 +2507,6 @@ onMounted(() => {
 
 .win-button:hover {
   background: linear-gradient(to bottom, #ffffff, #cecece);
-}
-
-.win-button--danger {
-  color: #8b0000;
-}
-
-.win-status-row {
-  padding: 6px 8px;
-}
-
-.win-spray-string {
-  background: #c0c0c0;
-  color: #3f3f46;
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: 700;
 }
 
 .win-table-shell {

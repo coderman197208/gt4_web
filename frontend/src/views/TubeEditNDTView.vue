@@ -17,14 +17,23 @@
                   <SelectValue placeholder="选择合同号" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem v-for="item in orderNoOptions" :key="item" :value="item">
+                  <SelectItem
+                    v-for="item in orderNoOptions"
+                    :key="item"
+                    :value="item"
+                  >
                     {{ item }}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Button variant="outline" @click="handleQuery1">查询</Button>
+            <Button
+              variant="outline"
+              @click="handleQuery1"
+            >
+              查询
+            </Button>
 
             <div class="flex items-center gap-4">
               <Label class="whitespace-nowrap">管捆号</Label>
@@ -33,14 +42,24 @@
                   <SelectValue placeholder="选择管捆号" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem v-for="item in bundleNoOptions" :key="item" :value="item">
+                  <SelectItem
+                    v-for="item in bundleNoOptions"
+                    :key="item"
+                    :value="item"
+                  >
                     {{ item }}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Button variant="success" class="w-full" @click="handleBundle">成捆</Button>
+            <Button
+              variant="success"
+              class="w-full"
+              @click="handleBundle"
+            >
+              成捆
+            </Button>
           </div>
         </div>
 
@@ -58,14 +77,23 @@
                   <SelectValue placeholder="选择合同号" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem v-for="item in orderNoOptions" :key="item" :value="item">
+                  <SelectItem
+                    v-for="item in orderNoOptions"
+                    :key="item"
+                    :value="item"
+                  >
                     {{ item }}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Button variant="outline" @click="handleQuery2">查询</Button>
+            <Button
+              variant="outline"
+              @click="handleQuery2"
+            >
+              查询
+            </Button>
 
             <div class="flex items-center gap-4">
               <Label class="whitespace-nowrap">管捆号</Label>
@@ -74,24 +102,48 @@
                   <SelectValue placeholder="选择管捆号" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem v-for="item in bundleNoOptions" :key="item" :value="item">
+                  <SelectItem
+                    v-for="item in bundleNoOptions"
+                    :key="item"
+                    :value="item"
+                  >
                     {{ item }}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Button variant="success" class="w-full" @click="handleSave">保存</Button>
+            <Button
+              variant="success"
+              class="w-full"
+              @click="handleSave"
+            >
+              保存
+            </Button>
           </div>
           <div class="h-4" />
           <div class="grid grid-cols-3 gap-2">
-            <Button variant="primary" class="w-full" @click="handleAddTelegram"
-              >新增电文补发</Button
+            <Button
+              variant="primary"
+              class="w-full"
+              @click="handleAddTelegram"
             >
-            <Button variant="warning" class="w-full" @click="handleDeleteTelegram"
-              >删除电文补发</Button
+              新增电文补发
+            </Button>
+            <Button
+              variant="warning"
+              class="w-full"
+              @click="handleDeleteTelegram"
             >
-            <Button variant="destructive" class="w-full" @click="handleDelete">删除</Button>
+              删除电文补发
+            </Button>
+            <Button
+              variant="destructive"
+              class="w-full"
+              @click="handleDelete"
+            >
+              删除
+            </Button>
           </div>
         </div>
 
@@ -103,8 +155,12 @@
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead class="w-[145px]">合同号</TableHead>
-                    <TableHead class="w-[140px]">管捆号</TableHead>
+                    <TableHead class="w-[145px]">
+                      合同号
+                    </TableHead>
+                    <TableHead class="w-[140px]">
+                      管捆号
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
               </Table>
@@ -120,8 +176,12 @@
                     class="cursor-pointer"
                     @click="selectBundle(index)"
                   >
-                    <TableCell class="w-[145px]">{{ row.orderNo }}</TableCell>
-                    <TableCell class="w-[140px]">{{ row.bundleNo }}</TableCell>
+                    <TableCell class="w-[145px]">
+                      {{ row.orderNo }}
+                    </TableCell>
+                    <TableCell class="w-[140px]">
+                      {{ row.bundleNo }}
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -145,11 +205,17 @@
             <div class="grid grid-cols-10 gap-3 mb-4">
               <div class="space-y-1">
                 <Label class="text-xs">生产日期</Label>
-                <Input v-model="bundleData.produceDate" class="bg-teal-200" />
+                <Input
+                  v-model="bundleData.produceDate"
+                  class="bg-teal-200"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">生产时间</Label>
-                <Input v-model="bundleData.produceTime" class="bg-teal-200" />
+                <Input
+                  v-model="bundleData.produceTime"
+                  class="bg-teal-200"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">班次</Label>
@@ -158,9 +224,15 @@
                     <SelectValue placeholder="选择" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">1</SelectItem>
-                    <SelectItem value="2">2</SelectItem>
-                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="1">
+                      1
+                    </SelectItem>
+                    <SelectItem value="2">
+                      2
+                    </SelectItem>
+                    <SelectItem value="3">
+                      3
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -171,36 +243,65 @@
                     <SelectValue placeholder="选择" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="A">A</SelectItem>
-                    <SelectItem value="B">B</SelectItem>
-                    <SelectItem value="C">C</SelectItem>
-                    <SelectItem value="D">D</SelectItem>
+                    <SelectItem value="A">
+                      A
+                    </SelectItem>
+                    <SelectItem value="B">
+                      B
+                    </SelectItem>
+                    <SelectItem value="C">
+                      C
+                    </SelectItem>
+                    <SelectItem value="D">
+                      D
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">生产作业点</Label>
-                <Input v-model="bundleData.produceJobPoint" class="bg-teal-200" />
+                <Input
+                  v-model="bundleData.produceJobPoint"
+                  class="bg-teal-200"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">去向代码</Label>
-                <Input v-model="bundleData.directionCode" class="bg-teal-200" />
+                <Input
+                  v-model="bundleData.directionCode"
+                  class="bg-teal-200"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">合同号</Label>
-                <Input v-model="bundleData.orderNo" readonly />
+                <Input
+                  v-model="bundleData.orderNo"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">管捆号</Label>
-                <Input v-model="bundleData.bundleNo" readonly />
+                <Input
+                  v-model="bundleData.bundleNo"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">库位</Label>
-                <Input v-model="bundleData.roomNo" class="bg-teal-200" />
+                <Input
+                  v-model="bundleData.roomNo"
+                  class="bg-teal-200"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">&nbsp;</Label>
-                <Button variant="outline" class="w-full" @click="printLabel">打印标签</Button>
+                <Button
+                  variant="outline"
+                  class="w-full"
+                  @click="printLabel"
+                >
+                  打印标签
+                </Button>
               </div>
             </div>
 
@@ -208,39 +309,66 @@
             <div class="grid grid-cols-10 gap-3 mb-4">
               <div class="space-y-1">
                 <Label class="text-xs">材质代码</Label>
-                <Input v-model="bundleData.matNo" class="bg-teal-200" />
+                <Input
+                  v-model="bundleData.matNo"
+                  class="bg-teal-200"
+                />
               </div>
               <div class="space-y-1 col-span-2">
                 <Label class="text-xs">材质正文</Label>
-                <Input v-model="bundleData.matText" readonly />
+                <Input
+                  v-model="bundleData.matText"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">管端形式代码</Label>
-                <Input v-model="bundleData.endTypeCode" readonly />
+                <Input
+                  v-model="bundleData.endTypeCode"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">管端形式符号</Label>
-                <Input v-model="bundleData.endTypeSign" readonly />
+                <Input
+                  v-model="bundleData.endTypeSign"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">螺纹形式代码</Label>
-                <Input v-model="bundleData.threadTypeCode" readonly />
+                <Input
+                  v-model="bundleData.threadTypeCode"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">螺纹形式符号</Label>
-                <Input v-model="bundleData.threadTypeSign" readonly />
+                <Input
+                  v-model="bundleData.threadTypeSign"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">产品名称</Label>
-                <Input v-model="bundleData.prodCname" readonly />
+                <Input
+                  v-model="bundleData.prodCname"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">来源</Label>
-                <Input v-model="bundleData.source" readonly />
+                <Input
+                  v-model="bundleData.source"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">工位</Label>
-                <Input v-model="bundleData.workStation" readonly />
+                <Input
+                  v-model="bundleData.workStation"
+                  readonly
+                />
               </div>
             </div>
 
@@ -248,35 +376,59 @@
             <div class="grid grid-cols-10 gap-3 mb-4">
               <div class="space-y-1">
                 <Label class="text-xs">标准钢级代码</Label>
-                <Input v-model="bundleData.stdSgCode" readonly />
+                <Input
+                  v-model="bundleData.stdSgCode"
+                  readonly
+                />
               </div>
               <div class="space-y-1 col-span-2">
                 <Label class="text-xs">标准正文</Label>
-                <Input v-model="bundleData.stdText" readonly />
+                <Input
+                  v-model="bundleData.stdText"
+                  readonly
+                />
               </div>
               <div class="space-y-1 col-span-2">
                 <Label class="text-xs">钢级正文</Label>
-                <Input v-model="bundleData.sgText" readonly />
+                <Input
+                  v-model="bundleData.sgText"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">外径</Label>
-                <Input v-model="bundleData.diameter" readonly />
+                <Input
+                  v-model="bundleData.diameter"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">壁厚</Label>
-                <Input v-model="bundleData.wallThick" readonly />
+                <Input
+                  v-model="bundleData.wallThick"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">高度</Label>
-                <Input v-model="bundleData.height" readonly />
+                <Input
+                  v-model="bundleData.height"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">工艺</Label>
-                <Input v-model="bundleData.heatTreatStatusCode" readonly />
+                <Input
+                  v-model="bundleData.heatTreatStatusCode"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">投料管捆号</Label>
-                <Input v-model="bundleData.oldBundleNo" readonly />
+                <Input
+                  v-model="bundleData.oldBundleNo"
+                  readonly
+                />
               </div>
             </div>
 
@@ -284,19 +436,31 @@
             <div class="grid grid-cols-10 gap-3 mb-4">
               <div class="space-y-1">
                 <Label class="text-xs">原合同号</Label>
-                <Input v-model="bundleData.orderNoOld" readonly />
+                <Input
+                  v-model="bundleData.orderNoOld"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">轧批号</Label>
-                <Input v-model="bundleData.rlNo" readonly />
+                <Input
+                  v-model="bundleData.rlNo"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">炉号</Label>
-                <Input v-model="bundleData.meltNo" readonly />
+                <Input
+                  v-model="bundleData.meltNo"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">试批号</Label>
-                <Input v-model="bundleData.lotNo" readonly />
+                <Input
+                  v-model="bundleData.lotNo"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">管捆类型</Label>
@@ -305,30 +469,49 @@
                     <SelectValue placeholder="选择" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="N">正常</SelectItem>
-                    <SelectItem value="S">短尺</SelectItem>
+                    <SelectItem value="N">
+                      正常
+                    </SelectItem>
+                    <SelectItem value="S">
+                      短尺
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">根数</Label>
-                <Input v-model="bundleData.tube" readonly />
+                <Input
+                  v-model="bundleData.tube"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">重量</Label>
-                <Input v-model="bundleData.weight" readonly />
+                <Input
+                  v-model="bundleData.weight"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">长度起</Label>
-                <Input v-model="bundleData.orderLengthFrom" readonly />
+                <Input
+                  v-model="bundleData.orderLengthFrom"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">长度止</Label>
-                <Input v-model="bundleData.orderLengthTo" readonly />
+                <Input
+                  v-model="bundleData.orderLengthTo"
+                  readonly
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">总长度</Label>
-                <Input v-model="bundleData.totalLength" readonly />
+                <Input
+                  v-model="bundleData.totalLength"
+                  readonly
+                />
               </div>
             </div>
           </div>
@@ -340,34 +523,49 @@
             </div>
             <div class="h-6" />
             <div class="grid grid-cols-6 gap-3 mb-4">
-              <div></div>
+              <div />
               <!-- 第一组：起始管号 -->
               <div class="col-span-1 flex items-center gap-2">
                 <Label class="text-[1rem] whitespace-nowrap">起始管号:</Label>
-                <Input v-model="bundleData.startTubeNo" class="bg-teal-200 flex-1" />
+                <Input
+                  v-model="bundleData.startTubeNo"
+                  class="bg-teal-200 flex-1"
+                />
               </div>
 
               <!-- 第二组：管数 -->
               <div class="col-span-1 flex items-center gap-2">
                 <Label class="text-[1rem] whitespace-nowrap">管数:</Label>
-                <Input v-model="bundleData.tubeCount" class="bg-teal-200 flex-1" />
+                <Input
+                  v-model="bundleData.tubeCount"
+                  class="bg-teal-200 flex-1"
+                />
               </div>
 
               <!-- 按钮 -->
               <div class="col-span-1 flex items-end">
-                <Button variant="primary" class="w-full" @click="handleGenerateTubeNos"
-                  >生成管号</Button
+                <Button
+                  variant="primary"
+                  class="w-full"
+                  @click="handleGenerateTubeNos"
                 >
+                  生成管号
+                </Button>
               </div>
             </div>
 
             <!-- 表头 1-10 -->
             <div class="flex items-center mb-2">
-              <div class="w-12 pr-2"></div>
+              <div class="w-12 pr-2" />
               <!-- 占位，与下面行对齐 -->
               <div class="grid grid-cols-10 gap-2 flex-1">
-                <template v-for="i in 10" :key="`header-${i}`">
-                  <div class="text-xs text-center font-medium text-muted-foreground">管{{ i }}</div>
+                <template
+                  v-for="i in 10"
+                  :key="`header-${i}`"
+                >
+                  <div class="text-xs text-center font-medium text-muted-foreground">
+                    管{{ i }}
+                  </div>
                 </template>
               </div>
             </div>
@@ -375,7 +573,9 @@
             <!-- 管号 1-10 -->
             <div class="space-y-1 mb-3">
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">管号：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  管号：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -387,7 +587,9 @@
               </div>
 
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">长度：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  长度：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -399,7 +601,9 @@
               </div>
 
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">重量：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  重量：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -413,10 +617,13 @@
 
             <!-- 表头 11-20 -->
             <div class="flex items-center mb-2 mt-4">
-              <div class="w-12 pr-2"></div>
+              <div class="w-12 pr-2" />
               <!-- 占位，与下面行对齐 -->
               <div class="grid grid-cols-10 gap-2 flex-1">
-                <template v-for="i in 10" :key="`header-${i + 10}`">
+                <template
+                  v-for="i in 10"
+                  :key="`header-${i + 10}`"
+                >
                   <div class="text-xs text-center font-medium text-muted-foreground">
                     管{{ i + 10 }}
                   </div>
@@ -427,7 +634,9 @@
             <!-- 管号 11-20 -->
             <div class="space-y-1 mb-3">
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">管号：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  管号：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -439,7 +648,9 @@
               </div>
 
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">长度：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  长度：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -451,7 +662,9 @@
               </div>
 
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">重量：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  重量：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -465,10 +678,13 @@
 
             <!-- 表头 21-30 -->
             <div class="flex items-center mb-2 mt-4">
-              <div class="w-12 pr-2"></div>
+              <div class="w-12 pr-2" />
               <!-- 占位，与下面行对齐 -->
               <div class="grid grid-cols-10 gap-2 flex-1">
-                <template v-for="i in 10" :key="`header-${i + 20}`">
+                <template
+                  v-for="i in 10"
+                  :key="`header-${i + 20}`"
+                >
                   <div class="text-xs text-center font-medium text-muted-foreground">
                     管{{ i + 20 }}
                   </div>
@@ -479,7 +695,9 @@
             <!-- 管号 21-30 -->
             <div class="space-y-1">
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">管号：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  管号：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -491,7 +709,9 @@
               </div>
 
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">长度：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  长度：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"
@@ -503,7 +723,9 @@
               </div>
 
               <div class="flex items-center">
-                <div class="w-12 text-xs text-muted-foreground pr-2">重量：</div>
+                <div class="w-12 text-xs text-muted-foreground pr-2">
+                  重量：
+                </div>
                 <div class="grid grid-cols-10 gap-2 flex-1">
                   <Input
                     v-for="i in 10"

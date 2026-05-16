@@ -2,7 +2,9 @@
   <div class="w-full flex flex-col overflow-hidden p-4">
     <!-- 参数设定 GroupBox -->
     <div class="border rounded-lg p-4 relative flex-1 flex flex-col min-h-0">
-      <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold">参数设定</div>
+      <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold">
+        参数设定
+      </div>
 
       <!-- 主参数表格区域 -->
       <div class="flex-1 min-h-0 overflow-auto">
@@ -12,23 +14,39 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap text-blue-700 font-bold">当前合同号：</Label>
-            <Input v-model="formData.order_no" readonly class="flex-1" />
+            <Input
+              v-model="formData.order_no"
+              readonly
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">管捆类型：</Label>
-            <Input v-model="formData.bundle_type" class="flex-1" />
+            <Input
+              v-model="formData.bundle_type"
+              class="flex-1"
+            />
           </div>
           <div
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">测长允许：</Label>
-            <RadioGroup v-model="formData.length_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.length_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="lengthEnable-allow" value="allow" />
+                <RadioGroupItem
+                  id="lengthEnable-allow"
+                  value="allow"
+                />
                 <Label for="lengthEnable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="lengthEnable-deny" value="deny" />
+                <RadioGroupItem
+                  id="lengthEnable-deny"
+                  value="deny"
+                />
                 <Label for="lengthEnable-deny">禁止</Label>
               </div>
             </RadioGroup>
@@ -40,7 +58,11 @@
                 <SelectValue placeholder="请选择" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="item in bundleFirstTypeOptions" :key="item" :value="item">
+                <SelectItem
+                  v-for="item in bundleFirstTypeOptions"
+                  :key="item"
+                  :value="item"
+                >
                   {{ item }}
                 </SelectItem>
               </SelectContent>
@@ -52,30 +74,49 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap text-blue-700 font-bold">当前项目号：</Label>
-            <Input v-model="formData.item_no" readonly class="flex-1" />
+            <Input
+              v-model="formData.item_no"
+              readonly
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">打捆根数：</Label>
-            <Input v-model="formData.bundle_number" class="flex-1" />
+            <Input
+              v-model="formData.bundle_number"
+              class="flex-1"
+            />
           </div>
           <div
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">称重允许：</Label>
-            <RadioGroup v-model="formData.weight_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.weight_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="weight_enable-allow" value="allow" />
+                <RadioGroupItem
+                  id="weight_enable-allow"
+                  value="allow"
+                />
                 <Label for="weight_enable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="weight_enable-deny" value="deny" />
+                <RadioGroupItem
+                  id="weight_enable-deny"
+                  value="deny"
+                />
                 <Label for="weight_enable-deny">禁止</Label>
               </div>
             </RadioGroup>
           </div>
           <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
             <Label class="whitespace-nowrap font-bold">管捆流水号：</Label>
-            <Input v-model="formData.bundle_flow_no" class="flex-1" />
+            <Input
+              v-model="formData.bundle_flow_no"
+              class="flex-1"
+            />
           </div>
 
           <!-- Row 3 -->
@@ -83,23 +124,38 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap text-blue-700 font-bold">当前轧批号：</Label>
-            <Input v-model="formData.roll_no" class="flex-1" />
+            <Input
+              v-model="formData.roll_no"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">去向：</Label>
-            <Input v-model="formData.direction_code" class="flex-1" />
+            <Input
+              v-model="formData.direction_code"
+              class="flex-1"
+            />
           </div>
           <div
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">针刻印允许：</Label>
-            <RadioGroup v-model="formData.carve_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.carve_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="carve_enable-allow" value="allow" />
+                <RadioGroupItem
+                  id="carve_enable-allow"
+                  value="allow"
+                />
                 <Label for="carve_enable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="carveEnable-deny" value="deny" />
+                <RadioGroupItem
+                  id="carveEnable-deny"
+                  value="deny"
+                />
                 <Label for="carveEnable-deny">禁止</Label>
               </div>
             </RadioGroup>
@@ -111,7 +167,11 @@
                 <SelectValue placeholder="请选择" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="item in paperCountOptions" :key="item" :value="item">
+                <SelectItem
+                  v-for="item in paperCountOptions"
+                  :key="item"
+                  :value="item"
+                >
                   {{ item }}
                 </SelectItem>
               </SelectContent>
@@ -123,7 +183,10 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap text-blue-700 font-bold">机组代码：</Label>
-            <Input v-model="formData.produce_job_point" class="flex-1" />
+            <Input
+              v-model="formData.produce_job_point"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">喷涂长度小数位数：</Label>
@@ -132,7 +195,11 @@
                 <SelectValue placeholder="选择" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="item in precisionOptions" :key="item" :value="item">
+                <SelectItem
+                  v-for="item in precisionOptions"
+                  :key="item"
+                  :value="item"
+                >
                   {{ item }}
                 </SelectItem>
               </SelectContent>
@@ -142,13 +209,22 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">喷印允许：</Label>
-            <RadioGroup v-model="formData.spray_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.spray_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="spray_enable-allow" value="allow" />
+                <RadioGroupItem
+                  id="spray_enable-allow"
+                  value="allow"
+                />
                 <Label for="spray_enable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="spray_enable-deny" value="deny" />
+                <RadioGroupItem
+                  id="spray_enable-deny"
+                  value="deny"
+                />
                 <Label for="spray_enable-deny">禁止</Label>
               </div>
             </RadioGroup>
@@ -160,7 +236,11 @@
                 <SelectValue placeholder="请选择" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="item in emCountOptions" :key="item" :value="item">
+                <SelectItem
+                  v-for="item in emCountOptions"
+                  :key="item"
+                  :value="item"
+                >
                   {{ item }}
                 </SelectItem>
               </SelectContent>
@@ -172,7 +252,10 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">上料炉号：</Label>
-            <Input v-model="formData.melt_no" class="flex-1" />
+            <Input
+              v-model="formData.melt_no"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">喷涂重量小数位数：</Label>
@@ -181,7 +264,11 @@
                 <SelectValue placeholder="选择" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="item in precisionOptions" :key="item" :value="item">
+                <SelectItem
+                  v-for="item in precisionOptions"
+                  :key="item"
+                  :value="item"
+                >
                   {{ item }}
                 </SelectItem>
               </SelectContent>
@@ -191,13 +278,22 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">长度判废：</Label>
-            <RadioGroup v-model="formData.waste_length_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.waste_length_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="waste_length_enable-allow" value="allow" />
+                <RadioGroupItem
+                  id="waste_length_enable-allow"
+                  value="allow"
+                />
                 <Label for="waste_length_enable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="waste_length_enable-deny" value="deny" />
+                <RadioGroupItem
+                  id="waste_length_enable-deny"
+                  value="deny"
+                />
                 <Label for="waste_length_enable-deny">禁止</Label>
               </div>
             </RadioGroup>
@@ -205,9 +301,15 @@
           <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
             <Label class="whitespace-nowrap font-bold">判废管长起止：</Label>
             <div class="flex items-center justify-start gap-2">
-              <Input v-model="formData.length_limit_min" class="w-16" />
+              <Input
+                v-model="formData.length_limit_min"
+                class="w-16"
+              />
               <span class="font-bold">-&gt;</span>
-              <Input v-model="formData.length_limit_max" class="w-16" />
+              <Input
+                v-model="formData.length_limit_max"
+                class="w-16"
+              />
               <span class="text-sm">米</span>
             </div>
           </div>
@@ -217,17 +319,29 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">上料试批号：</Label>
-            <Input v-model="formData.lot_no" class="flex-1" />
+            <Input
+              v-model="formData.lot_no"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">色环允许：</Label>
-            <RadioGroup v-model="formData.circle_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.circle_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="circle_enable-allow" value="allow" />
+                <RadioGroupItem
+                  id="circle_enable-allow"
+                  value="allow"
+                />
                 <Label for="circle_enable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="circle_enable-deny" value="deny" />
+                <RadioGroupItem
+                  id="circle_enable-deny"
+                  value="deny"
+                />
                 <Label for="circle_enable-deny">禁止</Label>
               </div>
             </RadioGroup>
@@ -236,13 +350,22 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">重量判废：</Label>
-            <RadioGroup v-model="formData.waste_weight_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.waste_weight_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="waste_weight_enable-allow" value="allow" />
+                <RadioGroupItem
+                  id="waste_weight_enable-allow"
+                  value="allow"
+                />
                 <Label for="waste_weight_enable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="waste_weight_enable-deny" value="deny" />
+                <RadioGroupItem
+                  id="waste_weight_enable-deny"
+                  value="deny"
+                />
                 <Label for="waste_weight_enable-deny">禁止</Label>
               </div>
             </RadioGroup>
@@ -255,10 +378,11 @@
           <div
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
-            <Label class="whitespace-nowrap font-bold leading-tight"
-              >喷印工位下一<br />根管子流水号</Label
-            >
-            <Input v-model="formData.flow_no" class="flex-1" />
+            <Label class="whitespace-nowrap font-bold leading-tight">喷印工位下一<br>根管子流水号</Label>
+            <Input
+              v-model="formData.flow_no"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">喷枪选择：</Label>
@@ -279,13 +403,22 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">喷涂长度格式：</Label>
-            <RadioGroup v-model="formData.spray_length_type" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.spray_length_type"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="spray_length_type-metric" value="metric" />
+                <RadioGroupItem
+                  id="spray_length_type-metric"
+                  value="metric"
+                />
                 <Label for="spray_length_type-metric">公制</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="spray_length_type-imperial" value="imperial" />
+                <RadioGroupItem
+                  id="spray_length_type-imperial"
+                  value="imperial"
+                />
                 <Label for="spray_length_type-imperial">英制</Label>
               </div>
             </RadioGroup>
@@ -293,7 +426,10 @@
           <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
             <Label class="whitespace-nowrap font-bold">包装材料重量：</Label>
             <div class="flex items-center justify-start gap-2">
-              <Input v-model="formData.weight_packaging" class="flex-1" />
+              <Input
+                v-model="formData.weight_packaging"
+                class="flex-1"
+              />
               <span class="text-sm">KG</span>
             </div>
           </div>
@@ -303,12 +439,18 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">上料总根数：</Label>
-            <Input v-model="formData.feed_number" class="flex-1" />
+            <Input
+              v-model="formData.feed_number"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">钢管外径：</Label>
             <div class="flex items-center justify-start gap-2">
-              <Input v-model="formData.diameter" class="flex-1" />
+              <Input
+                v-model="formData.diameter"
+                class="flex-1"
+              />
               <span class="text-sm">毫米</span>
             </div>
           </div>
@@ -316,26 +458,44 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">喷涂重量格式：</Label>
-            <RadioGroup v-model="formData.spray_weight_type" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.spray_weight_type"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="spray_weight_type-metric" value="metric" />
+                <RadioGroupItem
+                  id="spray_weight_type-metric"
+                  value="metric"
+                />
                 <Label for="spray_weight_type-metric">公制</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="spray_weight_type-imperial" value="imperial" />
+                <RadioGroupItem
+                  id="spray_weight_type-imperial"
+                  value="imperial"
+                />
                 <Label for="spray_weight_type-imperial">英制</Label>
               </div>
             </RadioGroup>
           </div>
           <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
             <Label class="whitespace-nowrap font-bold">标签长度格式：</Label>
-            <RadioGroup v-model="formData.label_length_type" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.label_length_type"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="label_length_type-metric" value="metric" />
+                <RadioGroupItem
+                  id="label_length_type-metric"
+                  value="metric"
+                />
                 <Label for="label_length_type-metric">公制</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="label_length_type-imperial" value="imperial" />
+                <RadioGroupItem
+                  id="label_length_type-imperial"
+                  value="imperial"
+                />
                 <Label for="label_length_type-imperial">英制</Label>
               </div>
             </RadioGroup>
@@ -346,12 +506,18 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">接箍炉号：</Label>
-            <Input v-model="formData.melt_no_coupling" class="flex-1" />
+            <Input
+              v-model="formData.melt_no_coupling"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">保护环重量：</Label>
             <div class="flex items-center justify-start gap-2">
-              <Input v-model="formData.weight_coupling" class="flex-1" />
+              <Input
+                v-model="formData.weight_coupling"
+                class="flex-1"
+              />
               <span class="text-sm">KG</span>
             </div>
           </div>
@@ -359,18 +525,30 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">管重偏差上限：</Label>
-            <Input v-model="formData.weight_limit_max" class="flex-1" />
+            <Input
+              v-model="formData.weight_limit_max"
+              class="flex-1"
+            />
             <span class="text-sm">%</span>
           </div>
           <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
             <Label class="whitespace-nowrap font-bold">标签重量格式：</Label>
-            <RadioGroup v-model="formData.label_weight_type" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.label_weight_type"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="label_weight_type-metric" value="metric" />
+                <RadioGroupItem
+                  id="label_weight_type-metric"
+                  value="metric"
+                />
                 <Label for="label_weight_type-metric">公制</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="label_weight_type-imperial" value="imperial" />
+                <RadioGroupItem
+                  id="label_weight_type-imperial"
+                  value="imperial"
+                />
                 <Label for="label_weight_type-imperial">英制</Label>
               </div>
             </RadioGroup>
@@ -381,12 +559,18 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">接箍批号：</Label>
-            <Input v-model="formData.lot_no_coupling" class="flex-1" />
+            <Input
+              v-model="formData.lot_no_coupling"
+              class="flex-1"
+            />
           </div>
           <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
             <Label class="whitespace-nowrap font-bold">保护环长度：</Label>
             <div class="flex items-center justify-start gap-2">
-              <Input v-model="formData.length_coupling" class="flex-1" />
+              <Input
+                v-model="formData.length_coupling"
+                class="flex-1"
+              />
               <span class="text-sm">米</span>
             </div>
           </div>
@@ -394,18 +578,30 @@
             class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
           >
             <Label class="whitespace-nowrap font-bold">管重偏差下限：</Label>
-            <Input v-model="formData.weight_limit_min" class="flex-1" />
+            <Input
+              v-model="formData.weight_limit_min"
+              class="flex-1"
+            />
             <span class="text-sm">%</span>
           </div>
           <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
             <Label class="whitespace-nowrap font-bold">标签格式：</Label>
-            <RadioGroup v-model="formData.label_type" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.label_type"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="label_type-fixed" value="fixed" />
+                <RadioGroupItem
+                  id="label_type-fixed"
+                  value="fixed"
+                />
                 <Label for="label_type-fixed">固定</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="label_type-free" value="free" />
+                <RadioGroupItem
+                  id="label_type-free"
+                  value="free"
+                />
                 <Label for="label_type-free">自由</Label>
               </div>
             </RadioGroup>
@@ -413,30 +609,47 @@
 
           <!-- Row 11 -->
           <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-r">
-            <Label class="whitespace-nowrap font-bold leading-tight"
-              >测长工位下<br />一根管号</Label
-            >
-            <Input v-model="formData.tube_no" class="flex-1" />
+            <Label class="whitespace-nowrap font-bold leading-tight">测长工位下<br>一根管号</Label>
+            <Input
+              v-model="formData.tube_no"
+              class="flex-1"
+            />
           </div>
           <div class="p-2 border-r">
             <!-- 空白 -->
           </div>
           <div class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-r">
             <Label class="whitespace-nowrap font-bold">二维码喷印：</Label>
-            <RadioGroup v-model="formData.qrcode_spray_enable" class="flex items-center gap-3">
+            <RadioGroup
+              v-model="formData.qrcode_spray_enable"
+              class="flex items-center gap-3"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="qrcode_spray_enable-allow" value="allow" />
+                <RadioGroupItem
+                  id="qrcode_spray_enable-allow"
+                  value="allow"
+                />
                 <Label for="qrcode_spray_enable-allow">允许</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem id="qrcode_spray_enable-deny" value="deny" />
+                <RadioGroupItem
+                  id="qrcode_spray_enable-deny"
+                  value="deny"
+                />
                 <Label for="qrcode_spray_enable-deny">禁止</Label>
               </div>
             </RadioGroup>
           </div>
           <div class="flex items-center justify-end gap-4 p-2">
-            <Button @click="handleRefresh"> 刷新 </Button>
-            <Button variant="default" @click="handleConfirm"> 确认修改 </Button>
+            <Button @click="handleRefresh">
+              刷新
+            </Button>
+            <Button
+              variant="default"
+              @click="handleConfirm"
+            >
+              确认修改
+            </Button>
           </div>
         </div>
       </div>

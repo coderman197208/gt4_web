@@ -1,25 +1,33 @@
 <template>
-  <div class="h-full w-full flex flex-col overflow-hidden p-4">
+  <div class="w-full flex flex-col overflow-hidden p-4">
     <!-- 主内容区域 -->
     <div class="flex-1 flex gap-4 overflow-hidden pt-4">
       <!-- 左侧：标签打印 -->
       <div class="w-[420px] flex-shrink-0">
         <div class="border rounded-lg p-4 relative h-full flex flex-col">
-          <div
-            class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem] text-red-800"
-          >
+          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-red-800">
             标签打印
           </div>
 
           <!-- 合同号 / 项目号 查询 -->
           <div class="grid grid-cols-[auto_1fr_auto] gap-2 items-center mt-2">
-            <Label class="whitespace-nowrap">合同号：</Label>
-            <Input v-model="formData.order_no" class="h-8" />
-            <Button @click="handleQuery">查询</Button>
+            <Label class="whitespace-nowrap font-bold">合同号：</Label>
+            <Input
+              v-model="formData.order_no"
+              class="h-8"
+            />
+            <Button @click="handleQuery">
+              查询
+            </Button>
 
-            <Label class="whitespace-nowrap">项目号：</Label>
-            <Input v-model="formData.item_no" class="h-8" />
-            <Button @click="handleToCurrentOrder">返回当前合同</Button>
+            <Label class="whitespace-nowrap font-bold">项目号：</Label>
+            <Input
+              v-model="formData.item_no"
+              class="h-8"
+            />
+            <Button @click="handleToCurrentOrder">
+              返回当前合同
+            </Button>
           </div>
 
           <!-- 自由格式设定 -->
@@ -35,48 +43,81 @@
             </div> -->
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">1.</Label>
-              <Input v-model="formData.label_req_1" class="flex-1" />
+              <Input
+                v-model="formData.label_req_1"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">2.</Label>
-              <Input v-model="formData.label_req_2" class="flex-1" />
+              <Input
+                v-model="formData.label_req_2"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">3.</Label>
-              <Input v-model="formData.label_req_3" class="flex-1" />
+              <Input
+                v-model="formData.label_req_3"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">4.</Label>
-              <Input v-model="formData.label_req_4" class="flex-1" />
+              <Input
+                v-model="formData.label_req_4"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">5.</Label>
-              <Input v-model="formData.label_req_5" class="flex-1" />
+              <Input
+                v-model="formData.label_req_5"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">6.</Label>
-              <Input v-model="formData.label_req_6" class="flex-1" />
+              <Input
+                v-model="formData.label_req_6"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">7.</Label>
-              <Input v-model="formData.label_req_7" class="flex-1" />
+              <Input
+                v-model="formData.label_req_7"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">8.</Label>
-              <Input v-model="formData.label_req_8" class="flex-1" />
+              <Input
+                v-model="formData.label_req_8"
+                class="flex-1"
+              />
             </div>
           </div>
 
           <!-- 标签长度格式 -->
           <div class="flex items-center gap-2 mt-3">
             <Label class="whitespace-nowrap font-bold">标签长度格式：</Label>
-            <RadioGroup v-model="formData.label_length_type" class="flex gap-4">
+            <RadioGroup
+              v-model="formData.label_length_type"
+              class="flex gap-4"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem value="0" id="tagLength-metric" />
+                <RadioGroupItem
+                  id="tagLength-metric"
+                  value="0"
+                />
                 <Label for="tagLength-metric">公制</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem value="1" id="tagLength-imperial" />
+                <RadioGroupItem
+                  id="tagLength-imperial"
+                  value="1"
+                />
                 <Label for="tagLength-imperial">英制</Label>
               </div>
             </RadioGroup>
@@ -85,13 +126,22 @@
           <!-- 标签重量格式 -->
           <div class="flex items-center gap-2 mt-2">
             <Label class="whitespace-nowrap font-bold">标签重量格式：</Label>
-            <RadioGroup v-model="formData.label_weight_type" class="flex gap-4">
+            <RadioGroup
+              v-model="formData.label_weight_type"
+              class="flex gap-4"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem value="0" id="tagWeight-metric" />
+                <RadioGroupItem
+                  id="tagWeight-metric"
+                  value="0"
+                />
                 <Label for="tagWeight-metric">公制</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem value="1" id="tagWeight-imperial" />
+                <RadioGroupItem
+                  id="tagWeight-imperial"
+                  value="1"
+                />
                 <Label for="tagWeight-imperial">英制</Label>
               </div>
             </RadioGroup>
@@ -100,13 +150,22 @@
           <!-- 塑料标签格式 -->
           <div class="flex items-center gap-2 mt-2">
             <Label class="whitespace-nowrap font-bold">塑料标签格式：</Label>
-            <RadioGroup v-model="formData.label_type" class="flex gap-4">
+            <RadioGroup
+              v-model="formData.label_type"
+              class="flex gap-4"
+            >
               <div class="flex items-center gap-1">
-                <RadioGroupItem value="0" id="em-fixed" />
+                <RadioGroupItem
+                  id="em-fixed"
+                  value="0"
+                />
                 <Label for="em-fixed">固定</Label>
               </div>
               <div class="flex items-center gap-1">
-                <RadioGroupItem value="1" id="em-free" />
+                <RadioGroupItem
+                  id="em-free"
+                  value="1"
+                />
                 <Label for="em-free">自由</Label>
               </div>
             </RadioGroup>
@@ -119,9 +178,7 @@
       <div class="flex-1 flex flex-col gap-4 overflow-visible">
         <!-- 针刻印 -->
         <div class="border rounded-lg p-4 relative flex-1">
-          <div
-            class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem] text-red-800"
-          >
+          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-red-800">
             针刻印
           </div>
 
@@ -137,35 +194,59 @@
             </div> -->
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">1.</Label>
-              <Input v-model="formData.stamp_req_1_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_1_manual"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">2.</Label>
-              <Input v-model="formData.stamp_req_2_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_2_manual"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">3.</Label>
-              <Input v-model="formData.stamp_req_3_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_3_manual"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">4.</Label>
-              <Input v-model="formData.stamp_req_4_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_4_manual"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">5.</Label>
-              <Input v-model="formData.stamp_req_5_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_5_manual"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">6.</Label>
-              <Input v-model="formData.stamp_req_6_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_6_manual"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">7.</Label>
-              <Input v-model="formData.stamp_req_7_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_7_manual"
+                class="flex-1"
+              />
             </div>
             <div class="flex items-center gap-2">
               <Label class="whitespace-nowrap text-xs font-bold">8.</Label>
-              <Input v-model="formData.stamp_req_8_manual" class="flex-1" />
+              <Input
+                v-model="formData.stamp_req_8_manual"
+                class="flex-1"
+              />
             </div>
           </div>
 
@@ -185,21 +266,15 @@
         </div>
 
         <!-- 喷印要求 -->
-        <div class="border rounded-lg p-4 relative flex-shrink-0">
-          <div
-            class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem] text-red-800"
-          >
+        <div class="border rounded-lg mt-4 p-4 relative flex-shrink-0">
+          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-red-800">
             喷印要求
           </div>
 
           <textarea
             v-model="formData.stencil_req"
-            class="mt-1 w-full h-20 border rounded px-3 py-2 text-sm font-mono text-blue-600 resize-none"
+            class="my-2 w-full border rounded p-2 text-sm font-mono text-blue-600 resize-none"
           />
-
-          <div class="flex justify-end mt-2">
-            <!-- <Button @click="handleSaveSprayFormat">保存</Button> -->
-          </div>
         </div>
       </div>
 
@@ -214,7 +289,11 @@
             </div>
 
             <div class="mt-2 space-y-3">
-              <div v-for="item in wildcardList" :key="item.code" class="flex items-center gap-2">
+              <div
+                v-for="item in wildcardList"
+                :key="item.code"
+                class="flex items-center gap-2"
+              >
                 <span class="font-bold w-10">{{ item.code }}</span>
                 <span>{{ item.desc }}</span>
               </div>
@@ -222,8 +301,13 @@
           </div>
         </div>
 
-        <div>
-          <Button @click="handleSaveFormat">保存</Button>
+        <div class="w-[200px] flex-shrink-0 flex justify-center">
+          <Button
+            class="w-1/2"
+            @click="handleSaveFormat"
+          >
+            保存
+          </Button>
         </div>
       </div>
     </div>

@@ -828,16 +828,22 @@ onMounted(() => {
 <template>
   <div class="main-monitor-view h-full w-full overflow-hidden bg-[#d8d8d8] p-2 text-slate-900">
     <div class="grid h-full grid-rows-[minmax(0,2.5fr)_minmax(0,2.5fr)_auto_minmax(0,3fr)] gap-4">
-      <div class="win-group mt-2">
-        <div class="win-group__title">
+      <div
+        class="relative mt-2 border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+      >
+        <div
+          class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
+        >
           主控信息
         </div>
         <div
           class="grid h-full min-h-0 grid-cols-[0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_1.3fr] gap-2"
         >
-          <div class="win-panel flex min-h-0 flex-col">
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
             <div class="flex items-center justify-between">
-              <Label class="win-panel__title">料筐</Label>
+              <Label class="text-[15px] font-bold text-[#111827]">料筐</Label>
             </div>
             <!-- <div class="flex flex-1 items-center justify-center">
               <TubeBasket active color="cyan" :top-width="72" :bottom-width="98" :height="48" />
@@ -880,13 +886,7 @@ onMounted(() => {
                 />
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                >
-                  打捆
-                </Button>
+                <Button size="sm" variant="outline" class="win-button"> 打捆 </Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -899,8 +899,10 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">缓冲区</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">缓冲区</Label>
             <div class="flex items-start justify-center px-2 pt-4">
               <!-- <svg
                 viewBox="0 0 271.666 271.666"
@@ -957,8 +959,10 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">废料辊道</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">废料辊道</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
@@ -1024,8 +1028,10 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">色环</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">色环</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
@@ -1033,11 +1039,7 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller
-                  :active="realtimeStore.circlePosOn"
-                  color="green"
-                  :size="60"
-                />
+                <ConveyorRoller :active="realtimeStore.circlePosOn" color="green" :size="60" />
                 <IndicatorLight
                   :active="processRunning.circle"
                   color="red"
@@ -1071,18 +1073,14 @@ onMounted(() => {
                   &gt;
                 </Button>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-2 w-full win-button"
-              >
-                色环
-              </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button"> 色环 </Button>
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">喷印</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">喷印</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
@@ -1090,24 +1088,12 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller
-                  :active="realtimeStore.sprayPosOn"
-                  color="green"
-                  :size="60"
-                />
+                <ConveyorRoller :active="realtimeStore.sprayPosOn" color="green" :size="60" />
                 <div class="flex items-center gap-1 mt-2">
                   <Label class="text-sm font-bold">封锁</Label>
-                  <IndicatorLight
-                    :active="realtimeStore.lenMeaFinish"
-                    color="green"
-                    :size="18"
-                  />
+                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
                   <Label class="text-sm font-bold">测长完成</Label>
-                  <IndicatorLight
-                    :active="realtimeStore.lenMeaFinish"
-                    color="green"
-                    :size="18"
-                  />
+                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -1136,18 +1122,14 @@ onMounted(() => {
                   &gt;
                 </Button>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-2 w-full win-button"
-              >
-                喷印
-              </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button"> 喷印 </Button>
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">刻印</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">刻印</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
@@ -1155,16 +1137,8 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller
-                  :active="realtimeStore.carvePosOn"
-                  color="green"
-                  :size="60"
-                />
-                <IndicatorLight
-                  color="red"
-                  :size="18"
-                  class="mt-2 invisible"
-                />
+                <ConveyorRoller :active="realtimeStore.carvePosOn" color="green" :size="60" />
+                <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
@@ -1192,18 +1166,14 @@ onMounted(() => {
                   &gt;
                 </Button>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-2 w-full win-button"
-              >
-                刻印
-              </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button"> 刻印 </Button>
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">称重</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">称重</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
@@ -1211,18 +1181,10 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller
-                  :active="realtimeStore.weightPosOn"
-                  color="green"
-                  :size="60"
-                />
+                <ConveyorRoller :active="realtimeStore.weightPosOn" color="green" :size="60" />
                 <div class="flex items-center gap-2 mt-2">
                   <Label class="text-sm font-bold">工位封锁</Label>
-                  <IndicatorLight
-                    :active="realtimeStore.weightPosOn"
-                    color="red"
-                    :size="18"
-                  />
+                  <IndicatorLight :active="realtimeStore.weightPosOn" color="red" :size="18" />
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -1252,28 +1214,20 @@ onMounted(() => {
                 </Button>
               </div>
               <div class="mt-2 grid grid-cols-2 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleStartWeight"
-                >
+                <Button size="sm" variant="outline" class="win-button" @click="handleStartWeight">
                   称重
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleStopWeight"
-                >
+                <Button size="sm" variant="outline" class="win-button" @click="handleStopWeight">
                   停止称重
                 </Button>
               </div>
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">定位</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">定位</Label>
             <div class="-translate-y-1 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
@@ -1281,16 +1235,8 @@ onMounted(() => {
                   color="darkCyan"
                   :size="60"
                 />
-                <ConveyorRoller
-                  :active="realtimeStore.alignPosOn"
-                  color="green"
-                  :size="60"
-                />
-                <IndicatorLight
-                  color="red"
-                  :size="18"
-                  class="mt-2 invisible"
-                />
+                <ConveyorRoller :active="realtimeStore.alignPosOn" color="green" :size="60" />
+                <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
               </div>
               <div class="mt-4 grid grid-cols-4 gap-2">
                 <Button
@@ -1326,19 +1272,16 @@ onMounted(() => {
                   上料
                 </Button>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                class="mt-2 w-full win-button"
-                disabled
-              >
+              <Button size="sm" variant="outline" class="mt-2 w-full win-button" disabled>
                 测长
               </Button>
             </div>
           </div>
 
-          <div class="win-panel flex min-h-0 flex-col">
-            <Label class="win-panel__title">投料区</Label>
+          <div
+            class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <Label class="text-[15px] font-bold text-[#111827]">投料区</Label>
             <div class="mt-2 grid flex-1 gap-2 text-xs">
               <div class="flex items-center gap-2">
                 <Label class="text-base w-22 text-right font-bold">合同号</Label>
@@ -1382,10 +1325,7 @@ onMounted(() => {
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-22 text-right font-bold">下一流水号</Label>
-                <Input
-                  v-model="mainForm.flowNo"
-                  class="win-input-edit h-7 text-center flex-1"
-                />
+                <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center flex-1" />
               </div>
             </div>
           </div>
@@ -1393,30 +1333,22 @@ onMounted(() => {
       </div>
 
       <div class="grid min-h-0 grid-cols-[minmax(0,4fr)_minmax(250px,1fr)] gap-2">
-        <div class="win-group">
-          <div class="win-group__title">
+        <div
+          class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+        >
+          <div
+            class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
+          >
             测量点料流详细信息
           </div>
           <div class="flex min-w-0">
             <div class="grid w-[40px] shrink-0 grid-cols-1 pt-[30px]">
-              <div class="flex h-9 items-center text-sm font-bold">
-                定位
-              </div>
-              <div class="flex h-9 items-center text-sm font-bold">
-                称重
-              </div>
-              <div class="flex h-9 items-center text-sm font-bold">
-                刻印
-              </div>
-              <div class="flex h-9 items-center text-sm font-bold">
-                喷印
-              </div>
-              <div class="flex h-9 items-center text-sm font-bold">
-                色环
-              </div>
-              <div class="flex h-9 items-center text-sm font-bold">
-                出废
-              </div>
+              <div class="flex h-9 items-center text-sm font-bold">定位</div>
+              <div class="flex h-9 items-center text-sm font-bold">称重</div>
+              <div class="flex h-9 items-center text-sm font-bold">刻印</div>
+              <div class="flex h-9 items-center text-sm font-bold">喷印</div>
+              <div class="flex h-9 items-center text-sm font-bold">色环</div>
+              <div class="flex h-9 items-center text-sm font-bold">出废</div>
             </div>
             <div class="win-table-shell h-full min-h-0 min-w-0 flex-1 overflow-hidden">
               <Table class="table-fixed">
@@ -1425,14 +1357,11 @@ onMounted(() => {
                     v-for="column in trackTableColumns"
                     :key="`track-body-col-${column.label}`"
                     :style="{ width: getTrackTableColumnWidth(column.weight) }"
-                  >
+                  />
                 </colgroup>
                 <TableHeader>
                   <TableRow>
-                    <TableHead
-                      v-for="column in trackTableColumns"
-                      :key="column.label"
-                    >
+                    <TableHead v-for="column in trackTableColumns" :key="column.label">
                       {{ column.label }}
                     </TableHead>
                   </TableRow>
@@ -1630,21 +1559,21 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="win-group">
-          <div class="win-group__title">
+        <div
+          class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+        >
+          <div
+            class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
+          >
             设备状态
           </div>
           <div class="flex h-full gap-3">
-            <div class="win-panel flex flex-1 items-start justify-left gap-2">
+            <div
+              class="flex flex-1 items-start justify-left gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+            >
               <div class="grid grid-cols-[120px_1fr] gap-4 items-center mt-2 w-full">
-                <SvgToggle
-                  :model-value="stationReady.release"
-                  :width="120"
-                  :height="30"
-                />
-                <div class="justify-self-center font-bold">
-                  L1信号状态
-                </div>
+                <SvgToggle :model-value="stationReady.release" :width="120" :height="30" />
+                <div class="justify-self-center font-bold">L1信号状态</div>
 
                 <Button
                   size="sm"
@@ -1694,26 +1623,28 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="win-panel grid gap-2 text-sm w-[100px]">
+            <div
+              class="grid w-[100px] gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 text-sm shadow-[inset_0_1px_0_#f4f4f4]"
+            >
               <div
                 v-for="item in stationIndicators"
                 :key="item.key"
                 class="flex items-center justify-evenly gap-2"
               >
                 <span class="font-bold">{{ item.label }}</span>
-                <IndicatorLight
-                  :active="stationReady[item.key]"
-                  color="green"
-                  :size="18"
-                />
+                <IndicatorLight :active="stationReady[item.key]" color="green" :size="18" />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="win-group">
-        <div class="win-group__title">
+      <div
+        class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+      >
+        <div
+          class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
+        >
           喷印字符串
         </div>
         <div class="px-3 py-2 font-mono text-lg font-bold text-slate-800">
@@ -1722,39 +1653,22 @@ onMounted(() => {
       </div>
 
       <div class="grid min-h-0 grid-cols-[minmax(0,3.4fr)_minmax(420px,2fr)] gap-2">
-        <div class="win-group">
-          <div class="win-group__title">
+        <div
+          class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+        >
+          <div
+            class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
+          >
             管子详细信息
           </div>
-          <Tabs
-            default-value="basket"
-            class="flex h-full min-h-0 flex-row gap-3"
-          >
-            <TabsList class="win-tabs-list flex flex-col justify-start gap-1 w-20 shrink-0">
-              <TabsTrigger
-                value="basket"
-                class="win-tab-trigger w-full"
-              >
-                料筐
-              </TabsTrigger>
-              <TabsTrigger
-                value="backbuffer"
-                class="win-tab-trigger w-full"
-              >
-                缓冲区
-              </TabsTrigger>
-              <TabsTrigger
-                value="scrapt"
-                class="win-tab-trigger w-full"
-              >
-                废料筐
-              </TabsTrigger>
+          <Tabs default-value="basket" class="flex h-full min-h-0 flex-row gap-3">
+            <TabsList class="win-tabs-list flex h-auto flex-col justify-start gap-1 w-20 shrink-0">
+              <TabsTrigger value="basket" class="win-tab-trigger w-full"> 料筐 </TabsTrigger>
+              <TabsTrigger value="backbuffer" class="win-tab-trigger w-full"> 缓冲区 </TabsTrigger>
+              <TabsTrigger value="scrapt" class="win-tab-trigger w-full"> 废料筐 </TabsTrigger>
             </TabsList>
 
-            <TabsContent
-              value="basket"
-              class="flex min-h-0 flex-1 flex-col gap-3 mt-0"
-            >
+            <TabsContent value="basket" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
               <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
                 <Table class="table-fixed">
                   <colgroup>
@@ -1762,14 +1676,11 @@ onMounted(() => {
                       v-for="column in tubeTableColumns"
                       :key="`basket-col-${column.label}`"
                       :style="{ width: getTubeTableColumnWidth(column.weight) }"
-                    >
+                    />
                   </colgroup>
                   <TableHeader>
                     <TableRow>
-                      <TableHead
-                        v-for="column in tubeTableColumns"
-                        :key="column.label"
-                      >
+                      <TableHead v-for="column in tubeTableColumns" :key="column.label">
                         {{ column.label }}
                       </TableHead>
                     </TableRow>
@@ -1784,7 +1695,7 @@ onMounted(() => {
                       @click="selectBasketRow(rowIndex)"
                       @focusout="
                         editableRow.row.rowKey &&
-                          handleBasketRowFocusOut(editableRow.row.rowKey, $event)
+                        handleBasketRowFocusOut(editableRow.row.rowKey, $event)
                       "
                     >
                       <TableCell>
@@ -1945,7 +1856,7 @@ onMounted(() => {
                   </TableBody>
                 </Table>
               </div>
-              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
+              <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
                 <span>总重 28.88</span>
                 <span>总长 120.118</span>
               </div>
@@ -1978,10 +1889,7 @@ onMounted(() => {
               </div>
             </TabsContent>
 
-            <TabsContent
-              value="backbuffer"
-              class="flex min-h-0 flex-1 flex-col gap-3 mt-0"
-            >
+            <TabsContent value="backbuffer" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
               <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
                 <Table class="table-fixed">
                   <colgroup>
@@ -1989,14 +1897,11 @@ onMounted(() => {
                       v-for="column in tubeTableColumns"
                       :key="`buffer-col-${column.label}`"
                       :style="{ width: getTubeTableColumnWidth(column.weight) }"
-                    >
+                    />
                   </colgroup>
                   <TableHeader>
                     <TableRow>
-                      <TableHead
-                        v-for="column in tubeTableColumns"
-                        :key="column.label"
-                      >
+                      <TableHead v-for="column in tubeTableColumns" :key="column.label">
                         {{ column.label }}
                       </TableHead>
                     </TableRow>
@@ -2011,7 +1916,7 @@ onMounted(() => {
                       @click="selectBackbufferRow(rowIndex)"
                       @focusout="
                         editableRow.row.rowKey &&
-                          handleBackbufferRowFocusOut(editableRow.row.rowKey, $event)
+                        handleBackbufferRowFocusOut(editableRow.row.rowKey, $event)
                       "
                     >
                       <TableCell>
@@ -2181,7 +2086,7 @@ onMounted(() => {
                 </Table>
               </div>
 
-              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
+              <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
                 <span>总重 12.95</span>
                 <span>总长 120.118</span>
               </div>
@@ -2214,10 +2119,7 @@ onMounted(() => {
               </div>
             </TabsContent>
 
-            <TabsContent
-              value="scrapt"
-              class="flex min-h-0 flex-1 flex-col gap-3 mt-0"
-            >
+            <TabsContent value="scrapt" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
               <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
                 <Table class="table-fixed">
                   <colgroup>
@@ -2225,23 +2127,17 @@ onMounted(() => {
                       v-for="column in scraptTableColumns"
                       :key="`scrapt-col-${column.label}`"
                       :style="{ width: getScraptTableColumnWidth(column.weight) }"
-                    >
+                    />
                   </colgroup>
                   <TableHeader>
                     <TableRow>
-                      <TableHead
-                        v-for="column in scraptTableColumns"
-                        :key="column.label"
-                      >
+                      <TableHead v-for="column in scraptTableColumns" :key="column.label">
                         {{ column.label }}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow
-                      v-for="row in scraptRows"
-                      :key="row.rowKey ?? `scrapt-${row.flowNo}`"
-                    >
+                    <TableRow v-for="row in scraptRows" :key="row.rowKey ?? `scrapt-${row.flowNo}`">
                       <TableCell>{{ row.flowNo }}</TableCell>
                       <TableCell>{{ row.orderNo }}</TableCell>
                       <TableCell>{{ row.itemNo }}</TableCell>
@@ -2254,17 +2150,12 @@ onMounted(() => {
                   </TableBody>
                 </Table>
               </div>
-              <div class="win-totals flex items-center justify-end gap-6 text-sm font-semibold">
+              <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
                 <span>总重 {{ scraptSummary.totalWeight }}</span>
                 <span>总长 {{ scraptSummary.totalLength }}</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleClearScrap()"
-                >
+                <Button size="sm" variant="outline" class="win-button" @click="handleClearScrap()">
                   清空
                 </Button>
               </div>
@@ -2273,8 +2164,12 @@ onMounted(() => {
         </div>
 
         <div class="grid min-h-0 grid-rows-[minmax(0,1.8fr)_minmax(0,1fr)] gap-4">
-          <div class="win-group">
-            <div class="win-group__title">
+          <div
+            class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+          >
+            <div
+              class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
+            >
               生产统计信息
             </div>
             <div class="flex h-full flex-col gap-2">
@@ -2390,15 +2285,19 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="win-group">
-            <div class="win-group__title">
+          <div
+            class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+          >
+            <div
+              class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
+            >
               进程工作状态
             </div>
             <div class="grid h-full grid-cols-5 gap-2">
               <div
                 v-for="item in processStatusCards"
                 :key="item.key"
-                class="win-process-item flex flex-col items-center justify-between text-center"
+                class="flex flex-col items-center justify-between gap-[6px] py-1 text-center"
               >
                 <IndicatorLight
                   :active="processStatus[item.key]"
@@ -2428,42 +2327,6 @@ onMounted(() => {
 .main-monitor-view {
   background: #d8d8d8;
   font-family: SimSun, NSimSun, 'Microsoft YaHei', serif;
-}
-
-.win-group {
-  position: relative;
-  min-height: 0;
-  border: 1px solid #868686;
-  border-radius: 3px;
-  background: #d3d3d3;
-  padding: 14px 8px 8px;
-  box-shadow: inset 0 1px 0 #f7f7f7;
-}
-
-.win-group__title {
-  position: absolute;
-  top: -11px;
-  left: 12px;
-  padding: 0 6px;
-  background: #d8d8d8;
-  color: #6f1616;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.win-panel {
-  border: 1px solid #8a8a8a;
-  border-radius: 2px;
-  background: #d8d8d8;
-  box-shadow: inset 0 1px 0 #f4f4f4;
-  padding: 8px;
-}
-
-.win-panel__title {
-  color: #111827;
-  font-size: 15px;
-  font-weight: 700;
 }
 
 .win-input-edit {
@@ -2502,7 +2365,6 @@ onMounted(() => {
   color: #111827;
   font-size: 12px;
   font-weight: 700;
-  box-shadow: none;
 }
 
 .win-button:hover {
@@ -2512,10 +2374,6 @@ onMounted(() => {
 .win-table-shell {
   border: 1px solid #8a8a8a;
   background: #c0c0c0;
-}
-
-.win-table-head {
-  background: #dcdcdc;
 }
 
 .win-table-shell :deep(table) {
@@ -2585,17 +2443,12 @@ onMounted(() => {
   font-weight: 700;
 }
 
+:deep(.win-tabs-list .win-tab-trigger:last-child) {
+  border-bottom: 1px solid #8a8a8a;
+}
+
 :deep(.win-tab-trigger[data-state='active']) {
   background: #ededed;
   color: #6f1616;
-}
-
-.win-totals {
-  color: #1d47a4;
-}
-
-.win-process-item {
-  gap: 6px;
-  padding: 4px 0;
 }
 </style>

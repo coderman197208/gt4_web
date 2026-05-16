@@ -68,6 +68,12 @@ const router = createRouter({
           path: 'contract-editing',
           name: 'contract-editing',
           component: ContractEditingView,
+          meta: {
+            hmiScale: {
+              designWidth: 1920,
+              designHeight: 1080,
+            },
+          },
         },
         {
           path: 'main-monitor',
@@ -95,6 +101,12 @@ const router = createRouter({
           path: 'mode-setting',
           name: 'mode-setting',
           component: ModeSettingView,
+          meta: {
+            hmiScale: {
+              designWidth: 1920,
+              designHeight: 1080,
+            },
+          },
         },
       ],
     },

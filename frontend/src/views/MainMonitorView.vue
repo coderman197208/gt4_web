@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted, watch } from 'vue';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/custom/WinButton.vue';
+import WinTableFrame from '@/components/custom/WinTableFrame.vue';
+import Input from '@/components/custom/WinInput.vue';
 import { ConveyorRoller } from '@/components/ui/conveyor-roller';
 import { IndicatorLight } from '@/components/ui/indicator-light';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tube } from '@/components/ui/tube';
 import { TubeBasket } from '@/components/ui/tube-basket';
@@ -728,12 +722,6 @@ const trackTableColumns = [
   { label: '接箍批号', weight: 1.2 },
 ] as const;
 
-const trackTableTotalWeight = trackTableColumns.reduce((total, column) => total + column.weight, 0);
-
-function getTrackTableColumnWidth(weight: number) {
-  return `${(weight / trackTableTotalWeight) * 100}%`;
-}
-
 // 料筐/缓冲区 11 列定义
 const tubeTableColumns = [
   { label: '流水号', weight: 1 },
@@ -749,12 +737,6 @@ const tubeTableColumns = [
   { label: '接箍批号', weight: 1.0 },
 ] as const;
 
-const tubeTableTotalWeight = tubeTableColumns.reduce((total, column) => total + column.weight, 0);
-
-function getTubeTableColumnWidth(weight: number) {
-  return `${(weight / tubeTableTotalWeight) * 100}%`;
-}
-
 // 废料筐 8 列定义
 const scraptTableColumns = [
   { label: '流水号', weight: 1 },
@@ -766,15 +748,6 @@ const scraptTableColumns = [
   { label: '长度', weight: 0.9 },
   { label: '重量', weight: 0.9 },
 ] as const;
-
-const scraptTableTotalWeight = scraptTableColumns.reduce(
-  (total, column) => total + column.weight,
-  0,
-);
-
-function getScraptTableColumnWidth(weight: number) {
-  return `${(weight / scraptTableTotalWeight) * 100}%`;
-}
 
 function handleMoveTube(from: string, to = '') {
   const cmd: MoveTubeCmd = { from, to };
@@ -850,49 +823,41 @@ onMounted(() => {
             </div> -->
             <div class="grid gap-2">
               <div class="flex items-center justify-between mt-4">
-                <span class="font-bold">合同号</span>
+                <span>合同号</span>
                 <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.order_no ?? ''
                 }}</span>
                 <!-- <Input
                   :model-value="realtimeStore.planInfo?.order_no || ''"
-                  class="win-input-edit h-7 text-center flex-1"
+                  class="h-7 text-center flex-1"
                   readonly
                 /> -->
               </div>
               <div class="flex items-center justify-between">
-                <span class="font-bold">炉号</span>
+                <span>炉号</span>
                 <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.melt_no ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="font-bold">试批号</span>
+                <span>试批号</span>
                 <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.lot_no ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="font-bold">料筐支数</span>
+                <span>料筐支数</span>
                 <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.basketPosTubeInfo?.length ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <Label class="shrink-0 text-base font-bold">成捆支数</Label>
-                <Input
-                  v-model="mainForm.basketBundleCount"
-                  class="win-input-edit h-7 text-right w-20"
-                />
+                <Label class="shrink-0 text-base">成捆支数</Label>
+                <Input v-model="mainForm.basketBundleCount" class="h-7 text-right w-20" />
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" class="win-button"> 打捆 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('basket', 'backbuffer')"
-                >
+                <Button size="sm" variant="outline"> 打捆 </Button>
+                <Button size="sm" variant="outline" @click="handleMoveTube('basket', 'backbuffer')">
                   &gt;
                 </Button>
               </div>
@@ -924,18 +889,12 @@ onMounted(() => {
             </div>
 
             <div class="mt-4 grid grid-cols-2 gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                class="win-button"
-                @click="handleMoveTube('backbuffer', 'basket')"
-              >
+              <Button size="sm" variant="outline" @click="handleMoveTube('backbuffer', 'basket')">
                 &lt;
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                class="win-button"
                 @click="handleMoveTube('backbuffer', 'scraptroller')"
               >
                 &gt;
@@ -943,17 +902,17 @@ onMounted(() => {
             </div>
             <div class="grid gap-1 mt-4">
               <div class="flex items-center justify-between">
-                <span class="font-bold">缓冲区支数</span>
+                <span>缓冲区支数</span>
                 <span class="font-bold text-[#1d47a4]">{{
                   realtimeStore.backbufferPosTubeInfo?.length ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="font-bold">最近管捆号</span>
+                <span>最近管捆号</span>
                 <span class="font-bold text-[#1d47a4]">{{ mainForm.lastBundleNo }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="font-bold">下一流水号</span>
+                <span>下一流水号</span>
                 <span class="font-bold text-[#1d47a4]">{{ mainForm.bundleFlowNo }}</span>
               </div>
             </div>
@@ -986,23 +945,16 @@ onMounted(() => {
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button"
                   @click="handleMoveTube('scraptroller', 'backbuffer')"
                 >
                   &lt;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleDeleteTube('scraptroller', 0)"
-                >
+                <Button size="sm" variant="outline" @click="handleDeleteTube('scraptroller', 0)">
                   &times;
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button"
                   @click="handleMoveTube('scraptroller', 'circle')"
                 >
                   &gt;
@@ -1012,7 +964,6 @@ onMounted(() => {
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button"
                   @click="handleMoveTube('scraptroller', 'scrapt')"
                 >
                   入废料筐
@@ -1051,29 +1002,18 @@ onMounted(() => {
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button"
                   @click="handleMoveTube('circle', 'scraptroller')"
                 >
                   &lt;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleDeleteTube('circle', 0)"
-                >
+                <Button size="sm" variant="outline" @click="handleDeleteTube('circle', 0)">
                   &times;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('circle', 'spray')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('circle', 'spray')">
                   &gt;
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button"> 色环 </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full"> 色环 </Button>
             </div>
           </div>
 
@@ -1097,32 +1037,17 @@ onMounted(() => {
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('spray', 'circle')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('spray', 'circle')">
                   &lt;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleDeleteTube('spray', 0)"
-                >
+                <Button size="sm" variant="outline" @click="handleDeleteTube('spray', 0)">
                   &times;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('spray', 'carve')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('spray', 'carve')">
                   &gt;
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button"> 喷印 </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full"> 喷印 </Button>
             </div>
           </div>
 
@@ -1141,32 +1066,17 @@ onMounted(() => {
                 <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('carve', 'spray')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('carve', 'spray')">
                   &lt;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleDeleteTube('carve', 0)"
-                >
+                <Button size="sm" variant="outline" @click="handleDeleteTube('carve', 0)">
                   &times;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('carve', 'weight')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('carve', 'weight')">
                   &gt;
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button"> 刻印 </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full"> 刻印 </Button>
             </div>
           </div>
 
@@ -1188,38 +1098,19 @@ onMounted(() => {
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('weight', 'carve')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('weight', 'carve')">
                   &lt;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleDeleteTube('weight', 0)"
-                >
+                <Button size="sm" variant="outline" @click="handleDeleteTube('weight', 0)">
                   &times;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('weight', 'align')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('weight', 'align')">
                   &gt;
                 </Button>
               </div>
               <div class="mt-2 grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" class="win-button" @click="handleStartWeight">
-                  称重
-                </Button>
-                <Button size="sm" variant="outline" class="win-button" @click="handleStopWeight">
-                  停止称重
-                </Button>
+                <Button size="sm" variant="outline" @click="handleStartWeight"> 称重 </Button>
+                <Button size="sm" variant="outline" @click="handleStopWeight"> 停止称重 </Button>
               </div>
             </div>
           </div>
@@ -1239,42 +1130,20 @@ onMounted(() => {
                 <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
               </div>
               <div class="mt-4 grid grid-cols-4 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('align', 'weight')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('align', 'weight')">
                   &lt;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleDeleteTube('align', 0)"
-                >
+                <Button size="sm" variant="outline" @click="handleDeleteTube('align', 0)">
                   &times;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('align', 'plan')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('align', 'plan')">
                   &gt;
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('plan', 'align')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('plan', 'align')">
                   上料
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full win-button" disabled>
-                测长
-              </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full" disabled> 测长 </Button>
             </div>
           </div>
 
@@ -1282,12 +1151,12 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <Label class="text-[15px] font-bold text-[#111827]">投料区</Label>
-            <div class="mt-2 grid flex-1 gap-2 text-xs">
+            <div class="mt-2 grid flex-1 gap-1 text-xs">
               <div class="flex items-center gap-2">
                 <Label class="text-base w-22 text-right font-bold">合同号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.order_no || ''"
-                  class="win-input-edit h-7 text-center flex-1"
+                  class="h-7 text-center flex-1"
                   readonly
                 />
               </div>
@@ -1295,7 +1164,7 @@ onMounted(() => {
                 <Label class="text-base w-22 text-right font-bold">支数</Label>
                 <Input
                   :model-value="String(realtimeStore.planInfo?.feed_num ?? '')"
-                  class="win-input-edit h-7 text-center flex-1"
+                  class="h-7 text-center flex-1"
                   readonly
                 />
               </div>
@@ -1303,7 +1172,7 @@ onMounted(() => {
                 <Label class="text-base w-22 text-right font-bold">轧批号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.roll_no || ''"
-                  class="win-input-edit h-7 text-center flex-1"
+                  class="h-7 text-center flex-1"
                   readonly
                 />
               </div>
@@ -1311,7 +1180,7 @@ onMounted(() => {
                 <Label class="text-base w-22 text-right font-bold">试批号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.lot_no || ''"
-                  class="win-input-edit h-7 text-center flex-1"
+                  class="h-7 text-center flex-1"
                   readonly
                 />
               </div>
@@ -1319,13 +1188,13 @@ onMounted(() => {
                 <Label class="text-base w-22 text-right font-bold">炉号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.melt_no || ''"
-                  class="win-input-edit h-7 text-center flex-1"
+                  class="h-7 text-center flex-1"
                   readonly
                 />
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-22 text-right font-bold">下一流水号</Label>
-                <Input v-model="mainForm.flowNo" class="win-input-edit h-7 text-center flex-1" />
+                <Input v-model="mainForm.flowNo" class="h-7 text-center flex-1" />
               </div>
             </div>
           </div>
@@ -1350,212 +1219,210 @@ onMounted(() => {
               <div class="flex h-9 items-center text-sm font-bold">色环</div>
               <div class="flex h-9 items-center text-sm font-bold">出废</div>
             </div>
-            <div class="win-table-shell h-full min-h-0 min-w-0 flex-1 overflow-hidden">
-              <Table class="table-fixed">
-                <colgroup>
-                  <col
-                    v-for="column in trackTableColumns"
-                    :key="`track-body-col-${column.label}`"
-                    :style="{ width: getTrackTableColumnWidth(column.weight) }"
-                  />
-                </colgroup>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead v-for="column in trackTableColumns" :key="column.label">
-                      {{ column.label }}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody class="[&_tr]:h-9">
-                  <TableRow
-                    v-for="editableRow in editableTrackRows"
-                    :key="editableRow.row.stationKey"
-                    @focusout="handleTrackRowFocusOut(editableRow.row.stationKey, $event)"
-                  >
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.flowNo"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'flowNo', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.flowNo }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.tubeNo"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'tubeNo', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.tubeNo }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.orderNo"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'orderNo', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.orderNo }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.itemNo"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'itemNo', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.itemNo }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.rollNo"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'rollNo', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.rollNo }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.meltNo"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'meltNo', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.meltNo }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.lotNo"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'lotNo', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.lotNo }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.length"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'length', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.length }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <IndicatorLight
-                        :active="editableRow.draft.lengthOk"
-                        color="green"
-                        off-color="red"
-                        :class="{
-                          invisible: !editableRow.draft.showLengthOk,
-                          'cursor-pointer': editableRow.row.hasTubeInfo,
-                        }"
-                        :size="16"
-                        @click="toggleTrackRowIndicator(editableRow.row.stationKey, 'lengthOk')"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.weight"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'weight', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.weight }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <IndicatorLight
-                        :active="editableRow.draft.weightOk"
-                        color="green"
-                        off-color="red"
-                        :class="{
-                          invisible: !editableRow.draft.showWeightOk,
-                          'cursor-pointer': editableRow.row.hasTubeInfo,
-                        }"
-                        :size="16"
-                        @click="toggleTrackRowIndicator(editableRow.row.stationKey, 'weightOk')"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.meltNoCoupling"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'meltNoCoupling', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        v-if="editableRow.row.hasTubeInfo"
-                        :model-value="editableRow.draft.lotNoCoupling"
-                        class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                        @update:model-value="
-                          updateTrackRowDraft(editableRow.row.stationKey, 'lotNoCoupling', $event)
-                        "
-                        @keydown.enter.prevent="
-                          submitTrackRowEdit(editableRow.row.stationKey, $event)
-                        "
-                      />
-                      <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
+            <WinTableFrame
+              :columns="trackTableColumns"
+              class="h-full min-h-0 min-w-0 flex-1 overflow-hidden"
+            >
+              <TableBody class="[&_tr]:h-9">
+                <TableRow
+                  v-for="editableRow in editableTrackRows"
+                  :key="editableRow.row.stationKey"
+                  @focusout="handleTrackRowFocusOut(editableRow.row.stationKey, $event)"
+                >
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.flowNo"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'flowNo', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.flowNo }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.tubeNo"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'tubeNo', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.tubeNo }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.orderNo"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'orderNo', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.orderNo }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.itemNo"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'itemNo', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.itemNo }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.rollNo"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'rollNo', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.rollNo }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.meltNo"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'meltNo', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.meltNo }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.lotNo"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'lotNo', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.lotNo }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.length"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'length', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.length }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <IndicatorLight
+                      :active="editableRow.draft.lengthOk"
+                      color="green"
+                      off-color="red"
+                      :class="{
+                        invisible: !editableRow.draft.showLengthOk,
+                        'cursor-pointer': editableRow.row.hasTubeInfo,
+                      }"
+                      :size="16"
+                      @click="toggleTrackRowIndicator(editableRow.row.stationKey, 'lengthOk')"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.weight"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'weight', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.weight }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <IndicatorLight
+                      :active="editableRow.draft.weightOk"
+                      color="green"
+                      off-color="red"
+                      :class="{
+                        invisible: !editableRow.draft.showWeightOk,
+                        'cursor-pointer': editableRow.row.hasTubeInfo,
+                      }"
+                      :size="16"
+                      @click="toggleTrackRowIndicator(editableRow.row.stationKey, 'weightOk')"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.meltNoCoupling"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'meltNoCoupling', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      variant="table"
+                      v-if="editableRow.row.hasTubeInfo"
+                      :model-value="editableRow.draft.lotNoCoupling"
+                      class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                      @update:model-value="
+                        updateTrackRowDraft(editableRow.row.stationKey, 'lotNoCoupling', $event)
+                      "
+                      @keydown.enter.prevent="
+                        submitTrackRowEdit(editableRow.row.stationKey, $event)
+                      "
+                    />
+                    <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </WinTableFrame>
           </div>
         </div>
 
@@ -1575,12 +1442,7 @@ onMounted(() => {
                 <SvgToggle :model-value="stationReady.release" :width="120" :height="30" />
                 <div class="justify-self-center font-bold">L1信号状态</div>
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('position-release')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('position-release')">
                   L2所有工位释放
                 </Button>
                 <div class="justify-self-center">
@@ -1592,12 +1454,7 @@ onMounted(() => {
                   />
                 </div>
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube('position-release')"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube('position-release')">
                   内保步进梁释放
                 </Button>
                 <div class="justify-self-center">
@@ -1647,7 +1504,7 @@ onMounted(() => {
         >
           喷印字符串
         </div>
-        <div class="px-3 py-2 font-mono text-lg font-bold text-slate-800">
+        <div class="px-2 py-2 text-lg font-bold text-slate-800">
           {{ sprayString }}
         </div>
       </div>
@@ -1669,218 +1526,202 @@ onMounted(() => {
             </TabsList>
 
             <TabsContent value="basket" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
-              <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
-                <Table class="table-fixed">
-                  <colgroup>
-                    <col
-                      v-for="column in tubeTableColumns"
-                      :key="`basket-col-${column.label}`"
-                      :style="{ width: getTubeTableColumnWidth(column.weight) }"
-                    />
-                  </colgroup>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead v-for="column in tubeTableColumns" :key="column.label">
-                        {{ column.label }}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow
-                      v-for="(editableRow, rowIndex) in editableBasketRows"
-                      :key="editableRow.row.rowKey"
-                      :class="{
-                        'win-table-row--selected': selectedBasketRowIndex === rowIndex,
-                      }"
-                      @click="selectBasketRow(rowIndex)"
-                      @focusout="
-                        editableRow.row.rowKey &&
-                        handleBasketRowFocusOut(editableRow.row.rowKey, $event)
-                      "
-                    >
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.flowNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'flowNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.flowNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.tubeNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'tubeNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.tubeNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.orderNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'orderNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.orderNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.itemNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'itemNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.itemNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.rollNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'rollNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.rollNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.meltNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'meltNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.meltNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.lotNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'lotNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.lotNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.length"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'length', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.length }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.weight"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'weight', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.weight }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.meltNoCoupling"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'meltNoCoupling', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.lotNoCoupling"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBasketRowDraft(editableRow.row.rowKey, 'lotNoCoupling', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
+              <WinTableFrame :columns="tubeTableColumns" class="min-h-0 flex-1 overflow-y-auto">
+                <TableBody>
+                  <TableRow
+                    v-for="(editableRow, rowIndex) in editableBasketRows"
+                    :key="editableRow.row.rowKey"
+                    :class="{
+                      'win-table-row--selected': selectedBasketRowIndex === rowIndex,
+                    }"
+                    @click="selectBasketRow(rowIndex)"
+                    @focusout="
+                      editableRow.row.rowKey &&
+                      handleBasketRowFocusOut(editableRow.row.rowKey, $event)
+                    "
+                  >
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.flowNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'flowNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.flowNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.tubeNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'tubeNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.tubeNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.orderNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'orderNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.orderNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.itemNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'itemNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.itemNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.rollNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'rollNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.rollNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.meltNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'meltNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.meltNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.lotNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'lotNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.lotNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.length"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'length', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.length }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.weight"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'weight', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.weight }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.meltNoCoupling"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'meltNoCoupling', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.lotNoCoupling"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBasketRowDraft(editableRow.row.rowKey, 'lotNoCoupling', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBasketRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </WinTableFrame>
               <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
                 <span>总重 28.88</span>
                 <span>总长 120.118</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAddTubeBasketbuffer('head')"
-                >
+                <Button size="sm" variant="outline" @click="handleAddTubeBasketbuffer('head')">
                   头部新增
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAddTubeBasketbuffer('tail')"
-                >
+                <Button size="sm" variant="outline" @click="handleAddTubeBasketbuffer('tail')">
                   尾部新增
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button"
                   :disabled="!canDeleteBasketRow"
                   @click="handleDeleteBasketTube()"
                 >
@@ -1890,227 +1731,203 @@ onMounted(() => {
             </TabsContent>
 
             <TabsContent value="backbuffer" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
-              <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
-                <Table class="table-fixed">
-                  <colgroup>
-                    <col
-                      v-for="column in tubeTableColumns"
-                      :key="`buffer-col-${column.label}`"
-                      :style="{ width: getTubeTableColumnWidth(column.weight) }"
-                    />
-                  </colgroup>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead v-for="column in tubeTableColumns" :key="column.label">
-                        {{ column.label }}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow
-                      v-for="(editableRow, rowIndex) in editableBackbufferRows"
-                      :key="editableRow.row.rowKey"
-                      :class="{
-                        'win-table-row--selected': selectedBackbufferRowIndex === rowIndex,
-                      }"
-                      @click="selectBackbufferRow(rowIndex)"
-                      @focusout="
-                        editableRow.row.rowKey &&
-                        handleBackbufferRowFocusOut(editableRow.row.rowKey, $event)
-                      "
-                    >
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.flowNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'flowNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.flowNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.tubeNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'tubeNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.tubeNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.orderNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'orderNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.orderNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.itemNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'itemNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.itemNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.rollNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'rollNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.rollNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.meltNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'meltNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.meltNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.lotNo"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'lotNo', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.lotNo }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.length"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'length', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.length }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.weight"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(editableRow.row.rowKey, 'weight', $event)
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.weight }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.meltNoCoupling"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(
-                              editableRow.row.rowKey,
-                              'meltNoCoupling',
-                              $event,
-                            )
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
-                          :model-value="editableRow.draft.lotNoCoupling"
-                          class="h-7 min-w-0 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
-                          @update:model-value="
-                            updateBackbufferRowDraft(
-                              editableRow.row.rowKey,
-                              'lotNoCoupling',
-                              $event,
-                            )
-                          "
-                          @keydown.enter.prevent="
-                            submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
-                          "
-                        />
-                        <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
+              <WinTableFrame :columns="tubeTableColumns" class="min-h-0 flex-1 overflow-y-auto">
+                <TableBody>
+                  <TableRow
+                    v-for="(editableRow, rowIndex) in editableBackbufferRows"
+                    :key="editableRow.row.rowKey"
+                    :class="{
+                      'win-table-row--selected': selectedBackbufferRowIndex === rowIndex,
+                    }"
+                    @click="selectBackbufferRow(rowIndex)"
+                    @focusout="
+                      editableRow.row.rowKey &&
+                      handleBackbufferRowFocusOut(editableRow.row.rowKey, $event)
+                    "
+                  >
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.flowNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'flowNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.flowNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.tubeNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'tubeNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.tubeNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.orderNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'orderNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.orderNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.itemNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'itemNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.itemNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.rollNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'rollNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.rollNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.meltNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'meltNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.meltNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.lotNo"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'lotNo', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.lotNo }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.length"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'length', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.length }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.weight"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'weight', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.weight }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.meltNoCoupling"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'meltNoCoupling', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.meltNoCoupling }}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        variant="table"
+                        v-if="editableRow.row.hasTubeInfo && editableRow.row.rowKey"
+                        :model-value="editableRow.draft.lotNoCoupling"
+                        class="h-7 min-w-0 px-1 text-center focus-visible:ring-0"
+                        @update:model-value="
+                          updateBackbufferRowDraft(editableRow.row.rowKey, 'lotNoCoupling', $event)
+                        "
+                        @keydown.enter.prevent="
+                          submitBackbufferRowEdit(editableRow.row.rowKey, rowIndex, $event)
+                        "
+                      />
+                      <span v-else>{{ editableRow.row.lotNoCoupling }}</span>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </WinTableFrame>
 
               <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
                 <span>总重 12.95</span>
                 <span>总长 120.118</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAddTubeBackbuffer('head')"
-                >
+                <Button size="sm" variant="outline" @click="handleAddTubeBackbuffer('head')">
                   头部新增
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleAddTubeBackbuffer('tail')"
-                >
+                <Button size="sm" variant="outline" @click="handleAddTubeBackbuffer('tail')">
                   尾部新增
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  class="win-button"
                   :disabled="!canDeleteBackbufferRow"
                   @click="handleDeleteBackbufferTube()"
                 >
@@ -2120,44 +1937,26 @@ onMounted(() => {
             </TabsContent>
 
             <TabsContent value="scrapt" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
-              <div class="win-table-shell min-h-0 flex-1 overflow-y-auto">
-                <Table class="table-fixed">
-                  <colgroup>
-                    <col
-                      v-for="column in scraptTableColumns"
-                      :key="`scrapt-col-${column.label}`"
-                      :style="{ width: getScraptTableColumnWidth(column.weight) }"
-                    />
-                  </colgroup>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead v-for="column in scraptTableColumns" :key="column.label">
-                        {{ column.label }}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow v-for="row in scraptRows" :key="row.rowKey ?? `scrapt-${row.flowNo}`">
-                      <TableCell>{{ row.flowNo }}</TableCell>
-                      <TableCell>{{ row.orderNo }}</TableCell>
-                      <TableCell>{{ row.itemNo }}</TableCell>
-                      <TableCell>{{ row.rollNo }}</TableCell>
-                      <TableCell>{{ row.meltNo }}</TableCell>
-                      <TableCell>{{ row.lotNo }}</TableCell>
-                      <TableCell>{{ row.length }}</TableCell>
-                      <TableCell>{{ row.weight }}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
+              <WinTableFrame :columns="scraptTableColumns" class="min-h-0 flex-1 overflow-y-auto">
+                <TableBody>
+                  <TableRow v-for="row in scraptRows" :key="row.rowKey ?? `scrapt-${row.flowNo}`">
+                    <TableCell>{{ row.flowNo }}</TableCell>
+                    <TableCell>{{ row.orderNo }}</TableCell>
+                    <TableCell>{{ row.itemNo }}</TableCell>
+                    <TableCell>{{ row.rollNo }}</TableCell>
+                    <TableCell>{{ row.meltNo }}</TableCell>
+                    <TableCell>{{ row.lotNo }}</TableCell>
+                    <TableCell>{{ row.length }}</TableCell>
+                    <TableCell>{{ row.weight }}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </WinTableFrame>
               <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
                 <span>总重 {{ scraptSummary.totalWeight }}</span>
                 <span>总长 {{ scraptSummary.totalLength }}</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <Button size="sm" variant="outline" class="win-button" @click="handleClearScrap()">
-                  清空
-                </Button>
+                <Button size="sm" variant="outline" @click="handleClearScrap()"> 清空 </Button>
               </div>
             </TabsContent>
           </Tabs>
@@ -2184,14 +1983,16 @@ onMounted(() => {
                 <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.orderWeight"
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">吨</Label>
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
                     v-model="productionStats.orderLength"
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">米</Label>
                 </div>
@@ -2199,7 +2000,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.orderCount"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">支</Label>
                 </div>
@@ -2211,7 +2013,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.orderWeightEng"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">磅</Label>
                 </div>
@@ -2219,7 +2022,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.orderLengthEng"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">英尺</Label>
                 </div>
@@ -2232,7 +2036,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.lotWeight"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">吨</Label>
                 </div>
@@ -2240,7 +2045,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.lotLength"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">米</Label>
                 </div>
@@ -2248,7 +2054,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.lotCount"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">支</Label>
                 </div>
@@ -2261,7 +2068,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.shiftWeight"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">吨</Label>
                 </div>
@@ -2269,7 +2077,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.shiftLength"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">米</Label>
                 </div>
@@ -2277,7 +2086,8 @@ onMounted(() => {
                   <Input
                     v-model="productionStats.shiftCount"
                     readonly
-                    class="win-input-readonly h-7 text-right"
+                    variant="readonly"
+                    class="h-7 text-right"
                   />
                   <Label class="shrink-0 whitespace-nowrap text-xs">支</Label>
                 </div>
@@ -2306,12 +2116,7 @@ onMounted(() => {
                   :size="20"
                 />
                 <span class="text-xs font-bold leading-4 text-slate-800">{{ item.label }}</span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  class="win-button"
-                  @click="handleMoveTube(item.key)"
-                >
+                <Button size="sm" variant="outline" @click="handleMoveTube(item.key)">
                   启动
                 </Button>
               </div>
@@ -2326,101 +2131,8 @@ onMounted(() => {
 <style scoped>
 .main-monitor-view {
   background: #d8d8d8;
-  font-family: SimSun, NSimSun, 'Microsoft YaHei', serif;
-}
-
-.win-input-edit {
-  border-radius: 2px;
-  /* border-color: #4a7471;
-  background: #20b2aa;
-  color: #111827; */
-  border-color: #7a7a7a;
-  background-color: #ffffff;
-  color: #000000;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: default;
-}
-
-.win-input-readonly {
-  border-radius: 2px;
-  border-color: #7a7a7a;
-  background: #f5f5f5;
-  color: #222222;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: default;
-}
-
-/* 使用 Tailwind 的实用程序类来实现只读输入框的样式
-.win-input-readonly {
-  @apply border-input bg-muted text-foreground;
-}
-*/
-
-.win-button {
-  border-color: #8a8a8a;
-  border-radius: 2px;
-  background: linear-gradient(to bottom, #ffffff, #d9d9d9);
-  color: #111827;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.win-button:hover {
-  background: linear-gradient(to bottom, #ffffff, #cecece);
-}
-
-.win-table-shell {
-  border: 1px solid #8a8a8a;
-  background: #c0c0c0;
-}
-
-.win-table-shell :deep(table) {
-  width: 100%;
-}
-
-.win-table-shell :deep(th) {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  height: 30px;
-  border-right: 1px solid #8a8a8a;
-  padding: 4px 8px;
-  background: #dcdcdc;
-  color: #1d47a4;
-  font-size: 14px;
-  font-weight: 700;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.win-table-shell :deep(td) {
-  border-right: 1px solid #9d9d9d;
-  border-bottom: 1px solid #9d9d9d;
-  padding: 4px 8px;
-  color: #262626;
-  font-size: 14px;
-  font-weight: 700;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.win-table-shell :deep(th:last-child),
-.win-table-shell :deep(td:last-child) {
-  border-right: 0;
-}
-
-.win-table-shell :deep(tbody tr:nth-child(odd) td) {
-  background: #ececec;
-}
-
-.win-table-shell :deep(tbody tr:nth-child(even) td) {
-  background: #d7d7d7;
-}
-
-.win-table-shell :deep(.win-table-row--selected td) {
-  background: #9fc5ff !important;
+  /* font-family: SimSun, NSimSun, 'Microsoft YaHei', serif;*/
+  font-family: 'Microsoft YaHei', system-ui, sans-serif;
 }
 
 .win-tabs-list {

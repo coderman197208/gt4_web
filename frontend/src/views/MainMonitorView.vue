@@ -690,7 +690,7 @@ function handleClearScrap(): void {
 }
 
 const stationIndicators = [
-  { key: 'length', label: '测长' },
+  { key: 'length', label: '对齐' },
   { key: 'weight', label: '称重' },
   { key: 'carve', label: '刻印' },
   { key: 'spray', label: '喷印' },
@@ -794,6 +794,12 @@ onMounted(() => {
     'CIRCLE_POS_ON',
     'SCRAPTROLLER_POS_ON',
     'LEN_MEA_FINISH',
+    'ALIGN_POS_RDY',
+    'WEIGHT_POS_RDY',
+    'CARVE_POS_RDY',
+    'SPRAY_POS_RDY',
+    'CIRCLE_POS_RDY',
+    'SCRAPTROLLER_POS_RDY',
   ]);
 });
 </script>
@@ -934,12 +940,7 @@ onMounted(() => {
                   color="green"
                   :size="60"
                 />
-                <IndicatorLight
-                  :active="processRunning.waste"
-                  color="red"
-                  :size="18"
-                  class="mt-2 invisible"
-                />
+                <IndicatorLight color="green" :size="18" class="mt-2 invisible" />
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
                 <Button
@@ -1483,13 +1484,33 @@ onMounted(() => {
             <div
               class="grid w-[100px] gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 text-sm shadow-[inset_0_1px_0_#f4f4f4]"
             >
-              <div
-                v-for="item in stationIndicators"
-                :key="item.key"
-                class="flex items-center justify-evenly gap-2"
-              >
-                <span class="font-bold">{{ item.label }}</span>
-                <IndicatorLight :active="stationReady[item.key]" color="green" :size="18" />
+              <div class="flex items-center justify-evenly gap-2">
+                <span class="font-bold">对齐</span>
+                <IndicatorLight :active="realtimeStore.alignPosRdy" color="green" :size="18" />
+              </div>
+              <div class="flex items-center justify-evenly gap-2">
+                <span class="font-bold">称重</span>
+                <IndicatorLight :active="realtimeStore.weightPosRdy" color="green" :size="18" />
+              </div>
+              <div class="flex items-center justify-evenly gap-2">
+                <span class="font-bold">刻印</span>
+                <IndicatorLight :active="realtimeStore.carvePosRdy" color="green" :size="18" />
+              </div>
+              <div class="flex items-center justify-evenly gap-2">
+                <span class="font-bold">喷印</span>
+                <IndicatorLight :active="realtimeStore.sprayPosRdy" color="green" :size="18" />
+              </div>
+              <div class="flex items-center justify-evenly gap-2">
+                <span class="font-bold">色环</span>
+                <IndicatorLight :active="realtimeStore.circlePosRdy" color="green" :size="18" />
+              </div>
+              <div class="flex items-center justify-evenly gap-2">
+                <span class="font-bold">出料</span>
+                <IndicatorLight
+                  :active="realtimeStore.scraptrollerPosRdy"
+                  color="green"
+                  :size="18"
+                />
               </div>
             </div>
           </div>

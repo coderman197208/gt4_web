@@ -50,6 +50,12 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const circlePosOn = ref<boolean>(false); // 色环工位有料信号状态
   const scraptrollerPosOn = ref<boolean>(false); // 出废工位有料信号状态
   const lenMeaFinish = ref<boolean>(false); // 测长完成信号状态
+  const alignPosRdy = ref<boolean>(false); // 测长工位备妥
+  const weightPosRdy = ref<boolean>(false); // 称重工位备妥
+  const carvePosRdy = ref<boolean>(false); // 压印工位备妥
+  const sprayPosRdy = ref<boolean>(false); // 喷涂工位备妥
+  const circlePosRdy = ref<boolean>(false); // 色环工位备妥
+  const scraptrollerPosRdy = ref<boolean>(false); // 出料工位备妥
 
   /**
    * 更新指定tag的数据
@@ -146,6 +152,30 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         lenMeaFinish.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] lenMeaFinish 数据已更新:', lenMeaFinish.value);
         break;
+      case 'ALIGN_POS_RDY':
+        alignPosRdy.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] alignPosRdy 数据已更新:', alignPosRdy.value);
+        break;
+      case 'WEIGHT_POS_RDY':
+        weightPosRdy.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] weightPosRdy 数据已更新:', weightPosRdy.value);
+        break;
+      case 'CARVE_POS_RDY':
+        carvePosRdy.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] carvePosRdy 数据已更新:', carvePosRdy.value);
+        break;
+      case 'SPRAY_POS_RDY':
+        sprayPosRdy.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] sprayPosRdy 数据已更新:', sprayPosRdy.value);
+        break;
+      case 'CIRCLE_POS_RDY':
+        circlePosRdy.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] circlePosRdy 数据已更新:', circlePosRdy.value);
+        break;
+      case 'SCRAPTROLLER_POS_RDY':
+        scraptrollerPosRdy.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] scraptrollerPosRdy 数据已更新:', scraptrollerPosRdy.value);
+        break;
       default:
         console.warn('[RealtimeDataStore] 未知的tag:', {
           rawTag: tag,
@@ -179,6 +209,12 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     circlePosOn.value = false;
     scraptrollerPosOn.value = false;
     lenMeaFinish.value = false;
+    alignPosRdy.value = false;
+    weightPosRdy.value = false;
+    carvePosRdy.value = false;
+    sprayPosRdy.value = false;
+    circlePosRdy.value = false;
+    scraptrollerPosRdy.value = false;
     console.log('[RealtimeDataStore] 所有数据已重置');
   }
 
@@ -205,6 +241,12 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     circlePosOn,
     scraptrollerPosOn,
     lenMeaFinish,
+    alignPosRdy,
+    weightPosRdy,
+    carvePosRdy,
+    sprayPosRdy,
+    circlePosRdy,
+    scraptrollerPosRdy,
     // 方法
     updateData,
     resetData,

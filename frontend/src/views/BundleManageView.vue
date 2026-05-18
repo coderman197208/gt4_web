@@ -443,7 +443,15 @@
 
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
-import type { BundleRecord, BundleRecordKey, OrderData, TubeRecord } from '@gt4_web/shared';
+import type {
+  TagPrintEvent,
+  BundleRecord,
+  BundleRecordKey,
+  OrderData,
+  TubeRecord,
+} from '@gt4_web/shared';
+import { useWebSocket } from '@/services/websocket';
+const { sendUserCommand } = useWebSocket();
 import {
   checkBundleDuplicate,
   deleteBundle,
@@ -1100,7 +1108,24 @@ async function handleDeleteBundle() {
 }
 
 function handlePrintTag() {
-  window.alert('当前变更未包含标签打印功能改造');
+  const selectedRow =
+    selectedBundleIndex.value != null ? bundleResults.value[selectedBundleIndex.value] : null;
+  const currentBundle = selectedRow ?? draftBundle.value;
+
+  if (!currentBundle) {
+    window.alert('请先选择要打印标签的管捆记录');
+    return;
+  }
+
+  const cmd: TagPrintEvent = {
+    order_no: currentBundle.order_no,
+    item_no: currentBundle.item_no,
+    bundle_no: currentBundle.bundle_no,
+    count: 1,
+  };
+  // 发送设置当前合同命令
+  sendUserCommand('tag_print_event', cmd);
+  console.log('tag print cmd:', cmd.order_no, cmd.item_no, cmd.bundle_no, cmd.count);
 }
 
 watch(

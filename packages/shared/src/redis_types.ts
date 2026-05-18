@@ -35,9 +35,9 @@ export interface DataPushMessage {
 // 这些类型定义了前端发送给后端的操作命令参数结构，对应DataPushMessage的value字段，后端需要根据这些结构解析参数并执行相应的操作
 
 //设定投料支数命令
-export interface SetFeedNumCmd {
-  feed_num: number; // 投料支数
-}
+// export interface SetFeedNumCmd {
+//   feed_num: number; // 投料支数
+// }
 
 //移动管子命令
 //plan:投料虚拟工位
@@ -92,13 +92,21 @@ export interface SetCurrentContractCmd {
   item_no: string; // 项目号
 }
 
+// 标签打印事件/命令
+export interface TagPrintEvent {
+  order_no: string; // 合同号
+  item_no: string; // 项目号
+  bundle_no: string; // 捆号
+  count: number; // 打印数量
+}
+
 export type UserCommandPayload =
-  | SetFeedNumCmd
   | MoveTubeCmd
   | ModifyTubeCmd
   | DeleteTubeCmd
   | AddTubeCmd
   | SetCurrentContractCmd
+  | TagPrintEvent
   | Record<string, unknown>;
 
 // WebSocket 操作命令发送消息（字段名与C++端一致）

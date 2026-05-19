@@ -774,6 +774,26 @@ function handleStopWeight() {
   console.log('发送 stop_weight_cmd');
 }
 
+function handleBundle() {
+  sendUserCommand('bundle_cmd');
+  console.log('发送 bundle_cmd');
+}
+
+function handleManualSpray() {
+  sendUserCommand('manual_spray_cmd');
+  console.log('发送 manual_spray_cmd');
+}
+
+function handleManualCircle() {
+  sendUserCommand('manual_circle_cmd');
+  console.log('发送 manual_circle_cmd');
+}
+
+function handleManualCarve() {
+  sendUserCommand('manual_carve_cmd');
+  console.log('发送 manual_carve_cmd');
+}
+
 // 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
 onMounted(() => {
   subscribe([
@@ -800,6 +820,9 @@ onMounted(() => {
     'SPRAY_POS_RDY',
     'CIRCLE_POS_RDY',
     'SCRAPTROLLER_POS_RDY',
+    'WB_RELEASE',
+    'NBWB_RELEASE',
+    'WB_BASE',
   ]);
 });
 </script>
@@ -863,9 +886,7 @@ onMounted(() => {
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <Button size="sm" variant="outline"> 打捆 </Button>
-                <Button size="sm" variant="outline" @click="handleMoveTube('basket', 'backbuffer')">
-                  &gt;
-                </Button>
+                <Button size="sm" variant="outline" @click="handleBundle()"> &gt; </Button>
               </div>
             </div>
           </div>
@@ -1014,7 +1035,9 @@ onMounted(() => {
                   &gt;
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full"> 色环 </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full" @click="handleManualCircle()">
+                色环
+              </Button>
             </div>
           </div>
 
@@ -1048,7 +1071,9 @@ onMounted(() => {
                   &gt;
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full"> 喷印 </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full" @click="handleManualSpray()">
+                喷印
+              </Button>
             </div>
           </div>
 
@@ -1077,7 +1102,9 @@ onMounted(() => {
                   &gt;
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full"> 刻印 </Button>
+              <Button size="sm" variant="outline" class="mt-2 w-full" @click="handleManualCarve()">
+                刻印
+              </Button>
             </div>
           </div>
 
@@ -1448,8 +1475,9 @@ onMounted(() => {
                 </Button>
                 <div class="justify-self-center">
                   <IndicatorLight
-                    :active="stationReady.release"
+                    :active="realtimeStore.wbRelease"
                     color="green"
+                    color-off="red"
                     :size="20"
                     class="translate-y-[2px]"
                   />
@@ -1460,8 +1488,9 @@ onMounted(() => {
                 </Button>
                 <div class="justify-self-center">
                   <IndicatorLight
-                    :active="stationReady.release"
+                    :active="realtimeStore.nbwbRelease"
                     color="green"
+                    color-off="red"
                     :size="20"
                     class="translate-y-[2px]"
                   />
@@ -1472,7 +1501,7 @@ onMounted(() => {
                 </div>
                 <div class="justify-self-center">
                   <IndicatorLight
-                    :active="stationReady.beamHome"
+                    :active="realtimeStore.wbBase"
                     color="green"
                     :size="20"
                     class="translate-y-[2px]"

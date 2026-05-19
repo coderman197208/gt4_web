@@ -1,5 +1,7 @@
 <template>
-  <div class="parameter-setting-view w-full overflow-hidden bg-[#d8d8d8] p-2">
+  <div
+    class="w-full overflow-hidden bg-[#d8d8d8] p-2 [font-family:'Microsoft_YaHei',system-ui,sans-serif]"
+  >
     <div
       class="relative flex h-full min-h-0 flex-col rounded-[3px] border border-[#868686] bg-[#d3d3d3] mt-4 px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
     >
@@ -13,75 +15,85 @@
         class="flex-1 min-h-0 overflow-auto rounded-[2px] border border-[#8a8a8a] bg-[#d8d8d8] p-1.5 shadow-[inset_0_1px_0_#f4f4f4]"
       > -->
       <div
-        class="parameter-grid grid grid-cols-4 gap-x-0 overflow-hidden rounded-[2px] border border-[#8a8a8a]"
+        class="grid grid-cols-4 gap-x-0 overflow-hidden rounded-[2px] border border-[#8a8a8a] bg-[#8a8a8a] [&>div]:border-[#6f6f6f] [&>div]:bg-[#d8d8d8] [&>div]:shadow-[inset_0_1px_0_#f4f4f4]"
       >
         <!-- Row 1 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap text-blue-700 font-bold">当前合同号：</Label>
-          <Input v-model="formData.order_no" variant="readonly" readonly class="flex-1" />
+          <Label :class="accentLabelClass">当前合同号：</Label>
+          <Input
+            v-model="formData.order_no"
+            variant="readonly"
+            readonly
+            class="h-8 flex-1 shadow-none"
+          />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">管捆类型：</Label>
-          <Input v-model="formData.bundle_type" class="flex-1" />
+          <Label :class="baseLabelClass">管捆类型：</Label>
+          <Input v-model="formData.bundle_type" class="h-8 flex-1 shadow-none" />
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">测长允许：</Label>
+          <Label :class="baseLabelClass">测长允许：</Label>
           <WinRadioGroup v-model="formData.length_enable" :options="allowDenyOptions" />
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">管捆号首位：</Label>
+          <Label :class="baseLabelClass">管捆号首位：</Label>
           <WinSelect v-model="formData.bundle_first_type" :options="bundleFirstTypeOptions" />
         </div>
 
         <!-- Row 2 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap text-blue-700 font-bold">当前项目号：</Label>
-          <Input v-model="formData.item_no" variant="readonly" readonly class="flex-1" />
+          <Label :class="accentLabelClass">当前项目号：</Label>
+          <Input
+            v-model="formData.item_no"
+            variant="readonly"
+            readonly
+            class="h-8 flex-1 shadow-none"
+          />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">打捆根数：</Label>
-          <Input v-model="formData.bundle_number" class="flex-1" />
+          <Label :class="baseLabelClass">打捆根数：</Label>
+          <Input v-model="formData.bundle_number" class="h-8 flex-1 shadow-none" />
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">称重允许：</Label>
+          <Label :class="baseLabelClass">称重允许：</Label>
           <WinRadioGroup v-model="formData.weight_enable" :options="allowDenyOptions" />
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">管捆流水号：</Label>
-          <Input v-model="formData.bundle_flow_no" class="flex-1" />
+          <Label :class="baseLabelClass">管捆流水号：</Label>
+          <Input v-model="formData.bundle_flow_no" class="h-8 flex-1 shadow-none" />
         </div>
 
         <!-- Row 3 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap text-blue-700 font-bold">当前轧批号：</Label>
-          <Input v-model="formData.roll_no" class="flex-1" />
+          <Label :class="accentLabelClass">当前轧批号：</Label>
+          <Input v-model="formData.roll_no" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">去向：</Label>
-          <Input v-model="formData.direction_code" class="flex-1" />
+          <Label :class="baseLabelClass">去向：</Label>
+          <Input v-model="formData.direction_code" class="h-8 flex-1 shadow-none" />
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">针刻印允许：</Label>
+          <Label :class="baseLabelClass">针刻印允许：</Label>
           <WinRadioGroup v-model="formData.carve_enable" :options="allowDenyOptions" />
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">喷印刻印&lt;年&gt;：</Label>
+          <Label :class="baseLabelClass">喷印刻印&lt;年&gt;：</Label>
           <WinSelect v-model="formData.spray_year_count" :options="paperCountOptions" />
         </div>
 
         <!-- Row 4 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap text-blue-700 font-bold">机组代码：</Label>
-          <Input v-model="formData.produce_job_point" class="flex-1" />
+          <Label :class="accentLabelClass">机组代码：</Label>
+          <Input v-model="formData.produce_job_point" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">喷涂长度小数位数：</Label>
+          <Label :class="baseLabelClass">喷涂长度小数位数：</Label>
           <WinSelect
             v-model="formData.spray_length_precision"
             :options="precisionOptions"
@@ -92,21 +104,21 @@
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">喷印允许：</Label>
+          <Label :class="baseLabelClass">喷印允许：</Label>
           <WinRadioGroup v-model="formData.spray_enable" :options="allowDenyOptions" />
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">管捆标签张数：</Label>
+          <Label :class="baseLabelClass">管捆标签张数：</Label>
           <WinSelect v-model="formData.label_count" :options="emCountOptions" />
         </div>
 
         <!-- Row 5 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">上料炉号：</Label>
-          <Input v-model="formData.melt_no" class="flex-1" />
+          <Label :class="baseLabelClass">上料炉号：</Label>
+          <Input v-model="formData.melt_no" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">喷涂重量小数位数：</Label>
+          <Label :class="baseLabelClass">喷涂重量小数位数：</Label>
           <WinSelect
             v-model="formData.spray_weight_precision"
             :options="precisionOptions"
@@ -117,32 +129,32 @@
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">长度判废：</Label>
+          <Label :class="baseLabelClass">长度判废：</Label>
           <WinRadioGroup v-model="formData.waste_length_enable" :options="allowDenyOptions" />
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">判废管长起止：</Label>
+          <Label :class="baseLabelClass">判废管长起止：</Label>
           <div class="flex items-center justify-start gap-2">
-            <Input v-model="formData.length_limit_min" class="w-16" />
-            <span class="font-bold">-&gt;</span>
-            <Input v-model="formData.length_limit_max" class="w-16" />
-            <span class="text-sm">米</span>
+            <Input v-model="formData.length_limit_min" class="h-8 w-16 shadow-none" />
+            <span class="font-bold text-[#333333]">-&gt;</span>
+            <Input v-model="formData.length_limit_max" class="h-8 w-16 shadow-none" />
+            <span class="text-sm text-[#333333]">米</span>
           </div>
         </div>
 
         <!-- Row 6 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">上料试批号：</Label>
-          <Input v-model="formData.lot_no" class="flex-1" />
+          <Label :class="baseLabelClass">上料试批号：</Label>
+          <Input v-model="formData.lot_no" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">色环允许：</Label>
+          <Label :class="baseLabelClass">色环允许：</Label>
           <WinRadioGroup v-model="formData.circle_enable" :options="allowDenyOptions" />
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">重量判废：</Label>
+          <Label :class="baseLabelClass">重量判废：</Label>
           <WinRadioGroup v-model="formData.waste_weight_enable" :options="allowDenyOptions" />
         </div>
         <div class="p-4 border-b">
@@ -151,121 +163,119 @@
 
         <!-- Row 7 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold leading-tight"
-            >喷印工位下一<br />根管子流水号</Label
-          >
-          <Input v-model="formData.flow_no" class="flex-1" />
+          <Label :class="multilineLabelClass">喷印工位下一<br />根管子流水号</Label>
+          <Input v-model="formData.flow_no" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">喷枪选择：</Label>
+          <Label :class="baseLabelClass">喷枪选择：</Label>
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold">1</span>
+            <span class="text-xs font-bold text-[#333333]">1</span>
             <WinCheckbox v-model="formData.gun1" />
-            <span class="text-xs font-bold">2</span>
+            <span class="text-xs font-bold text-[#333333]">2</span>
             <WinCheckbox v-model="formData.gun2" />
-            <span class="text-xs font-bold">3</span>
+            <span class="text-xs font-bold text-[#333333]">3</span>
             <WinCheckbox v-model="formData.gun3" />
-            <span class="text-xs font-bold">4</span>
+            <span class="text-xs font-bold text-[#333333]">4</span>
             <WinCheckbox v-model="formData.gun4" />
-            <span class="text-xs font-bold">5</span>
+            <span class="text-xs font-bold text-[#333333]">5</span>
             <WinCheckbox v-model="formData.gun5" />
           </div>
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">喷涂长度格式：</Label>
+          <Label :class="baseLabelClass">喷涂长度格式：</Label>
           <WinRadioGroup v-model="formData.spray_length_type" :options="metricImperialOptions" />
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">包装材料重量：</Label>
+          <Label :class="baseLabelClass">包装材料重量：</Label>
           <div class="flex items-center justify-start gap-2">
-            <Input v-model="formData.weight_packaging" class="flex-1" />
-            <span class="text-sm">KG</span>
+            <Input v-model="formData.weight_packaging" class="h-8 flex-1 shadow-none" />
+            <span class="text-sm text-[#333333]">KG</span>
           </div>
         </div>
 
         <!-- Row 8 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">上料总根数：</Label>
-          <Input v-model="formData.feed_number" class="flex-1" />
+          <Label :class="baseLabelClass">上料总根数：</Label>
+          <Input v-model="formData.feed_number" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">钢管外径：</Label>
-          <div class="unit-input-row">
-            <Input v-model="formData.diameter" class="w-full" />
-            <span class="unit-label text-sm">毫米</span>
+          <Label :class="baseLabelClass">钢管外径：</Label>
+          <div class="grid grid-cols-[minmax(0,1fr)_2.75rem] items-center gap-x-2">
+            <Input v-model="formData.diameter" class="h-8 w-full shadow-none" />
+            <span class="justify-self-start text-left text-sm text-[#333333]">毫米</span>
           </div>
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">喷涂重量格式：</Label>
+          <Label :class="baseLabelClass">喷涂重量格式：</Label>
           <WinRadioGroup v-model="formData.spray_weight_type" :options="metricImperialOptions" />
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">标签长度格式：</Label>
+          <Label :class="baseLabelClass">标签长度格式：</Label>
           <WinRadioGroup v-model="formData.label_length_type" :options="metricImperialOptions" />
         </div>
 
         <!-- Row 9 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">接箍炉号：</Label>
-          <Input v-model="formData.melt_no_coupling" class="flex-1" />
+          <Label :class="baseLabelClass">接箍炉号：</Label>
+          <Input v-model="formData.melt_no_coupling" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">保护环重量：</Label>
-          <div class="unit-input-row">
-            <Input v-model="formData.weight_coupling" class="w-full" />
-            <span class="unit-label text-sm">KG</span>
+          <Label :class="baseLabelClass">保护环重量：</Label>
+          <div class="grid grid-cols-[minmax(0,1fr)_2.75rem] items-center gap-x-2">
+            <Input v-model="formData.weight_coupling" class="h-8 w-full shadow-none" />
+            <span class="justify-self-start text-left text-sm text-[#333333]">KG</span>
           </div>
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">管重偏差上限：</Label>
-          <Input v-model="formData.weight_limit_max" class="flex-1" />
-          <span class="text-sm">%</span>
+          <Label :class="baseLabelClass">管重偏差上限：</Label>
+          <Input v-model="formData.weight_limit_max" class="h-8 flex-1 shadow-none" />
+          <span class="text-sm text-[#333333]">%</span>
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">标签重量格式：</Label>
+          <Label :class="baseLabelClass">标签重量格式：</Label>
           <WinRadioGroup v-model="formData.label_weight_type" :options="metricImperialOptions" />
         </div>
 
         <!-- Row 10 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">接箍批号：</Label>
-          <Input v-model="formData.lot_no_coupling" class="flex-1" />
+          <Label :class="baseLabelClass">接箍批号：</Label>
+          <Input v-model="formData.lot_no_coupling" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="grid grid-cols-[9rem_minmax(0,1fr)] items-center gap-2 p-4 border-b border-r">
-          <Label class="whitespace-nowrap font-bold">保护环长度：</Label>
-          <div class="unit-input-row">
-            <Input v-model="formData.length_coupling" class="w-full" />
-            <span class="unit-label text-sm">米</span>
+          <Label :class="baseLabelClass">保护环长度：</Label>
+          <div class="grid grid-cols-[minmax(0,1fr)_2.75rem] items-center gap-x-2">
+            <Input v-model="formData.length_coupling" class="h-8 w-full shadow-none" />
+            <span class="justify-self-start text-left text-sm text-[#333333]">米</span>
           </div>
         </div>
         <div
           class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-b border-r"
         >
-          <Label class="whitespace-nowrap font-bold">管重偏差下限：</Label>
-          <Input v-model="formData.weight_limit_min" class="flex-1" />
-          <span class="text-sm">%</span>
+          <Label :class="baseLabelClass">管重偏差下限：</Label>
+          <Input v-model="formData.weight_limit_min" class="h-8 flex-1 shadow-none" />
+          <span class="text-sm text-[#333333]">%</span>
         </div>
         <div class="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-b">
-          <Label class="whitespace-nowrap font-bold">标签格式：</Label>
+          <Label :class="baseLabelClass">标签格式：</Label>
           <WinRadioGroup v-model="formData.label_type" :options="labelTypeOptions" />
         </div>
 
         <!-- Row 11 -->
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2 p-4 border-r">
-          <Label class="whitespace-nowrap font-bold leading-tight">测长工位下<br />一根管号</Label>
-          <Input v-model="formData.tube_no" class="flex-1" />
+          <Label :class="multilineLabelClass">测长工位下<br />一根管号</Label>
+          <Input v-model="formData.tube_no" class="h-8 flex-1 shadow-none" />
         </div>
         <div class="p-2 border-r">
           <!-- 空白 -->
         </div>
         <div class="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] items-center gap-2 p-4 border-r">
-          <Label class="whitespace-nowrap font-bold">二维码喷印：</Label>
+          <Label :class="baseLabelClass">二维码喷印：</Label>
           <WinRadioGroup v-model="formData.qrcode_spray_enable" :options="allowDenyOptions" />
         </div>
         <div class="flex items-center justify-end gap-2 p-3">
@@ -378,6 +388,10 @@ const labelTypeOptions = [
   { label: '自由', value: 'free' },
 ];
 
+const baseLabelClass = 'whitespace-nowrap text-[15px] font-bold text-[#111827]';
+const accentLabelClass = `${baseLabelClass} text-[#1d47a4]`;
+const multilineLabelClass = `${baseLabelClass} leading-tight`;
+
 const loading = ref(false);
 
 // 加载数据
@@ -427,57 +441,3 @@ async function handleConfirm() {
   }
 }
 </script>
-
-<style scoped>
-.parameter-setting-view {
-  background: #d8d8d8;
-  font-family: 'Microsoft YaHei', system-ui, sans-serif;
-}
-
-.parameter-grid {
-  background: #8a8a8a;
-}
-
-.parameter-grid > div {
-  background: #d8d8d8;
-  border-color: #6f6f6f;
-  box-shadow: inset 0 1px 0 #f4f4f4;
-}
-
-.parameter-grid :deep(label) {
-  color: #111827;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.parameter-grid :deep(label.text-blue-700) {
-  color: #1d47a4;
-}
-
-.parameter-grid span {
-  color: #333333;
-}
-
-.unit-input-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 2.75rem;
-  align-items: center;
-  column-gap: 0.5rem;
-}
-
-.unit-label {
-  justify-self: start;
-  text-align: left;
-}
-
-.parameter-grid :deep([data-slot='input']) {
-  height: 32px;
-  box-shadow: none;
-}
-
-.parameter-grid :deep(.win-button) {
-  height: 32px;
-  font-size: 12px;
-  font-weight: 700;
-}
-</style>

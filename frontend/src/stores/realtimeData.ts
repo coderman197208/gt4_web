@@ -174,7 +174,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         circlePosRdy.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] circlePosRdy 数据已更新:', circlePosRdy.value);
         break;
-      case 'SCRAPTROLLER_POS_RDY':
+      case 'SCRAPT_ROLLER_POS_RDY':
         scraptrollerPosRdy.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] scraptrollerPosRdy 数据已更新:', scraptrollerPosRdy.value);
         break;

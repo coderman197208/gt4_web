@@ -142,7 +142,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { SetFeedNumCmd } from '@gt4_web/shared';
+// import type { SetFeedNumCmd } from '@gt4_web/shared';
 import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -178,8 +178,8 @@ async function checkHealth() {
 }
 
 async function sendSetFeedNumCmd() {
-  const cmd: SetFeedNumCmd = { feed_num: 100 };
-  sendUserCommand('SetFeedNumCmd', cmd);
+  // const cmd: SetFeedNumCmd = { feed_num: 100 };
+  // sendUserCommand('SetFeedNumCmd', cmd);
 }
 
 // 在组件挂载时订阅tag1, tag2, tag3

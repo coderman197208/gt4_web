@@ -819,7 +819,7 @@ onMounted(() => {
     'CARVE_POS_RDY',
     'SPRAY_POS_RDY',
     'CIRCLE_POS_RDY',
-    'SCRAPTROLLER_POS_RDY',
+    'SCRAPT_ROLLER_POS_RDY',
     'WB_RELEASE',
     'NBWB_RELEASE',
     'WB_BASE',

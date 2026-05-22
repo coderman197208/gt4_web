@@ -3,11 +3,11 @@ import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardAction, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { IndicatorLight } from '@/components/ui/indicator-light';
-import { Tube } from '@/components/ui/tube';
-import { SelectSwitch } from '@/components/ui/select-switch';
-import { ConveyorRoller } from '@/components/ui/conveyor-roller';
-import { TubeBasket } from '@/components/ui/tube-basket';
+import { IndicatorLight } from '@/components/custom/indicator-light';
+import { Tube } from '@/components/custom/tube';
+import { SelectSwitch } from '@/components/custom/select-switch';
+import { ConveyorRoller } from '@/components/custom/conveyor-roller';
+import { TubeBasket } from '@/components/custom/tube-basket';
 
 // 所有组件共用的7种颜色
 const COLORS = ['green', 'red', 'amber', 'blue', 'orange', 'cyan', 'white'] as const;

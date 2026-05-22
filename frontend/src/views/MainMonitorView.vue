@@ -690,7 +690,7 @@ function handleClearScrap(): void {
 }
 
 const stationIndicators = [
-  { key: 'length', label: '对齐' },
+  { key: 'align', label: '对齐' },
   { key: 'weight', label: '称重' },
   { key: 'carve', label: '刻印' },
   { key: 'spray', label: '喷印' },
@@ -845,15 +845,15 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <div class="flex items-center justify-between">
-              <Label class="text-[15px] font-bold text-[#111827]">料筐</Label>
+              <Label class="font-bold text-base">料筐</Label>
             </div>
             <!-- <div class="flex flex-1 items-center justify-center">
               <TubeBasket active color="cyan" :top-width="72" :bottom-width="98" :height="48" />
             </div> -->
             <div class="grid gap-2">
               <div class="flex items-center justify-between mt-4">
-                <span>合同号</span>
-                <span class="font-bold text-[#1d47a4]">{{
+                <Label class="text-base">合同号</Label>
+                <span class="font-bold text-base">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.order_no ?? ''
                 }}</span>
                 <!-- <Input
@@ -863,25 +863,25 @@ onMounted(() => {
                 /> -->
               </div>
               <div class="flex items-center justify-between">
-                <span>炉号</span>
-                <span class="font-bold text-[#1d47a4]">{{
+                <Label class="text-base">炉号</Label>
+                <span class="font-bold text-base">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.melt_no ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>试批号</span>
-                <span class="font-bold text-[#1d47a4]">{{
+                <Label class="text-base">试批号</Label>
+                <span class="font-bold text-base">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.lot_no ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <span>料筐支数</span>
-                <span class="font-bold text-[#1d47a4]">{{
+                <Label class="text-base">料筐支数</Label>
+                <span class="font-bold text-base">{{
                   realtimeStore.basketPosTubeInfo?.length ?? ''
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
-                <Label class="shrink-0 text-base">成捆支数</Label>
+                <Label class="text-base">成捆支数</Label>
                 <Input v-model="mainForm.basketBundleCount" class="h-7 text-right w-20" />
               </div>
               <div class="grid grid-cols-2 gap-2">
@@ -894,7 +894,7 @@ onMounted(() => {
           <div
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
-            <Label class="text-[15px] font-bold text-[#111827]">缓冲区</Label>
+            <Label class="font-bold text-base">缓冲区</Label>
             <div class="flex items-start justify-center px-2 pt-4">
               <!-- <svg
                 viewBox="0 0 271.666 271.666"
@@ -1178,10 +1178,10 @@ onMounted(() => {
           <div
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
-            <Label class="text-[15px] font-bold text-[#111827]">投料区</Label>
+            <Label class="font-bold text-base">投料区</Label>
             <div class="mt-2 grid flex-1 gap-1 text-xs">
               <div class="flex items-center gap-2">
-                <Label class="text-base w-22 text-right font-bold">合同号</Label>
+                <Label class="text-base w-22 text-right">合同号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.order_no || ''"
                   class="h-7 text-center flex-1"
@@ -1189,7 +1189,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-22 text-right font-bold">支数</Label>
+                <Label class="text-base w-22 text-right">支数</Label>
                 <Input
                   :model-value="String(realtimeStore.planInfo?.feed_num ?? '')"
                   class="h-7 text-center flex-1"
@@ -1197,7 +1197,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-22 text-right font-bold">轧批号</Label>
+                <Label class="text-base w-22 text-right">轧批号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.roll_no || ''"
                   class="h-7 text-center flex-1"
@@ -1205,7 +1205,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-22 text-right font-bold">试批号</Label>
+                <Label class="text-base w-22 text-right">试批号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.lot_no || ''"
                   class="h-7 text-center flex-1"
@@ -1213,7 +1213,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-22 text-right font-bold">炉号</Label>
+                <Label class="text-base w-22 text-right">炉号</Label>
                 <Input
                   :model-value="realtimeStore.planInfo?.melt_no || ''"
                   class="h-7 text-center flex-1"
@@ -1221,7 +1221,7 @@ onMounted(() => {
                 />
               </div>
               <div class="flex items-center gap-2">
-                <Label class="text-base w-22 text-right font-bold">下一流水号</Label>
+                <Label class="text-base w-22 text-right">下一流水号</Label>
                 <Input v-model="mainForm.flowNo" class="h-7 text-center flex-1" />
               </div>
             </div>
@@ -1240,12 +1240,12 @@ onMounted(() => {
           </div>
           <div class="flex min-w-0">
             <div class="grid w-[40px] shrink-0 grid-cols-1 pt-[30px]">
-              <div class="flex h-9 items-center text-sm font-bold">定位</div>
-              <div class="flex h-9 items-center text-sm font-bold">称重</div>
-              <div class="flex h-9 items-center text-sm font-bold">刻印</div>
-              <div class="flex h-9 items-center text-sm font-bold">喷印</div>
-              <div class="flex h-9 items-center text-sm font-bold">色环</div>
-              <div class="flex h-9 items-center text-sm font-bold">出废</div>
+              <Label class="flex h-9 items-center text-sm">定位</Label>
+              <Label class="flex h-9 items-center text-sm">称重</Label>
+              <Label class="flex h-9 items-center text-sm">刻印</Label>
+              <Label class="flex h-9 items-center text-sm">喷印</Label>
+              <Label class="flex h-9 items-center text-sm">色环</Label>
+              <Label class="flex h-9 items-center text-sm">出废</Label>
             </div>
             <WinTableFrame
               :columns="trackTableColumns"
@@ -1497,7 +1497,7 @@ onMounted(() => {
                 </div>
 
                 <div class="justify-self-center">
-                  <Label class="text-sm font-bold">步进梁原位指示</Label>
+                  <Label class="text-sm">步进梁原位指示</Label>
                 </div>
                 <div class="justify-self-center">
                   <IndicatorLight
@@ -1514,27 +1514,27 @@ onMounted(() => {
               class="grid w-[100px] gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 text-sm shadow-[inset_0_1px_0_#f4f4f4]"
             >
               <div class="flex items-center justify-evenly gap-2">
-                <span class="font-bold">对齐</span>
+                <Label>对齐</Label>
                 <IndicatorLight :active="realtimeStore.alignPosRdy" color="green" :size="18" />
               </div>
               <div class="flex items-center justify-evenly gap-2">
-                <span class="font-bold">称重</span>
+                <Label>称重</Label>
                 <IndicatorLight :active="realtimeStore.weightPosRdy" color="green" :size="18" />
               </div>
               <div class="flex items-center justify-evenly gap-2">
-                <span class="font-bold">刻印</span>
+                <Label>刻印</Label>
                 <IndicatorLight :active="realtimeStore.carvePosRdy" color="green" :size="18" />
               </div>
               <div class="flex items-center justify-evenly gap-2">
-                <span class="font-bold">喷印</span>
+                <Label>喷印</Label>
                 <IndicatorLight :active="realtimeStore.sprayPosRdy" color="green" :size="18" />
               </div>
               <div class="flex items-center justify-evenly gap-2">
-                <span class="font-bold">色环</span>
+                <Label>色环</Label>
                 <IndicatorLight :active="realtimeStore.circlePosRdy" color="green" :size="18" />
               </div>
               <div class="flex items-center justify-evenly gap-2">
-                <span class="font-bold">出料</span>
+                <Label>出料</Label>
                 <IndicatorLight
                   :active="realtimeStore.scraptrollerPosRdy"
                   color="green"
@@ -2182,7 +2182,8 @@ onMounted(() => {
 .main-monitor-view {
   background: #d8d8d8;
   /* font-family: SimSun, NSimSun, 'Microsoft YaHei', serif;*/
-  font-family: 'Microsoft YaHei', system-ui, sans-serif;
+  /* font-family: 'Microsoft YaHei', system-ui, sans-serif; */
+  font-family: sans-serif;
 }
 
 .win-tabs-list {

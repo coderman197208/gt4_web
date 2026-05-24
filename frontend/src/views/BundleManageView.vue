@@ -24,9 +24,9 @@
           <Button variant="outline" @click="handlePrintTag"> 标签打印 </Button>
         </div>
       </div>
-      <div v-if="statusMessage" class="px-1 text-sm text-muted-foreground">
+      <!-- <div v-if="statusMessage" class="px-1 text-sm text-muted-foreground">
         {{ statusMessage }}
-      </div>
+      </div> -->
     </div>
 
     <div class="flex flex-1 gap-3 overflow-hidden p-3 pt-0">

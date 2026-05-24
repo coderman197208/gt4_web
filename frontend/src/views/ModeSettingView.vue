@@ -1,313 +1,173 @@
 <template>
-  <div class="w-full flex flex-col overflow-hidden p-4">
-    <!-- 主内容区域 -->
-    <div class="flex-1 flex gap-4 overflow-hidden pt-4">
-      <!-- 左侧：标签打印 -->
-      <div class="w-[420px] flex-shrink-0">
-        <div class="border rounded-lg p-4 relative h-full flex flex-col">
-          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-red-800">
-            标签打印
-          </div>
+  <div class="mode-setting-view w-full overflow-hidden bg-[#d8d8d8] p-2">
+    <div
+      class="flex h-full min-h-0 flex-col rounded-[3px] border border-[#868686] bg-[#d3d3d3] mt-4 px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+    >
+      <div class="flex min-h-0 flex-1 gap-4 pt-2">
+        <section class="panel-shell w-[430px] flex-shrink-0">
+          <div class="panel-title">标签打印</div>
 
-          <!-- 合同号 / 项目号 查询 -->
-          <div class="grid grid-cols-[auto_1fr_auto] gap-2 items-center mt-2">
-            <Label class="whitespace-nowrap font-bold">合同号：</Label>
-            <Input
-              v-model="formData.order_no"
-              class="h-8"
-            />
-            <Button @click="handleQuery">
-              查询
-            </Button>
+          <div class="flex min-h-0 flex-1 flex-col">
+            <div class="grid grid-cols-[4.5rem_minmax(0,1fr)_7rem] items-center gap-2">
+              <Label :class="baseLabelClass">合同号：</Label>
+              <Input v-model="formData.order_no" class="h-8 shadow-none" />
+              <Button class="min-w-24" @click="handleQuery"> 查询 </Button>
 
-            <Label class="whitespace-nowrap font-bold">项目号：</Label>
-            <Input
-              v-model="formData.item_no"
-              class="h-8"
-            />
-            <Button @click="handleToCurrentOrder">
-              返回当前合同
-            </Button>
-          </div>
+              <Label :class="baseLabelClass">项目号：</Label>
+              <Input v-model="formData.item_no" class="h-8 shadow-none" />
+              <Button class="min-w-24" @click="handleToCurrentOrder"> 返回当前合同 </Button>
+            </div>
 
-          <!-- 自由格式设定 -->
-          <div class="mt-4">
-            <Label class="text-sm font-bold">自由格式设定:</Label>
-          </div>
+            <div class="mt-4">
+              <Label :class="baseLabelClass">自由格式设定:</Label>
+            </div>
 
-          <!-- 8行标签格式输入框 -->
-          <div class="border rounded mt-2 p-2 space-y-2 flex-1">
-            <!-- <div v-for="i in 8" :key="i" class="flex items-center gap-2">
-              <Label class="w-6 text-right font-bold">{{ i }}.</Label>
-              <Input v-model="formData.labelReqs[i - 1]" class="flex-1 h-8 font-mono" />
-            </div> -->
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">1.</Label>
-              <Input
-                v-model="formData.label_req_1"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">2.</Label>
-              <Input
-                v-model="formData.label_req_2"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">3.</Label>
-              <Input
-                v-model="formData.label_req_3"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">4.</Label>
-              <Input
-                v-model="formData.label_req_4"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">5.</Label>
-              <Input
-                v-model="formData.label_req_5"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">6.</Label>
-              <Input
-                v-model="formData.label_req_6"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">7.</Label>
-              <Input
-                v-model="formData.label_req_7"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">8.</Label>
-              <Input
-                v-model="formData.label_req_8"
-                class="flex-1"
-              />
-            </div>
-          </div>
-
-          <!-- 标签长度格式 -->
-          <div class="flex items-center gap-2 mt-3">
-            <Label class="whitespace-nowrap font-bold">标签长度格式：</Label>
-            <RadioGroup
-              v-model="formData.label_length_type"
-              class="flex gap-4"
-            >
-              <div class="flex items-center gap-1">
-                <RadioGroupItem
-                  id="tagLength-metric"
-                  value="0"
-                />
-                <Label for="tagLength-metric">公制</Label>
-              </div>
-              <div class="flex items-center gap-1">
-                <RadioGroupItem
-                  id="tagLength-imperial"
-                  value="1"
-                />
-                <Label for="tagLength-imperial">英制</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <!-- 标签重量格式 -->
-          <div class="flex items-center gap-2 mt-2">
-            <Label class="whitespace-nowrap font-bold">标签重量格式：</Label>
-            <RadioGroup
-              v-model="formData.label_weight_type"
-              class="flex gap-4"
-            >
-              <div class="flex items-center gap-1">
-                <RadioGroupItem
-                  id="tagWeight-metric"
-                  value="0"
-                />
-                <Label for="tagWeight-metric">公制</Label>
-              </div>
-              <div class="flex items-center gap-1">
-                <RadioGroupItem
-                  id="tagWeight-imperial"
-                  value="1"
-                />
-                <Label for="tagWeight-imperial">英制</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <!-- 塑料标签格式 -->
-          <div class="flex items-center gap-2 mt-2">
-            <Label class="whitespace-nowrap font-bold">塑料标签格式：</Label>
-            <RadioGroup
-              v-model="formData.label_type"
-              class="flex gap-4"
-            >
-              <div class="flex items-center gap-1">
-                <RadioGroupItem
-                  id="em-fixed"
-                  value="0"
-                />
-                <Label for="em-fixed">固定</Label>
-              </div>
-              <div class="flex items-center gap-1">
-                <RadioGroupItem
-                  id="em-free"
-                  value="1"
-                />
-                <Label for="em-free">自由</Label>
-              </div>
-            </RadioGroup>
-            <!-- <Button @click="handleSaveLabelFormat" class="ml-auto">保存</Button> -->
-          </div>
-        </div>
-      </div>
-
-      <!-- 中间列：针刻印 + 喷印要求 -->
-      <div class="flex-1 flex flex-col gap-4 overflow-visible">
-        <!-- 针刻印 -->
-        <div class="border rounded-lg p-4 relative flex-1">
-          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-red-800">
-            针刻印
-          </div>
-
-          <div class="mt-2">
-            <Label class="text-sm font-bold">针刻印格式设定:</Label>
-          </div>
-
-          <!-- 8行针刻印格式输入框 -->
-          <div class="mt-2 space-y-2">
-            <!-- <div v-for="i in 8" :key="i" class="flex items-center gap-2">
-              <Label class="w-6 text-right font-bold">{{ i }}.</Label>
-              <Input v-model="formData.stampReqManuls[i - 1]" class="flex-1 h-8 font-mono" />
-            </div> -->
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">1.</Label>
-              <Input
-                v-model="formData.stamp_req_1_manual"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">2.</Label>
-              <Input
-                v-model="formData.stamp_req_2_manual"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">3.</Label>
-              <Input
-                v-model="formData.stamp_req_3_manual"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">4.</Label>
-              <Input
-                v-model="formData.stamp_req_4_manual"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">5.</Label>
-              <Input
-                v-model="formData.stamp_req_5_manual"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">6.</Label>
-              <Input
-                v-model="formData.stamp_req_6_manual"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">7.</Label>
-              <Input
-                v-model="formData.stamp_req_7_manual"
-                class="flex-1"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <Label class="whitespace-nowrap text-xs font-bold">8.</Label>
-              <Input
-                v-model="formData.stamp_req_8_manual"
-                class="flex-1"
-              />
-            </div>
-          </div>
-
-          <!-- 针刻印要求 -->
-          <div class="mt-3">
-            <Label class="font-bold">要求：</Label>
-            <textarea
-              v-model="formData.stamp_req"
-              readonly
-              class="mt-1 w-full h-20 border rounded px-3 py-2 text-sm font-mono bg-muted resize-none"
-            />
-          </div>
-
-          <!-- <div class="flex justify-end mt-2">
-            <Button @click="handleSaveStampFormat">保存</Button>
-          </div> -->
-        </div>
-
-        <!-- 喷印要求 -->
-        <div class="border rounded-lg mt-4 p-4 relative flex-shrink-0">
-          <div class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-red-800">
-            喷印要求
-          </div>
-
-          <textarea
-            v-model="formData.stencil_req"
-            class="my-2 w-full border rounded p-2 text-sm font-mono text-blue-600 resize-none"
-          />
-        </div>
-      </div>
-
-      <div class="flex-1 flex flex-col gap-4 overflow-visible">
-        <!-- 右侧：通配符说明 -->
-        <div class="w-[200px] flex-shrink-0">
-          <div class="border rounded-lg p-4 relative">
             <div
-              class="absolute -top-3 left-4 px-2 bg-white text-sm font-bold text-[1rem] text-red-800"
+              class="mt-2 flex min-h-0 flex-1 flex-col gap-2 rounded-[2px] border border-[#8a8a8a] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
             >
-              通配符说明
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">1.</Label>
+                <Input v-model="formData.label_req_1" class="h-8 shadow-none" />
+              </div>
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">2.</Label>
+                <Input v-model="formData.label_req_2" class="h-8 shadow-none" />
+              </div>
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">3.</Label>
+                <Input v-model="formData.label_req_3" class="h-8 shadow-none" />
+              </div>
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">4.</Label>
+                <Input v-model="formData.label_req_4" class="h-8 shadow-none" />
+              </div>
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">5.</Label>
+                <Input v-model="formData.label_req_5" class="h-8 shadow-none" />
+              </div>
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">6.</Label>
+                <Input v-model="formData.label_req_6" class="h-8 shadow-none" />
+              </div>
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">7.</Label>
+                <Input v-model="formData.label_req_7" class="h-8 shadow-none" />
+              </div>
+              <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                <Label :class="lineNoClass">8.</Label>
+                <Input v-model="formData.label_req_8" class="h-8 shadow-none" />
+              </div>
             </div>
 
-            <div class="mt-2 space-y-3">
+            <div class="mt-3 grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+              <Label :class="baseLabelClass">标签长度格式：</Label>
+              <WinRadioGroup
+                v-model="formData.label_length_type"
+                :options="metricImperialOptions"
+              />
+            </div>
+
+            <div class="mt-2 grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+              <Label :class="baseLabelClass">标签重量格式：</Label>
+              <WinRadioGroup
+                v-model="formData.label_weight_type"
+                :options="metricImperialOptions"
+              />
+            </div>
+
+            <div class="mt-2 grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2">
+              <Label :class="baseLabelClass">塑料标签格式：</Label>
+              <WinRadioGroup v-model="formData.label_type" :options="labelTypeOptions" />
+            </div>
+          </div>
+        </section>
+
+        <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-visible">
+          <section class="panel-shell flex min-h-0 flex-1 flex-col">
+            <div class="panel-title">针刻印</div>
+
+            <div class="flex min-h-0 flex-1 flex-col mt-2">
+              <Label :class="baseLabelClass">针刻印格式设定:</Label>
+
+              <div class="mt-2 flex min-h-0 flex-1 flex-col gap-2">
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">1.</Label>
+                  <Input v-model="formData.stamp_req_1_manual" class="h-8 shadow-none" />
+                </div>
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">2.</Label>
+                  <Input v-model="formData.stamp_req_2_manual" class="h-8 shadow-none" />
+                </div>
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">3.</Label>
+                  <Input v-model="formData.stamp_req_3_manual" class="h-8 shadow-none" />
+                </div>
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">4.</Label>
+                  <Input v-model="formData.stamp_req_4_manual" class="h-8 shadow-none" />
+                </div>
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">5.</Label>
+                  <Input v-model="formData.stamp_req_5_manual" class="h-8 shadow-none" />
+                </div>
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">6.</Label>
+                  <Input v-model="formData.stamp_req_6_manual" class="h-8 shadow-none" />
+                </div>
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">7.</Label>
+                  <Input v-model="formData.stamp_req_7_manual" class="h-8 shadow-none" />
+                </div>
+                <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
+                  <Label :class="lineNoClass">8.</Label>
+                  <Input v-model="formData.stamp_req_8_manual" class="h-8 shadow-none" />
+                </div>
+              </div>
+
+              <div class="mt-4 grid grid-cols-[3rem_minmax(0,1fr)] items-start gap-2">
+                <Label :class="baseLabelClass">要求：</Label>
+                <textarea
+                  v-model="formData.stamp_req"
+                  readonly
+                  class="win-textarea win-textarea-readonly h-24"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-shell flex-shrink-0">
+            <div class="panel-title">喷印要求</div>
+
+            <div>
+              <textarea
+                v-model="formData.stencil_req"
+                class="win-textarea win-textarea-edit h-28"
+              />
+            </div>
+          </section>
+        </div>
+
+        <div class="flex w-[220px] min-h-0 flex-shrink-0 flex-col gap-4 overflow-visible">
+          <section class="panel-shell flex min-h-0 flex-1 flex-col">
+            <div class="panel-title">通配符说明</div>
+
+            <div class="flex min-h-0 flex-1 flex-col gap-2">
               <div
                 v-for="item in wildcardList"
                 :key="item.code"
-                class="flex items-center gap-2"
+                class="grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-2 rounded-[2px] border border-[#8a8a8a] bg-[#efefef] px-2 py-1 shadow-[inset_0_1px_0_#ffffff]"
               >
-                <span class="font-bold w-10">{{ item.code }}</span>
-                <span>{{ item.desc }}</span>
+                <span class="text-sm font-bold text-[#6f1616]">{{ item.code }}</span>
+                <span class="text-sm font-bold text-[#333333]">{{ item.desc }}</span>
               </div>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div class="w-[200px] flex-shrink-0 flex justify-center">
-          <Button
-            class="w-1/2"
-            @click="handleSaveFormat"
-          >
-            保存
-          </Button>
+          <section class="flex-shrink-0">
+            <div class="flex items-center justify-center">
+              <Button class="min-w-28" @click="handleSaveFormat"> 保存 </Button>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -316,15 +176,29 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import Button from '@/components/custom/WinButton.vue';
+import Input from '@/components/custom/WinInput.vue';
+import WinRadioGroup from '@/components/custom/WinRadioGroup.vue';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getOrderData, updateOrderData } from '@/api';
 import type { OrderData } from '@gt4_web/shared';
 
 // 缓存查询到的完整记录，保存时以此为基础合并表单修改
 const cachedOrderData = ref<OrderData | null>(null);
+
+const baseLabelClass = 'text-[15px] font-bold text-[#111827] whitespace-nowrap';
+const accentLabelClass = 'text-[15px] font-bold text-[#6f1616] whitespace-nowrap';
+const lineNoClass = 'text-xs font-bold whitespace-nowrap text-right';
+
+const metricImperialOptions = [
+  { label: '公制', value: '0' },
+  { label: '英制', value: '1' },
+] as const;
+
+const labelTypeOptions = [
+  { label: '固定', value: '0' },
+  { label: '自由', value: '1' },
+] as const;
 
 // 通配符说明
 const wildcardList = [
@@ -469,3 +343,66 @@ async function handleSaveFormat() {
   }
 }
 </script>
+
+<style scoped>
+.mode-setting-view {
+  font-family: 'Microsoft YaHei', system-ui, sans-serif;
+}
+
+.panel-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #868686;
+  border-radius: 3px;
+  background: #d3d3d3;
+  padding: 14px 12px 12px;
+  box-shadow: inset 0 1px 0 #f7f7f7;
+}
+
+.panel-title {
+  position: absolute;
+  top: -11px;
+  left: 12px;
+  padding: 0 4px;
+  background: #d8d8d8;
+  color: #6f1616;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.panel-content {
+  border: 1px solid #8a8a8a;
+  border-radius: 2px;
+  background: #d8d8d8;
+  padding: 12px;
+  box-shadow: inset 0 1px 0 #f4f4f4;
+}
+
+.win-textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid #7a7a7a;
+  border-radius: 2px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  outline: none;
+}
+
+.win-textarea:focus {
+  border-color: #1d47a4;
+}
+
+.win-textarea-readonly {
+  background: #f5f5f5;
+  color: #333333;
+}
+
+.win-textarea-edit {
+  background: #ffffff;
+  color: #1d47a4;
+}
+</style>

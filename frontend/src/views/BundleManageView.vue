@@ -1,27 +1,34 @@
 <template>
-  <div class="flex h-full w-full flex-col overflow-hidden">
-    <div class="flex-shrink-0 space-y-2 p-3">
-      <div class="relative rounded-lg border p-4">
-        <div class="flex items-center gap-4">
+  <div class="flex h-full w-full flex-col bg-[#d8d8d8] [font-family:sans-serif] overflow-hidden">
+    <div class="flex-shrink-0 space-y-2 p-3 pb-2">
+      <div
+        class="relative rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
+      >
+        <div
+          class="absolute -top-[11px] left-3 bg-[#d8d8d8] px-1 text-sm font-bold leading-[1.2] text-[#6f1616]"
+        >
+          管捆查询
+        </div>
+        <div class="flex flex-wrap items-center gap-3 pt-1">
           <Label class="whitespace-nowrap">查询日期</Label>
-          <Input class="rounded-xs w-40" v-model="queryState.queryDate" type="date" />
+          <Input v-model="queryState.queryDate" type="date" class="h-8 w-40 shadow-none" />
           <Label class="whitespace-nowrap">管捆号</Label>
-          <Input v-model="queryState.bundleNo" type="text" class="rounded-xs w-40" />
-          <Button variant="outline" :disabled="isLoadingQuery" @click="handleQuery">
+          <Input v-model="queryState.bundleNo" type="text" class="h-8 w-40 shadow-none" />
+          <Button :disabled="isLoadingQuery" @click="handleQuery">
             {{ isLoadingQuery ? '查询中...' : '执行查询' }}
           </Button>
           <Label class="whitespace-nowrap">合同号</Label>
-          <Input v-model="queryState.orderNo" type="text" class="rounded-xs w-40" />
+          <Input v-model="queryState.orderNo" type="text" class="h-8 w-40 shadow-none" />
           <Label class="whitespace-nowrap">项目号</Label>
-          <Input v-model="queryState.itemNo" type="text" class="rounded-xs w-20" />
-          <Button variant="outline" @click="handleCreateDraft"> 新增 </Button>
-          <Button variant="outline" :disabled="isDeleting" @click="handleDeleteBundle">
+          <Input v-model="queryState.itemNo" type="text" class="h-8 w-20 shadow-none" />
+          <Button @click="handleCreateDraft"> 新增 </Button>
+          <Button :disabled="isDeleting" @click="handleDeleteBundle">
             {{ isDeleting ? '删除中...' : '删除' }}
           </Button>
-          <Button variant="outline" :disabled="isSaving" @click="handleSave">
+          <Button :disabled="isSaving" @click="handleSave">
             {{ isSaving ? '保存中...' : '保存' }}
           </Button>
-          <Button variant="outline" @click="handlePrintTag"> 标签打印 </Button>
+          <Button @click="handlePrintTag"> 标签打印 </Button>
         </div>
       </div>
       <!-- <div v-if="statusMessage" class="px-1 text-sm text-muted-foreground">
@@ -29,411 +36,540 @@
       </div> -->
     </div>
 
-    <div class="flex flex-1 gap-3 overflow-hidden p-3 pt-0">
-      <div class="flex w-[560px] flex-shrink-0 flex-col pt-4">
-        <div class="relative flex flex-1 flex-col rounded-lg border p-4">
-          <div class="absolute -top-3 left-4 bg-white px-2 text-sm font-bold text-[1rem]">
+    <div class="flex flex-1 gap-3 px-3 pb-3 mt-2">
+      <div class="flex w-[560px] flex-shrink-0 flex-col">
+        <div
+          class="relative flex flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
+        >
+          <div
+            class="absolute -top-[11px] left-3 bg-[#d8d8d8] px-1 text-sm font-bold leading-[1.2] text-[#6f1616]"
+          >
             管捆列表
           </div>
-          <div class="border-b">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead class="w-[120px]"> 合同号 </TableHead>
-                  <TableHead class="w-[60px]"> 项目号 </TableHead>
-                  <TableHead class="w-[80px]"> 管捆号 </TableHead>
-                  <TableHead class="w-[80px]"> 轧批号 </TableHead>
-                  <TableHead class="w-[80px]"> 炉号 </TableHead>
-                  <TableHead class="w-[80px]"> 试批号 </TableHead>
-                  <TableHead class="w-[50px]"> 发送标记 </TableHead>
-                </TableRow>
-              </TableHeader>
-            </Table>
-          </div>
-          <div class="flex-1 overflow-y-auto">
-            <Table>
-              <TableBody>
-                <TableRow
-                  v-for="(row, index) in bundleResults"
-                  :key="`${row.order_no}-${row.item_no}-${row.bundle_no}`"
-                  :class="{ 'bg-accent': selectedBundleIndex === index }"
-                  class="cursor-pointer"
-                  @click="selectBundle(row, index)"
-                >
-                  <TableCell class="w-[120px]">
-                    {{ row.order_no }}
-                  </TableCell>
-                  <TableCell class="w-[60px]">
-                    {{ row.item_no }}
-                  </TableCell>
-                  <TableCell class="w-[80px]">
-                    {{ row.bundle_no }}
-                  </TableCell>
-                  <TableCell class="w-[80px]">
-                    {{ row.roll_no }}
-                  </TableCell>
-                  <TableCell class="w-[80px]">
-                    {{ row.melt_no }}
-                  </TableCell>
-                  <TableCell class="w-[80px]">
-                    {{ row.lot_no }}
-                  </TableCell>
-                  <TableCell class="w-[50px]">
-                    {{ row.send_flag }}
-                  </TableCell>
-                </TableRow>
-                <TableRow v-if="bundleResults.length === 0">
-                  <TableCell colspan="7" class="h-20 text-center text-sm text-muted-foreground">
-                    暂无查询结果
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
+          <WinTableFrame
+            v-bind="tableFrameTone"
+            :columns="bundleListColumns"
+            class="min-h-0 flex-1 overflow-y-auto"
+          >
+            <TableBody class="[&_tr]:h-9">
+              <TableRow
+                v-for="(row, index) in bundleResults"
+                :key="`${row.order_no}-${row.item_no}-${row.bundle_no}`"
+                :class="{ 'win-table-row--selected': selectedBundleIndex === index }"
+                class="cursor-pointer"
+                @click="selectBundle(row, index)"
+              >
+                <TableCell class="w-[100px]">
+                  {{ row.order_no }}
+                </TableCell>
+                <TableCell class="w-[60px]">
+                  {{ row.item_no }}
+                </TableCell>
+                <TableCell class="w-[70px]">
+                  {{ row.bundle_no }}
+                </TableCell>
+                <TableCell class="w-[70px]">
+                  {{ row.roll_no }}
+                </TableCell>
+                <TableCell class="w-[80px]">
+                  {{ row.melt_no }}
+                </TableCell>
+                <TableCell class="w-[70px]">
+                  {{ row.lot_no }}
+                </TableCell>
+                <TableCell class="w-[50px]">
+                  {{ row.send_flag }}
+                </TableCell>
+              </TableRow>
+              <TableRow v-if="bundleResults.length === 0">
+                <TableCell colspan="7" class="h-20 text-center text-sm text-[#666666]">
+                  暂无查询结果
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </WinTableFrame>
         </div>
       </div>
 
-      <div class="flex flex-1 flex-col pt-4">
-        <div class="relative flex flex-1 flex-col rounded-lg border p-4">
-          <div class="absolute -top-3 left-4 bg-white px-2 text-sm font-bold text-[1rem]">
+      <div class="flex flex-1 flex-col">
+        <div
+          class="relative flex flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
+        >
+          <div
+            class="absolute -top-[11px] left-3 bg-[#d8d8d8] px-1 text-sm font-bold leading-[1.2] text-[#6f1616]"
+          >
             管捆信息
           </div>
 
-          <template v-if="draftBundle">
-            <div class="my-3 grid grid-cols-6 gap-3">
+          <div
+            class="flex flex-1 flex-col overflow-auto rounded-[2px] border border-[#8a8a8a] bg-[#d8d8d8] px-4 py-3 shadow-[inset_0_1px_0_#f4f4f4]"
+          >
+            <div class="grid grid-cols-6 gap-3">
               <div
                 class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
               >
-                <Label class="text-xs">合同号</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.order_no" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">项目号</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.item_no" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">管捆号</Label>
+                <Label class="text-sm">合同号</Label>
                 <Input
-                  class="rounded-xs"
-                  v-model="draftBundle.bundle_no"
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.order_no"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">项目号</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.item_no"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">管捆号</Label>
+                <Input
+                  :model-value="displayBundle.bundle_no"
+                  :disabled="!hasDraftBundle"
+                  class="h-8 text-center shadow-none"
                   data-bundle-no-input="true"
                   :class="duplicateMessage ? 'border-destructive' : ''"
+                  @update:model-value="updateDraftTextField('bundle_no', $event)"
                 />
-                <p v-if="duplicateMessage" class="text-xs text-destructive">
+                <p v-if="hasDraftBundle && duplicateMessage" class="text-xs text-destructive">
                   {{ duplicateMessage }}
                 </p>
               </div>
               <div
                 class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
               >
-                <Label class="text-xs">轧批号</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.roll_no ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">炉号</Label>
-                <Input class="rounded-xs" v-model="draftBundle.melt_no" />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">试批号</Label>
-                <Input class="rounded-xs" v-model="draftBundle.lot_no" />
-              </div>
-            </div>
-
-            <div class="mb-3 grid grid-cols-6 gap-3">
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">外径</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.diameter ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">壁厚</Label>
+                <Label class="text-sm">轧批号</Label>
                 <Input
-                  class="rounded-xs"
-                  :model-value="draftBundle.wall_thickness ?? ''"
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.roll_no ?? ''"
                   readonly
                 />
               </div>
               <div
                 class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
               >
-                <Label class="text-xs">最短</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.length_from ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">最长</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.length_to ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">根数</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.tube ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">最后流水号</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.last_flow_no ?? ''" readonly />
-              </div>
-            </div>
-
-            <div class="mb-3 grid grid-cols-6 gap-3">
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">生产日期</Label>
-                <Input class="rounded-xs" v-model="draftUi.produceDate" type="date" />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">生产时间</Label>
-                <Input class="rounded-xs" v-model="draftUi.produceClock" type="time" step="1" />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">管捆状态</Label>
-                <Input v-model="draftBundle.bundle_type" class="bg-teal-200 rounded-xs" />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">班组</Label>
-                <Select v-model="draftBundle.ban_ci">
-                  <SelectTrigger class="w-full bg-teal-200 rounded-xs">
-                    <SelectValue placeholder="选择班组" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem v-for="item in shiftOptions" :key="item.value" :value="item.value">
-                      {{ item.value }}-{{ item.label }}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">作业点代码</Label>
-                <Input v-model="draftBundle.product_job_point" class="bg-teal-200 rounded-xs" />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">去向代码</Label>
-                <Input v-model="draftBundle.direction_code" class="bg-teal-200 rounded-xs" />
-              </div>
-            </div>
-
-            <div class="mb-3 grid grid-cols-6 gap-3">
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">理论重量</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.theory_weight ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">理论长度</Label>
+                <Label class="text-sm">炉号</Label>
                 <Input
-                  class="rounded-xs"
-                  :model-value="draftBundle.theory_total_length ?? ''"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.melt_no ?? ''"
+                  :disabled="!hasDraftBundle"
+                  @update:model-value="updateDraftTextField('melt_no', $event)"
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">试批号</Label>
+                <Input
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.lot_no ?? ''"
+                  :disabled="!hasDraftBundle"
+                  @update:model-value="updateDraftTextField('lot_no', $event)"
+                />
+              </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-6 gap-3">
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">外径</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.diameter ?? ''"
                   readonly
                 />
               </div>
               <div
                 class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
               >
-                <Label class="text-xs">米制重量</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.weight ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">英制重量</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.weight_eng ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">米制长度</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.total_length ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">英制长度</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.length_eng ?? ''" readonly />
-              </div>
-            </div>
-
-            <div class="mb-3 grid grid-cols-3 gap-3">
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">材质正文</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.mat_text ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">标准正文</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.std_text ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">钢级正文</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.sg_text ?? ''" readonly />
-              </div>
-            </div>
-
-            <div class="mb-3 grid grid-cols-6 gap-3">
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">管端类型符号</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.end_type_sign ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">管端型式</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.end_type ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">螺纹类型符号</Label>
+                <Label class="text-sm">壁厚</Label>
                 <Input
-                  class="rounded-xs"
-                  :model-value="draftBundle.thread_type_sign ?? ''"
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.wall_thickness ?? ''"
                   readonly
                 />
               </div>
               <div
                 class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
               >
-                <Label class="text-xs">螺纹类型</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.thread_type ?? ''" readonly />
-              </div>
-              <div
-                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
-              >
-                <Label class="text-xs">接箍炉号</Label>
+                <Label class="text-sm">最短</Label>
                 <Input
-                  class="rounded-xs"
-                  :model-value="draftBundle.pono_id_coupling ?? ''"
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.length_from ?? ''"
                   readonly
                 />
               </div>
               <div
                 class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
               >
-                <Label class="text-xs">接箍批号</Label>
-                <Input class="rounded-xs" :model-value="draftBundle.lot_no_thread ?? ''" readonly />
+                <Label class="text-sm">最长</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.length_to ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">根数</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.tube ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">最后流水号</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.last_flow_no ?? ''"
+                  readonly
+                />
               </div>
             </div>
-          </template>
 
-          <div v-else class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-            请先执行查询或点击新增创建管捆草稿
+            <div class="mt-3 grid grid-cols-6 gap-3">
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">生产日期</Label>
+                <Input
+                  class="h-8 text-center shadow-none"
+                  :model-value="draftUi.produceDate"
+                  :disabled="!hasDraftBundle"
+                  type="date"
+                  @update:model-value="updateDraftUiField('produceDate', $event)"
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">生产时间</Label>
+                <Input
+                  class="h-8 text-center shadow-none"
+                  :model-value="draftUi.produceClock"
+                  :disabled="!hasDraftBundle"
+                  type="time"
+                  step="1"
+                  @update:model-value="updateDraftUiField('produceClock', $event)"
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">管捆状态</Label>
+                <Input
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.bundle_type ?? ''"
+                  :disabled="!hasDraftBundle"
+                  @update:model-value="updateDraftTextField('bundle_type', $event)"
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">班组</Label>
+                <WinSelect
+                  :model-value="displayBundle.ban_ci ?? ''"
+                  :options="shiftSelectOptions"
+                  :disabled="!hasDraftBundle"
+                  placeholder="选择班组"
+                  trigger-class="h-8 shadow-none"
+                  @update:model-value="updateDraftShift"
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">作业点代码</Label>
+                <Input
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.product_job_point ?? ''"
+                  :disabled="!hasDraftBundle"
+                  @update:model-value="updateDraftTextField('product_job_point', $event)"
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">去向代码</Label>
+                <Input
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.direction_code ?? ''"
+                  :disabled="!hasDraftBundle"
+                  @update:model-value="updateDraftTextField('direction_code', $event)"
+                />
+              </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-6 gap-3">
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">理论重量</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.theory_weight ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">理论长度</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.theory_total_length ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">米制重量</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.weight ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">英制重量</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.weight_eng ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">米制长度</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.total_length ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">英制长度</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.length_eng ?? ''"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-3 gap-3">
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">材质正文</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.mat_text ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">标准正文</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.std_text ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">钢级正文</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.sg_text ?? ''"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-6 gap-3">
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">管端类型符号</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.end_type_sign ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">管端型式</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.end_type ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">螺纹类型符号</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.thread_type_sign ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">螺纹类型</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.thread_type ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">接箍炉号</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.pono_id_coupling ?? ''"
+                  readonly
+                />
+              </div>
+              <div
+                class="space-y-1 [&_[data-slot=label]]:justify-center [&_[data-slot=input]]:text-center"
+              >
+                <Label class="text-sm">接箍批号</Label>
+                <Input
+                  variant="readonly"
+                  class="h-8 text-center shadow-none"
+                  :model-value="displayBundle.lot_no_thread ?? ''"
+                  readonly
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="flex w-[520px] flex-shrink-0 flex-col pt-4">
-        <div class="relative flex flex-1 flex-col rounded-lg border p-4">
-          <div class="absolute -top-3 left-4 bg-white px-2 text-sm font-bold text-[1rem]">
+      <div class="flex w-[520px] flex-shrink-0 flex-col">
+        <div
+          class="relative flex flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
+        >
+          <div
+            class="absolute -top-[11px] left-3 bg-[#d8d8d8] px-1 text-sm font-bold leading-[1.2] text-[#6f1616]"
+          >
             管子信息
           </div>
 
-          <div class="flex min-h-0 flex-1 flex-col rounded border">
-            <div class="border-b">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead class="w-[100px]"> 流水号 </TableHead>
-                    <TableHead class="w-[100px]"> 管号 </TableHead>
-                    <TableHead class="w-[120px]"> 长度（米） </TableHead>
-                    <TableHead class="w-[120px]"> 重量（千克） </TableHead>
-                  </TableRow>
-                </TableHeader>
-              </Table>
-            </div>
-            <div class="flex-1 overflow-y-auto">
-              <Table>
-                <TableBody>
-                  <TableRow
-                    v-for="(row, index) in draftTubes"
-                    :key="index"
-                    :class="{ 'bg-accent': selectedTubeIndex === index }"
-                    class="cursor-pointer"
-                    @click="selectedTubeIndex = index"
-                  >
-                    <TableCell class="w-[100px] p-1">
-                      <Input
-                        :model-value="row.flow_no"
-                        type="number"
-                        class="h-8 border-0 px-1 shadow-none"
-                        @update:model-value="updateTubeField(index, 'flow_no', $event)"
-                      />
-                    </TableCell>
-                    <TableCell class="w-[100px] p-1">
-                      <Input
-                        :model-value="row.tube_no ?? 0"
-                        type="number"
-                        class="h-8 border-0 px-1 shadow-none"
-                        @update:model-value="updateTubeField(index, 'tube_no', $event)"
-                      />
-                    </TableCell>
-                    <TableCell class="w-[120px] p-1">
-                      <Input
-                        :model-value="row.length ?? 0"
-                        type="number"
-                        step="0.001"
-                        class="h-8 border-0 px-1 shadow-none"
-                        @update:model-value="updateTubeField(index, 'length', $event)"
-                      />
-                    </TableCell>
-                    <TableCell class="w-[120px] p-1">
-                      <Input
-                        :model-value="row.weight ?? 0"
-                        type="number"
-                        step="0.001"
-                        class="h-8 border-0 px-1 shadow-none"
-                        @update:model-value="updateTubeField(index, 'weight', $event)"
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow v-if="draftTubes.length === 0">
-                    <TableCell colspan="4" class="h-20 text-center text-sm text-muted-foreground">
-                      当前没有管子草稿数据
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          </div>
+          <WinTableFrame
+            v-bind="tableFrameTone"
+            :columns="tubeDraftColumns"
+            class="min-h-0 flex-1 overflow-y-auto"
+          >
+            <TableBody class="[&_tr]:h-9">
+              <TableRow
+                v-for="(row, index) in draftTubes"
+                :key="index"
+                :class="{ 'win-table-row--selected': selectedTubeIndex === index }"
+                class="cursor-pointer"
+                @click="selectedTubeIndex = index"
+              >
+                <TableCell class="w-[100px] p-1">
+                  <Input
+                    variant="table"
+                    :model-value="row.flow_no"
+                    type="number"
+                    class="h-7 border-0 px-1 text-center focus-visible:ring-0"
+                    @update:model-value="updateTubeField(index, 'flow_no', $event)"
+                  />
+                </TableCell>
+                <TableCell class="w-[100px] p-1">
+                  <Input
+                    variant="table"
+                    :model-value="row.tube_no ?? 0"
+                    type="number"
+                    class="h-7 border-0 px-1 text-center focus-visible:ring-0"
+                    @update:model-value="updateTubeField(index, 'tube_no', $event)"
+                  />
+                </TableCell>
+                <TableCell class="w-[120px] p-1">
+                  <Input
+                    variant="table"
+                    :model-value="row.length ?? 0"
+                    type="number"
+                    step="0.001"
+                    class="h-7 border-0 px-1 text-center focus-visible:ring-0"
+                    @update:model-value="updateTubeField(index, 'length', $event)"
+                  />
+                </TableCell>
+                <TableCell class="w-[120px] p-1">
+                  <Input
+                    variant="table"
+                    :model-value="row.weight ?? 0"
+                    type="number"
+                    step="0.001"
+                    class="h-7 border-0 px-1 text-center focus-visible:ring-0"
+                    @update:model-value="updateTubeField(index, 'weight', $event)"
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow v-if="draftTubes.length === 0">
+                <TableCell colspan="4" class="h-20 text-center text-sm text-[#666666]">
+                  当前没有管子草稿数据
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </WinTableFrame>
           <div class="mt-3 flex items-center gap-3">
-            <Button variant="outline" class="mt-3 w-32" @click="handleAddTube"> 管子新增 </Button>
-            <Button variant="outline" class="mt-3 w-32" @click="handleDeleteTube">
-              管子删除
-            </Button>
+            <Button class="w-32" @click="handleAddTube"> 管子新增 </Button>
+            <Button class="w-32" @click="handleDeleteTube"> 管子删除 </Button>
           </div>
         </div>
       </div>
@@ -442,7 +578,8 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import type { AcceptableValue } from 'reka-ui';
 import type {
   TagPrintEvent,
   BundleRecord,
@@ -460,24 +597,12 @@ import {
   getBundles,
   saveBundleDraft,
 } from '@/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import Button from '@/components/custom/WinButton.vue';
+import Input from '@/components/custom/WinInput.vue';
+import WinSelect from '@/components/custom/WinSelect.vue';
+import WinTableFrame from '@/components/custom/WinTableFrame.vue';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 const shiftOptions = [
   { value: '11', label: '夜甲' },
@@ -489,6 +614,40 @@ const shiftOptions = [
   { value: '23', label: '早丙' },
   { value: '24', label: '早丁' },
 ];
+
+const shiftSelectOptions = shiftOptions.map((item) => ({
+  value: item.value,
+  label: `${item.value}-${item.label}`,
+}));
+
+const tableFrameTone = {
+  borderColor: '#9a9a9a',
+  shellBackground: '#d4d4d4',
+  headerBackground: '#dddddd',
+  headerTextColor: '#4b5f7d',
+  cellBorderColor: '#b0b0b0',
+  plainRowBackground: '#ebebeb',
+  oddRowBackground: '#ebebeb',
+  evenRowBackground: '#e6e6e6',
+  selectedRowBackground: '#b8cceb',
+} as const;
+
+const bundleListColumns = [
+  { key: 'order_no', label: '合同号', width: '100px' },
+  { key: 'item_no', label: '项目号', width: '60px' },
+  { key: 'bundle_no', label: '管捆号', width: '70px' },
+  { key: 'roll_no', label: '轧批号', width: '70px' },
+  { key: 'melt_no', label: '炉号', width: '80px' },
+  { key: 'lot_no', label: '试批号', width: '70px' },
+  { key: 'send_flag', label: '发送', width: '50px' },
+] as const;
+
+const tubeDraftColumns = [
+  { key: 'flow_no', label: '流水号', width: '100px' },
+  { key: 'tube_no', label: '管号', width: '100px' },
+  { key: 'length', label: '长度（米）', width: '120px' },
+  { key: 'weight', label: '重量（千克）', width: '120px' },
+] as const;
 
 const requiredBundleFields: Array<[keyof BundleRecord, string]> = [
   ['order_no', '合同号'],
@@ -545,6 +704,63 @@ const duplicateMessage = ref('');
 const isLoadingQuery = ref(false);
 const isSaving = ref(false);
 const isDeleting = ref(false);
+
+const emptyBundleDisplay: BundleRecord = {
+  order_no: '',
+  item_no: '',
+  bundle_no: '',
+  roll_no: '',
+  melt_no: '',
+  lot_no: '',
+  prod_code: '',
+  prod_cname: '',
+  mat_no: '',
+  mat_text: '',
+  std_sg_code: '',
+  std_text: '',
+  sg_text: '',
+  diameter: null,
+  wall_thickness: null,
+  weight: null,
+  weight_eng: null,
+  total_length: null,
+  length_eng: null,
+  length_from: null,
+  length_to: null,
+  tube: null,
+  bundle_type: '',
+  produce_time: '',
+  ban_ci: '',
+  product_job_point: '',
+  direction_code: '',
+  theory_weight: null,
+  theory_total_length: null,
+  last_flow_no: null,
+  end_type_code: '',
+  end_type_sign: '',
+  thread_type_code: '',
+  thread_type_sign: '',
+  coupling_type_code: '',
+  coupling_type_sign: '',
+  pono_id_coupling: '',
+  lot_no_thread: '',
+  order_no_old: '',
+  toc: '',
+  send_flag: '',
+  gross_weight: null,
+  end_type: '',
+  thread_type: '',
+  diameter_down_ctrl: null,
+  diameter_up_ctrl: null,
+  wal_thick_down_ctrl: null,
+  wal_thick_up_ctrl: null,
+  weight_per_meter: null,
+  weight_ew: null,
+  room_no: '',
+};
+
+const hasDraftBundle = computed(() => draftBundle.value !== null);
+const displayBundle = computed(() => draftBundle.value ?? emptyBundleDisplay);
 
 let duplicateTimer: number | null = null;
 let duplicateRequestId = 0;
@@ -719,6 +935,39 @@ function roundTo(value: number, digits: number) {
 function parseNumberInput(value: string | number) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function updateDraftTextField(
+  field:
+    | 'bundle_no'
+    | 'melt_no'
+    | 'lot_no'
+    | 'bundle_type'
+    | 'product_job_point'
+    | 'direction_code',
+  value: string | number,
+) {
+  if (!draftBundle.value) {
+    return;
+  }
+
+  draftBundle.value[field] = String(value);
+}
+
+function updateDraftUiField(field: 'produceDate' | 'produceClock', value: string | number) {
+  if (!draftBundle.value) {
+    return;
+  }
+
+  draftUi[field] = String(value);
+}
+
+function updateDraftShift(value: AcceptableValue) {
+  if (!draftBundle.value) {
+    return;
+  }
+
+  draftBundle.value.ban_ci = value == null ? '' : String(value);
 }
 
 function syncDraftBundleNumberToTubes(bundleNo: string) {

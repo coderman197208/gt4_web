@@ -5,3 +5,4 @@ node_modules/
 **/*.tsbuildinfo
 .env
 .DS_Store
+gt4_project-workspace.code-workspace

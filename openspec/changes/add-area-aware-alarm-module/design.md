@@ -81,6 +81,418 @@ GT4 当前的实时数据链路是围绕 tag 订阅建立的：C++ 程序把最�
 
 这种方案兼顾了操作效率和现有页面结构稳定性：监控页可以快速看到报警状态，完整交互仍集中在报警中心，不会把主监控画面挤成一个后台管理页面。
 
+### 7. REST 契约固定为 HTTP 直出 JSON，不使用额外响应包裹
+
+报警相关 HTTP 接口沿用仓库现有 API 风格，直接返回 JSON 对象，不再额外套一层通用响应包裹。接口分为操作员查询接口和管理接口两类，其中操作员接口依赖当前登录用户上下文自动完成区域过滤。
+
+#### 7.1 GET /api/alarms/summary
+
+用途：返回当前用户授权区域范围内的报警汇总，用于页头未确认角标和报警中心顶部统计。
+
+查询参数：
+
+- `area_ids`：可选，逗号分隔，仅允许传入当前用户授权区域的子集。
+
+响应结构：
+
+```json
+{
+  "server_time": "2026-05-30T09:30:00.000Z",
+  "total_active": 5,
+  "total_unacked": 2,
+  "highest_severity": "critical",
+  "by_severity": {
+    "critical": 1,
+    "major": 2,
+    "minor": 1,
+    "warning": 1,
+    "info": 0
+  },
+  "by_area": [
+    {
+      "area_id": 1,
+      "area_code": "AREA-A",
+      "area_name": "A区",
+      "active_count": 3,
+      "unacked_count": 1
+    }
+  ]
+}
+```
+
+#### 7.2 GET /api/alarms
+
+用途：分页查询报警列表，支持活动态、历史态和混合视图。
+
+查询参数：
+
+- `scope`：可选，`active | history | all`，默认 `active`
+- `area_ids`：可选，逗号分隔，仅允许传入授权区域子集
+- `severity`：可选，逗号分隔，取值 `critical,major,minor,warning,info`
+- `condition_state`：可选，`active | cleared`
+- `ack_state`：可选，`unacked | acked`
+- `keyword`：可选，按标题、文案、报警码模糊过滤
+- `page`：可选，默认 `1`
+- `page_size`：可选，默认 `50`，最大 `200`
+
+单条列表项结构固定为：
+
+```json
+{
+  "id": 101,
+  "alarm_code": "SPRAY_PRESS_LOW",
+  "area_id": 1,
+  "area_code": "AREA-A",
+  "area_name": "A区",
+  "severity": "critical",
+  "title": "喷码压力过低",
+  "message": "喷码工位压力低于下限 0.35MPa",
+  "source_module": "SprayWeight",
+  "source_key": "spray.pressure.low",
+  "condition_state": "active",
+  "ack_state": "unacked",
+  "first_occurred_at": "2026-05-30T09:20:00.000Z",
+  "last_occurred_at": "2026-05-30T09:29:00.000Z",
+  "cleared_at": null,
+  "acked_at": null,
+  "acked_by_name": null,
+  "version": 3
+}
+```
+
+分页响应结构：
+
+```json
+{
+  "items": [],
+  "page": 1,
+  "page_size": 50,
+  "total": 0
+}
+```
+
+#### 7.3 GET /api/alarms/:id
+
+用途：获取报警详情和操作历史。
+
+响应结构：
+
+```json
+{
+  "alarm": {
+    "id": 101,
+    "alarm_code": "SPRAY_PRESS_LOW",
+    "area_id": 1,
+    "area_code": "AREA-A",
+    "area_name": "A区",
+    "severity": "critical",
+    "title": "喷码压力过低",
+    "message": "喷码工位压力低于下限 0.35MPa",
+    "source_module": "SprayWeight",
+    "source_key": "spray.pressure.low",
+    "condition_state": "active",
+    "ack_state": "unacked",
+    "first_occurred_at": "2026-05-30T09:20:00.000Z",
+    "last_occurred_at": "2026-05-30T09:29:00.000Z",
+    "cleared_at": null,
+    "acked_at": null,
+    "acked_by_name": null,
+    "version": 3,
+    "detail_json": {
+      "threshold": 0.35,
+      "actual": 0.31,
+      "unit": "MPa"
+    }
+  },
+  "logs": [
+    {
+      "id": 9001,
+      "action": "raise",
+      "operator_type": "system",
+      "operator_id": null,
+      "operator_name": "SprayWeight",
+      "payload_json": {
+        "actual": 0.31
+      },
+      "created_at": "2026-05-30T09:20:00.000Z"
+    }
+  ]
+}
+```
+
+#### 7.4 POST /api/alarms/:id/ack
+
+用途：执行人工确认，并利用 `expected_version` 做乐观并发控制。
+
+请求体：
+
+```json
+{
+  "expected_version": 3,
+  "operator_note": "已通知设备工检查喷码压力"
+}
+```
+
+成功响应：
+
+```json
+{
+  "alarm": {
+    "id": 101,
+    "ack_state": "acked",
+    "acked_at": "2026-05-30T09:31:12.000Z",
+    "acked_by_name": "operator-a",
+    "version": 4
+  }
+}
+```
+
+失败约定：
+
+- `403`：当前用户无权确认该区域报警
+- `404`：报警不存在或不在当前用户可见范围内
+- `409`：`expected_version` 与数据库当前版本不一致，前端必须重新拉取详情与列表
+
+#### 7.5 GET /api/alarm-areas
+
+用途：查询当前用户可见的报警区域定义。
+
+响应结构：
+
+```json
+[
+  {
+    "id": 1,
+    "area_code": "AREA-A",
+    "area_name": "A区",
+    "sort_order": 10,
+    "enabled": true
+  }
+]
+```
+
+#### 7.6 GET /api/users/me/alarm-areas
+
+用途：返回当前登录用户的报警区域授权上下文。
+
+响应结构：
+
+```json
+{
+  "user_id": 7,
+  "default_area_id": 1,
+  "areas": [
+    {
+      "area_id": 1,
+      "area_code": "AREA-A",
+      "area_name": "A区",
+      "is_default": true
+    }
+  ]
+}
+```
+
+#### 7.7 PUT /api/users/:userId/alarm-areas
+
+用途：管理用户的报警区域授权关系，按“整组替换”语义写入。
+
+请求体：
+
+```json
+{
+  "default_area_id": 1,
+  "area_ids": [1, 2]
+}
+```
+
+成功响应：
+
+```json
+{
+  "user_id": 7,
+  "default_area_id": 1,
+  "area_ids": [1, 2]
+}
+```
+
+### 8. Socket 事件固定为服务端推送增量更新，客户端不直接通过 Socket 执行报警业务写操作
+
+报警域的写操作全部走 HTTP，Socket.IO 只承担身份绑定、初始快照和增量推送职责。连接建立时，客户端通过 `auth.token` 提交登录令牌，服务端解析用户与区域授权后，将该连接加入对应的 `alarm-area:<areaId>` 房间。
+
+固定事件如下：
+
+#### 8.1 服务端 -> 客户端 `alarm:snapshot`
+
+触发时机：认证连接建立后或重连完成后。
+
+载荷：
+
+```json
+{
+  "server_time": "2026-05-30T09:30:00.000Z",
+  "summary": {
+    "total_active": 5,
+    "total_unacked": 2,
+    "highest_severity": "critical"
+  },
+  "active_items": []
+}
+```
+
+说明：`active_items` 只包含当前用户授权范围内、按优先级排序的活动报警快照，默认返回前 `50` 条，用于报警中心首屏快速渲染；完整列表仍以 HTTP 查询为准。
+
+#### 8.2 服务端 -> 客户端 `alarm:upsert`
+
+触发时机：报警产生、重复触发归并、恢复、重新打开或确认后。
+
+载荷：
+
+```json
+{
+  "reason": "raise",
+  "alarm": {
+    "id": 101,
+    "alarm_code": "SPRAY_PRESS_LOW",
+    "area_id": 1,
+    "severity": "critical",
+    "condition_state": "active",
+    "ack_state": "unacked",
+    "version": 3
+  }
+}
+```
+
+`reason` 固定取值：`raise | clear | ack | reopen | refresh`
+
+#### 8.3 服务端 -> 客户端 `alarm:summary`
+
+触发时机：任一会影响汇总计数的报警状态变更后。
+
+载荷结构与 `GET /api/alarms/summary` 一致，但服务端可只发送必要字段。
+
+#### 8.4 服务端 -> 客户端 `alarm:resync-required`
+
+触发时机：服务端重启、连接恢复后无法确认客户端状态连续性、或服务端发现客户端必须重新拉取完整数据时。
+
+载荷：
+
+```json
+{
+  "reason": "server_restart"
+}
+```
+
+客户端收到后必须重新调用 `GET /api/alarms/summary`、`GET /api/alarms` 和当前打开的详情接口。
+
+### 9. SQL DDL 固定为 PostgreSQL 主存储 + Redis 事件中转
+
+报警的最终权威存储落 PostgreSQL，Redis 只承担事件中转和临时事件负载承载职责。数据库对象固定如下。
+
+```sql
+CREATE TABLE alarm_area (
+	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	area_code VARCHAR(64) NOT NULL UNIQUE,
+	area_name VARCHAR(128) NOT NULL,
+	sort_order INTEGER NOT NULL DEFAULT 0,
+	enabled BOOLEAN NOT NULL DEFAULT TRUE,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE user_area (
+	user_id BIGINT NOT NULL,
+	area_id BIGINT NOT NULL REFERENCES alarm_area(id) ON DELETE CASCADE,
+	is_default BOOLEAN NOT NULL DEFAULT FALSE,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	PRIMARY KEY (user_id, area_id)
+);
+
+CREATE UNIQUE INDEX uq_user_area_default
+	ON user_area (user_id)
+	WHERE is_default = TRUE;
+
+CREATE TABLE alarm_definition (
+	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	alarm_code VARCHAR(64) NOT NULL UNIQUE,
+	alarm_name VARCHAR(128) NOT NULL,
+	severity VARCHAR(16) NOT NULL CHECK (severity IN ('critical', 'major', 'minor', 'warning', 'info')),
+	source_module VARCHAR(64) NOT NULL,
+	default_area_id BIGINT NULL REFERENCES alarm_area(id),
+	confirm_required BOOLEAN NOT NULL DEFAULT TRUE,
+	auto_clear BOOLEAN NOT NULL DEFAULT FALSE,
+	dedupe_strategy VARCHAR(32) NOT NULL DEFAULT 'by_dedupe_key'
+		CHECK (dedupe_strategy IN ('by_dedupe_key', 'by_alarm_code_and_source')),
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE alarm_event (
+	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	definition_id BIGINT NULL REFERENCES alarm_definition(id),
+	alarm_code VARCHAR(64) NOT NULL,
+	area_id BIGINT NOT NULL REFERENCES alarm_area(id),
+	source_module VARCHAR(64) NOT NULL,
+	source_key VARCHAR(128) NOT NULL,
+	severity VARCHAR(16) NOT NULL CHECK (severity IN ('critical', 'major', 'minor', 'warning', 'info')),
+	title VARCHAR(256) NOT NULL,
+	message TEXT NOT NULL,
+	detail_json JSONB NOT NULL DEFAULT '{}'::JSONB,
+	condition_state VARCHAR(16) NOT NULL CHECK (condition_state IN ('active', 'cleared')),
+	ack_state VARCHAR(16) NOT NULL CHECK (ack_state IN ('unacked', 'acked')),
+	first_occurred_at TIMESTAMPTZ NOT NULL,
+	last_occurred_at TIMESTAMPTZ NOT NULL,
+	cleared_at TIMESTAMPTZ NULL,
+	acked_at TIMESTAMPTZ NULL,
+	acked_by_user_id BIGINT NULL,
+	acked_by_name VARCHAR(64) NULL,
+	dedupe_key VARCHAR(256) NOT NULL,
+	reopen_count INTEGER NOT NULL DEFAULT 0,
+	version INTEGER NOT NULL DEFAULT 1,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	CHECK (
+		(condition_state = 'active' AND cleared_at IS NULL)
+		OR (condition_state = 'cleared' AND cleared_at IS NOT NULL)
+	)
+);
+
+CREATE UNIQUE INDEX uq_alarm_event_active_dedupe
+	ON alarm_event (dedupe_key)
+	WHERE condition_state = 'active';
+
+CREATE INDEX idx_alarm_event_active_query
+	ON alarm_event (area_id, ack_state, severity, last_occurred_at DESC)
+	WHERE condition_state = 'active';
+
+CREATE INDEX idx_alarm_event_history_query
+	ON alarm_event (area_id, last_occurred_at DESC);
+
+CREATE INDEX idx_alarm_event_code_source
+	ON alarm_event (alarm_code, source_module, source_key);
+
+CREATE TABLE alarm_event_log (
+	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	alarm_event_id BIGINT NOT NULL REFERENCES alarm_event(id) ON DELETE CASCADE,
+	action VARCHAR(16) NOT NULL CHECK (action IN ('raise', 'clear', 'ack')),
+	operator_type VARCHAR(16) NOT NULL CHECK (operator_type IN ('system', 'user')),
+	operator_id BIGINT NULL,
+	operator_name VARCHAR(64) NULL,
+	payload_json JSONB NOT NULL DEFAULT '{}'::JSONB,
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_alarm_event_log_event_time
+	ON alarm_event_log (alarm_event_id, created_at DESC);
+```
+
+Redis 键和频道约定固定为：
+
+- 事件键：`alarm:event:<dedupe_key>`
+- 事件频道：`AlarmChanged`
+- 事件载荷最小字段：`alarmCode`、`areaCode`、`severity`、`sourceModule`、`sourceKey`、`title`、`message`、`detailJson`、`dedupeKey`、`occurredAt`、`eventType`
+
+其中 `eventType` 固定取值为 `raise | clear`。人工确认不通过 Redis 事件直接写库，而是先由 HTTP 完成落库，再按需通过 `operation_cmd` 回写 C++。
+
 ## Risks / Trade-offs
 
 - 当前登录与用户上下文模型仍然较弱，区域过滤落地前必须补齐用户区域信息，否则后端无法可靠判定用户可见范围。

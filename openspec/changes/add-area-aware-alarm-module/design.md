@@ -53,7 +53,18 @@ GT4 当前的实时数据链路是围绕 tag 订阅建立的：C++ 程序把最�
 
 之所以拒绝前端本地过滤，是因为报警天然属于敏感生产信息。只要让前端先收到全量数据，就已经违反了区域隔离目标。
 
-### 4. 人工确认采用 HTTP 写操作，必要时再回写 C++ 命令通道
+### 4. 报警只依赖最小认证上下文改造，不以前置完成登录页面 UI 重做为条件
+
+本 change 不把“完整登录系统重构”作为报警实现的前置条件，只要求补齐足以支撑报警鉴权的最小认证上下文。最小范围固定为：
+
+- 前端登录表单与现有认证契约对齐为 `username + password`，替换当前本地模拟提交。
+- `POST /api/auth/login` 成功后返回可复用的 `token` 与稳定的基础用户身份字段，用于后续 HTTP 请求头和 Socket `auth.token`。
+- 当前用户的报警区域授权上下文通过独立接口查询，不要求在登录响应中一次性塞入完整区域对象。
+- 报警相关 HTTP API 与 Socket 连接都必须基于同一份登录令牌完成身份识别。
+
+不在本 change 范围内的登录能力包括：注册、忘记密码、多因素认证、刷新令牌体系重构、登录页视觉重做，以及非报警业务页面的完整路由守卫体系重构。
+
+### 5. 人工确认采用 HTTP 写操作，必要时再回写 C++ 命令通道
 
 人工确认接口设计为后端显式写操作，而不是默认作为 WebSocket 命令发送。推荐的主路径是 `POST /api/alarms/:id/ack`，后端在单次事务中更新 `alarm_event` 的确认状态、确认人和确认时间，并向 `alarm_event_log` 追加一条确认记录。确认成功后，后端再向相关区域房间广播最新报警状态。
 
@@ -67,13 +78,15 @@ GT4 当前的实时数据链路是围绕 tag 订阅建立的：C++ 程序把最�
 - `GET /api/alarm-areas`：查询报警区域定义。
 - 管理类接口：维护用户区域授权关系，用于后台配置场景。
 
-### 5. C++ 侧提供统一 AlarmPublisher 接口，避免业务模块自行拼装 Redis 负载
+### 6. C++ 侧提供统一 AlarmPublisher 接口，避免业务模块自行拼装 Redis 负载
 
 `gt4_app` 侧需要新增统一报警发布接口，而不是让每个业务模块各自序列化 JSON 并直接操作 Redis。推荐引入共享 `AlarmPublisher` 抽象，并定义两个基础请求模型：`AlarmRaiseRequest` 和 `AlarmClearRequest`。最小字段集合包括：`alarmCode`、`areaCode`、`severity`、`sourceModule`、`sourceKey`、`title`、`message`、`detailJson`、`requireAck`、`autoClear`、`dedupeKey` 和 `occurredAt`。
 
 对业务模块而言，核心调用面只保留三类能力：产生或更新报警、清除报警，以及在需要时生成静态快照。Redis 连接、序列化格式、事件键命名和频道发布都由统一接口封装。这样可以减少不同模块间的格式漂移，也能保证 Web 后端只需要对接一套稳定契约。
 
-### 6. 前端采用“全局入口 + 报警中心”结构，并保持现有 HMI 视觉语言
+为了让 `gt4_app` 侧接口边界足够稳定，推荐将共享发布抽象的强制调用面固定为两条同步操作：`Raise(const AlarmRaiseRequest&)` 和 `Clear(const AlarmClearRequest&)`。其中 `AlarmClearRequest` 至少需要携带 `alarmCode`、`areaCode`、`sourceModule`、`sourceKey`、`dedupeKey` 和 `occurredAt`，并允许附带 `severity`、`title`、`message` 与 `detailJson` 作为清除时的最后业务快照。发布结果至少要能显式表达成功或失败；如果 Redis 写入或发布阶段发生异常，统一接口不得静默吞掉错误，必须把失败结果暴露给调用方并记录 `alarmCode`、`sourceModule` 和 `dedupeKey` 等上下文。
+
+### 7. 前端采用“全局入口 + 报警中心”结构，并保持现有 HMI 视觉语言
 
 前端不增加一个完全脱离现有壳层的新应用，而是在现有 `HomePage` 之上叠加报警入口和报警中心。具体形式采用两层结构：页头右侧显示报警入口和未确认数量；点击入口后打开右侧报警中心面板，用于查看活动报警、历史报警、报警详情和执行确认。对于需要配置区域或做全量历史查询的管理人员，再补充独立的报警管理页。
 
@@ -81,9 +94,37 @@ GT4 当前的实时数据链路是围绕 tag 订阅建立的：C++ 程序把最�
 
 这种方案兼顾了操作效率和现有页面结构稳定性：监控页可以快速看到报警状态，完整交互仍集中在报警中心，不会把主监控画面挤成一个后台管理页面。
 
-### 7. REST 契约固定为 HTTP 直出 JSON，不使用额外响应包裹
+### 8. REST 契约固定为 HTTP 直出 JSON，不使用额外响应包裹
 
 报警相关 HTTP 接口沿用仓库现有 API 风格，直接返回 JSON 对象，不再额外套一层通用响应包裹。接口分为操作员查询接口和管理接口两类，其中操作员接口依赖当前登录用户上下文自动完成区域过滤。
+
+报警依赖的最小登录契约固定为：
+
+- `POST /api/auth/login`
+- 请求体固定为：
+
+```json
+{
+  "username": "operator-a",
+  "password": "******"
+}
+```
+
+- 成功响应至少包含：
+
+```json
+{
+  "success": true,
+  "token": "mock-or-real-jwt-token",
+  "user": {
+    "id": 7,
+    "username": "operator-a",
+    "role": "user"
+  }
+}
+```
+
+该响应不要求内联完整区域权限；前端在登录成功后再调用 `GET /api/users/me/alarm-areas` 获取报警区域上下文。这样可以把登录响应保持在最小稳定集合内，同时避免把报警专属字段强耦合到通用用户对象。
 
 #### 7.1 GET /api/alarms/summary
 
@@ -315,7 +356,7 @@ GT4 当前的实时数据链路是围绕 tag 订阅建立的：C++ 程序把最�
 }
 ```
 
-### 8. Socket 事件固定为服务端推送增量更新，客户端不直接通过 Socket 执行报警业务写操作
+### 9. Socket 事件固定为服务端推送增量更新，客户端不直接通过 Socket 执行报警业务写操作
 
 报警域的写操作全部走 HTTP，Socket.IO 只承担身份绑定、初始快照和增量推送职责。连接建立时，客户端通过 `auth.token` 提交登录令牌，服务端解析用户与区域授权后，将该连接加入对应的 `alarm-area:<areaId>` 房间。
 
@@ -384,13 +425,13 @@ GT4 当前的实时数据链路是围绕 tag 订阅建立的：C++ 程序把最�
 
 客户端收到后必须重新调用 `GET /api/alarms/summary`、`GET /api/alarms` 和当前打开的详情接口。
 
-### 9. SQL DDL 固定为 PostgreSQL 主存储 + Redis 事件中转
+### 10. SQL DDL 固定为 PostgreSQL 主存储 + Redis 事件中转
 
 报警的最终权威存储落 PostgreSQL，Redis 只承担事件中转和临时事件负载承载职责。数据库对象固定如下。
 
 ```sql
 CREATE TABLE alarm_area (
-	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	area_code VARCHAR(64) NOT NULL UNIQUE,
 	area_name VARCHAR(128) NOT NULL,
 	sort_order INTEGER NOT NULL DEFAULT 0,
@@ -400,8 +441,8 @@ CREATE TABLE alarm_area (
 );
 
 CREATE TABLE user_area (
-	user_id BIGINT NOT NULL,
-	area_id BIGINT NOT NULL REFERENCES alarm_area(id) ON DELETE CASCADE,
+	user_id INT NOT NULL,
+	area_id INT NOT NULL REFERENCES alarm_area(id) ON DELETE CASCADE,
 	is_default BOOLEAN NOT NULL DEFAULT FALSE,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	PRIMARY KEY (user_id, area_id)
@@ -412,12 +453,12 @@ CREATE UNIQUE INDEX uq_user_area_default
 	WHERE is_default = TRUE;
 
 CREATE TABLE alarm_definition (
-	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	alarm_code VARCHAR(64) NOT NULL UNIQUE,
 	alarm_name VARCHAR(128) NOT NULL,
 	severity VARCHAR(16) NOT NULL CHECK (severity IN ('critical', 'major', 'minor', 'warning', 'info')),
 	source_module VARCHAR(64) NOT NULL,
-	default_area_id BIGINT NULL REFERENCES alarm_area(id),
+	default_area_id INT NULL REFERENCES alarm_area(id),
 	confirm_required BOOLEAN NOT NULL DEFAULT TRUE,
 	auto_clear BOOLEAN NOT NULL DEFAULT FALSE,
 	dedupe_strategy VARCHAR(32) NOT NULL DEFAULT 'by_dedupe_key'
@@ -427,10 +468,10 @@ CREATE TABLE alarm_definition (
 );
 
 CREATE TABLE alarm_event (
-	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	definition_id BIGINT NULL REFERENCES alarm_definition(id),
+	id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	definition_id INT NULL REFERENCES alarm_definition(id),
 	alarm_code VARCHAR(64) NOT NULL,
-	area_id BIGINT NOT NULL REFERENCES alarm_area(id),
+	area_id INT NOT NULL REFERENCES alarm_area(id),
 	source_module VARCHAR(64) NOT NULL,
 	source_key VARCHAR(128) NOT NULL,
 	severity VARCHAR(16) NOT NULL CHECK (severity IN ('critical', 'major', 'minor', 'warning', 'info')),
@@ -443,7 +484,7 @@ CREATE TABLE alarm_event (
 	last_occurred_at TIMESTAMPTZ NOT NULL,
 	cleared_at TIMESTAMPTZ NULL,
 	acked_at TIMESTAMPTZ NULL,
-	acked_by_user_id BIGINT NULL,
+	acked_by_user_id INT NULL,
 	acked_by_name VARCHAR(64) NULL,
 	dedupe_key VARCHAR(256) NOT NULL,
 	reopen_count INTEGER NOT NULL DEFAULT 0,
@@ -471,11 +512,11 @@ CREATE INDEX idx_alarm_event_code_source
 	ON alarm_event (alarm_code, source_module, source_key);
 
 CREATE TABLE alarm_event_log (
-	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	alarm_event_id BIGINT NOT NULL REFERENCES alarm_event(id) ON DELETE CASCADE,
+	id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	alarm_event_id INT NOT NULL REFERENCES alarm_event(id) ON DELETE CASCADE,
 	action VARCHAR(16) NOT NULL CHECK (action IN ('raise', 'clear', 'ack')),
 	operator_type VARCHAR(16) NOT NULL CHECK (operator_type IN ('system', 'user')),
-	operator_id BIGINT NULL,
+	operator_id INT NULL,
 	operator_name VARCHAR(64) NULL,
 	payload_json JSONB NOT NULL DEFAULT '{}'::JSONB,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -484,6 +525,12 @@ CREATE TABLE alarm_event_log (
 CREATE INDEX idx_alarm_event_log_event_time
 	ON alarm_event_log (alarm_event_id, created_at DESC);
 ```
+
+字段职责约定如下：
+
+- `alarm_event.detail_json` 用于保存当前这条报警的详情快照，表达“这条报警现在的业务上下文”，例如当前阈值、当前实测值、单位和来源附加信息。
+- `alarm_event_log.payload_json` 用于保存某一次 `raise`、`clear` 或 `ack` 动作发生时的附加载荷，表达“这次动作当时的上下文”，例如触发值、恢复原因、确认备注或原始报文摘要。
+- 凡是需要稳定筛选、排序、关联或权限判断的字段，不得只保存在 JSONB 内，仍必须落到独立结构化列中。
 
 Redis 键和频道约定固定为：
 
@@ -496,6 +543,7 @@ Redis 键和频道约定固定为：
 ## Risks / Trade-offs
 
 - 当前登录与用户上下文模型仍然较弱，区域过滤落地前必须补齐用户区域信息，否则后端无法可靠判定用户可见范围。
+- 当前登录页仍是占位实现，若不把最小认证接线纳入同一 change，后续报警实现会在登录字段、令牌来源和 Socket 鉴权入口上重复返工。
 - 报警去重键设计如果过粗，会把不同来源的报警错误合并；如果过细，又会导致同一持续报警反复创建新记录，需要在实现前用真实业务样本校准。
 - 采用“Redis key + 频道通知 + 后端落库”的两段式流程，与现有实时链路保持一致，但也意味着后端必须处理 Redis 与数据库之间的幂等和重试问题。
 - 人工确认通过 HTTP 落库最稳妥，但如果 C++ 后续强依赖确认动作，就需要额外维护确认回写命令的兼容性与失败补偿。

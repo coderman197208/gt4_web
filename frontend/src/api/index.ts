@@ -56,7 +56,26 @@ export {
 } from './comments';
 
 // 导出认证相关API
-export { login, logout, saveAuthInfo, getCurrentUser, isAuthenticated, healthCheck } from './auth';
+export {
+  login,
+  logout,
+  saveAuthInfo,
+  getAuthToken,
+  getCurrentUser,
+  isAuthenticated,
+  healthCheck,
+} from './auth';
+
+// 导出报警相关 API
+export {
+  getMyAlarmAreas,
+  getAlarmAreas,
+  updateUserAlarmAreas,
+  getAlarmSummary,
+  getAlarms,
+  getAlarmDetail,
+  ackAlarm,
+} from './alarm';
 
 // 导出生产参数相关API
 export { getParameterSet, saveParameterSet, formToApi, apiToForm } from './parameterSet';

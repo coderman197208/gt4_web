@@ -7,15 +7,18 @@
       </CardHeader>
       <CardContent>
         <form @submit.prevent="handleSubmit" class="space-y-4">
+          <p v-if="errorMessage" class="text-sm text-destructive">
+            {{ errorMessage }}
+          </p>
           <div class="space-y-2">
-            <Label for="email">邮箱</Label>
+            <Label for="username">用户名</Label>
             <Input
-              id="email"
-              v-model="formData.email"
-              type="email"
-              placeholder="请输入邮箱"
+              id="username"
+              v-model="formData.username"
+              type="text"
+              placeholder="请输入用户名"
               required
-              autocomplete="email"
+              autocomplete="username"
             />
           </div>
           <div class="space-y-2">
@@ -63,6 +66,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { login, saveAuthInfo } from '@/api';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -75,19 +79,22 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useWebSocket } from '@/services/websocket';
+import { useAlarmCenterStore } from '@/stores/alarmCenter';
 
 const router = useRouter();
+const alarmCenterStore = useAlarmCenterStore();
 
 const formData = reactive({
-  email: '',
+  username: '',
   password: '',
   rememberMe: false,
 });
 
 const isLoading = ref(false);
+const errorMessage = ref('');
 
 // LoginView不需要订阅WebSocket数据，在挂载时清空订阅
-const { subscribe } = useWebSocket();
+const { refreshAuth, subscribe } = useWebSocket();
 onMounted(() => {
   subscribe([]);
   console.log('[LoginView] 已清空所有订阅');
@@ -95,22 +102,37 @@ onMounted(() => {
 
 const handleSubmit = async () => {
   isLoading.value = true;
+  errorMessage.value = '';
 
   try {
-    // TODO: 实现实际的登录逻辑
-    // 示例：调用登录 API
-    // await loginAPI(formData.email, formData.password);
+    const result = await login({
+      username: formData.username.trim(),
+      password: formData.password,
+    });
 
-    // 模拟 API 调用
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    console.log('登录信息:', formData);
+    saveAuthInfo(result.token, result.user);
+    refreshAuth();
+    await alarmCenterStore.initialize(true);
 
     // 登录成功后跳转到首页
     router.push('/');
   } catch (error) {
     console.error('登录失败:', error);
-    // TODO: 显示错误提示
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      error.response &&
+      typeof error.response === 'object' &&
+      'data' in error.response
+    ) {
+      const responseData = error.response.data as { message?: string };
+      errorMessage.value = responseData.message ?? '登录失败，请检查用户名和密码';
+    } else if (error instanceof Error) {
+      errorMessage.value = error.message;
+    } else {
+      errorMessage.value = '登录失败，请稍后重试';
+    }
   } finally {
     isLoading.value = false;
   }

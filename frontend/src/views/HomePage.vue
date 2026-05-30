@@ -7,7 +7,11 @@
   >
     <div class="app-container flex h-full w-full flex-col overflow-hidden">
       <!-- 页头 -->
-      <AppHeader @toggle-sidebar="toggleSidebar" />
+      <AppHeader
+        :alarm-unacked-count="alarmCenterStore.totalUnacked"
+        @toggle-sidebar="toggleSidebar"
+        @toggle-alarm-center="toggleAlarmCenter"
+      />
 
       <!-- 主体区域：侧边栏 + 内容区 -->
       <div class="app-body relative flex flex-1 overflow-hidden">
@@ -18,20 +22,27 @@
         <main class="relative flex-1 overflow-hidden p-0">
           <router-view />
         </main>
+
+        <AlarmCenterPanel :open="isAlarmCenterOpen" @close="isAlarmCenterOpen = false" />
       </div>
     </div>
   </HmiViewport>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { isAuthenticated } from '@/api';
+import { useAlarmCenterStore } from '@/stores/alarmCenter';
 import { useRoute } from 'vue-router';
+import AlarmCenterPanel from '../components/AlarmCenterPanel.vue';
 import HmiViewport from '../components/HmiViewport.vue';
 import AppHeader from '../components/AppHeader.vue';
 import AppSidebar from '../components/AppSidebar.vue';
 
 const isSidebarOpen = ref(false);
+const isAlarmCenterOpen = ref(false);
 const route = useRoute();
+const alarmCenterStore = useAlarmCenterStore();
 
 interface HmiScaleMeta {
   designWidth?: number;
@@ -46,6 +57,23 @@ const layoutDesignHeight = computed(() => hmiScaleMeta.value?.designHeight ?? 10
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value;
 }
+
+function toggleAlarmCenter() {
+  if (!isAuthenticated()) {
+    return;
+  }
+
+  isAlarmCenterOpen.value = !isAlarmCenterOpen.value;
+}
+
+onMounted(() => {
+  if (isAuthenticated()) {
+    void alarmCenterStore.initialize();
+    return;
+  }
+
+  alarmCenterStore.reset();
+});
 </script>
 
 <style scoped>

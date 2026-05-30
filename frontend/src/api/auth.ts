@@ -1,5 +1,10 @@
 import { request } from './client';
-import type { LoginParams, LoginResponse, HealthCheckResponse } from '@gt4_web/shared';
+import type {
+  AuthenticatedUser,
+  LoginParams,
+  LoginResponse,
+  HealthCheckResponse,
+} from '@gt4_web/shared';
 
 /**
  * 认证相关API
@@ -26,17 +31,21 @@ export function logout(): void {
  * @param token 访问令牌
  * @param user 用户信息
  */
-export function saveAuthInfo(token: string, user: any): void {
+export function saveAuthInfo(token: string, user: AuthenticatedUser): void {
   localStorage.setItem('auth_token', token);
   localStorage.setItem('user_info', JSON.stringify(user));
+}
+
+export function getAuthToken(): string | null {
+  return localStorage.getItem('auth_token');
 }
 
 /**
  * 获取当前用户信息
  */
-export function getCurrentUser(): any {
+export function getCurrentUser(): AuthenticatedUser | null {
   const userInfo = localStorage.getItem('user_info');
-  return userInfo ? JSON.parse(userInfo) : null;
+  return userInfo ? (JSON.parse(userInfo) as AuthenticatedUser) : null;
 }
 
 /**

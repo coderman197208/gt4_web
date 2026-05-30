@@ -26,12 +26,20 @@ export interface PaginatedResponse<T> {
   limit: number;
 }
 
+export type UserRole = 'admin' | 'user';
+
+export interface AuthenticatedUser {
+  id: number;
+  username: string;
+  role: UserRole;
+}
+
 // 用户类型
 export interface User {
   id: number;
   username: string;
   email: string;
-  role: 'admin' | 'user';
+  role: UserRole;
   createdAt: string;
 }
 
@@ -64,11 +72,7 @@ export interface LoginParams {
 export interface LoginResponse {
   success: boolean;
   token: string;
-  user: {
-    id: number;
-    username: string;
-    role: string;
-  };
+  user: AuthenticatedUser;
 }
 
 // 健康检查响应

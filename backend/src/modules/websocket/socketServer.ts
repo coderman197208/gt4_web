@@ -6,15 +6,95 @@
 import { Server as SocketIOServer } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
-import type { SubscribeRequest, CmdPushMessage, DataPushMessage } from '@gt4_web/shared';
+import type {
+  AlarmResyncRequiredPayload,
+  SubscribeRequest,
+  CmdPushMessage,
+  DataPushMessage,
+} from '@gt4_web/shared';
+import type { AlarmMutationResult } from '../alarm/alarmService.js';
+import { buildAlarmSnapshot, getAlarmSummary } from '../alarm/alarmService.js';
 import { normalizeRealtimeTagValue } from '../redis/realtimeValueNormalizer';
 import { SubscriptionManager } from './subscriptionManager.js';
 import { getRedisDataClient } from '../redis/redisClient.js';
+import { getAuthorizedAlarmAreaIds } from '../auth/alarmAreaAccess.js';
+import { resolveAuthenticatedUser } from '../auth/authSession.js';
 
 const OPERATION_CMD_CHANNEL = 'operation_cmd';
+const ALARM_ROOM_PREFIX = 'alarm-area:';
 
 let io: SocketIOServer | null = null;
 const subscriptionManager = new SubscriptionManager();
+
+function getAlarmRoomName(areaId: number) {
+  return `${ALARM_ROOM_PREFIX}${areaId}`;
+}
+
+function emitAlarmResyncRequired(socketId: string, reason: string) {
+  if (!io) {
+    return;
+  }
+
+  const socket = io.sockets.sockets.get(socketId);
+  if (!socket) {
+    return;
+  }
+
+  const payload: AlarmResyncRequiredPayload = { reason };
+  socket.emit('alarm:resync-required', payload);
+}
+
+export async function emitAlarmSnapshotToSocket(socketId: string, areaIds: number[]) {
+  if (!io || areaIds.length === 0) {
+    return;
+  }
+
+  const socket = io.sockets.sockets.get(socketId);
+  if (!socket) {
+    return;
+  }
+
+  try {
+    const snapshot = await buildAlarmSnapshot(areaIds);
+    socket.emit('alarm:snapshot', snapshot);
+  } catch (error) {
+    console.error(`[SocketServer] 构建报警快照失败: ${socketId}`, error);
+    emitAlarmResyncRequired(socketId, 'snapshot_failed');
+  }
+}
+
+export async function broadcastAlarmMutation(change: AlarmMutationResult) {
+  if (!io) {
+    return;
+  }
+
+  const socketIds = await io.in(getAlarmRoomName(change.areaId)).allSockets();
+
+  for (const socketId of socketIds) {
+    const socket = io.sockets.sockets.get(socketId);
+    if (!socket) {
+      continue;
+    }
+
+    const areaIds = Array.isArray(socket.data.alarmAreaIds)
+      ? (socket.data.alarmAreaIds as number[]).filter((areaId) => Number.isInteger(areaId))
+      : [];
+
+    socket.emit('alarm:upsert', change.upsert);
+
+    if (areaIds.length === 0) {
+      continue;
+    }
+
+    try {
+      const summary = await getAlarmSummary(areaIds);
+      socket.emit('alarm:summary', summary);
+    } catch (error) {
+      console.error(`[SocketServer] 广播报警汇总失败: ${socketId}`, error);
+      emitAlarmResyncRequired(socketId, 'summary_failed');
+    }
+  }
+}
 
 /**
  * 初始化Socket.IO服务器
@@ -33,8 +113,24 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
   });
 
   // 监听连接事件
-  io.on('connection', (socket) => {
-    console.log(`[SocketServer] 新连接建立: ${socket.id}`);
+  io.on('connection', async (socket) => {
+    const token =
+      typeof socket.handshake.auth?.token === 'string' ? socket.handshake.auth.token : null;
+    const authUser = resolveAuthenticatedUser(token);
+    const alarmAreaIds = authUser ? await getAuthorizedAlarmAreaIds(authUser.id) : [];
+
+    socket.data.authUser = authUser;
+    socket.data.alarmAreaIds = alarmAreaIds;
+
+    console.log(
+      `[SocketServer] 新连接建立: ${socket.id}, authUser=${authUser?.username ?? 'anonymous'}, alarmAreas=${alarmAreaIds.join(',')}`,
+    );
+
+    alarmAreaIds.forEach((areaId) => {
+      socket.join(getAlarmRoomName(areaId));
+    });
+
+    await emitAlarmSnapshotToSocket(socket.id, alarmAreaIds);
 
     // 添加到订阅管理器
     subscriptionManager.addConnection(socket.id);

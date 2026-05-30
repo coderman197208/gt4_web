@@ -24,6 +24,23 @@
 
     <!-- 右侧：全屏按钮 + 实时时钟 -->
     <div class="flex items-center gap-2">
+      <Button
+        variant="outline"
+        class="relative h-9 gap-2 border-slate-400 bg-white/80 text-slate-900 hover:bg-white"
+        @click="$emit('toggle-alarm-center')"
+      >
+        <span
+          class="inline-flex h-2.5 w-2.5 rounded-full"
+          :class="alarmUnackedCount > 0 ? 'bg-red-500' : 'bg-emerald-500'"
+        ></span>
+        <span>报警</span>
+        <span
+          v-if="alarmUnackedCount > 0"
+          class="rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-semibold text-white"
+        >
+          {{ alarmUnackedCount }}
+        </span>
+      </Button>
       <FullscreenToggle />
       <LiveClock />
     </div>
@@ -35,7 +52,17 @@ import { Button } from '@/components/ui/button';
 import LiveClock from './LiveClock.vue';
 import FullscreenToggle from './FullscreenToggle.vue';
 
+withDefaults(
+  defineProps<{
+    alarmUnackedCount?: number;
+  }>(),
+  {
+    alarmUnackedCount: 0,
+  },
+);
+
 defineEmits<{
   'toggle-sidebar': [];
+  'toggle-alarm-center': [];
 }>();
 </script>

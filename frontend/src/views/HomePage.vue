@@ -14,12 +14,15 @@
       />
 
       <!-- 主体区域：侧边栏 + 内容区 -->
-      <div class="app-body relative flex flex-1 overflow-hidden">
+      <div class="app-body relative flex flex-1 overflow-hidden bg-[#d8d8d8]">
         <!-- 侧边栏 - 绝对定位覆盖在内容上 -->
         <AppSidebar :is-open="isSidebarOpen" @close="isSidebarOpen = false" />
 
         <!-- 主内容区域 -->
-        <main class="relative flex-1 overflow-hidden p-0">
+        <main
+          class="relative flex-1 overflow-hidden p-0 transition-shadow duration-150"
+          :class="isAlarmCenterOpen ? 'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.28)]' : ''"
+        >
           <router-view />
         </main>
 

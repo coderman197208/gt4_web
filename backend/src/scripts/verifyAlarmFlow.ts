@@ -3,6 +3,8 @@ import { setTimeout as delay } from 'node:timers/promises';
 import type {
   AckAlarmRequest,
   AckAlarmResponse,
+  AlarmBatchAckRequest,
+  AlarmBatchAckResponse,
   AlarmDetailResponse,
   AlarmListItem,
   AlarmListResponse,
@@ -50,10 +52,17 @@ const AREA_B_USER: AuthenticatedUser = {
   role: 'user',
 };
 
+const ADMIN_USER: AuthenticatedUser = {
+  id: 1,
+  username: 'admin',
+  role: 'admin',
+};
+
 function buildVerificationAlarmPayload(
   runId: string,
   eventType: 'raise' | 'clear',
   message: string,
+  overrides: Partial<VerificationAlarmPayload> = {},
 ): VerificationAlarmPayload {
   return {
     alarmCode: 'VERIFY_WEIGHT_ALARM_FLOW',
@@ -71,6 +80,7 @@ function buildVerificationAlarmPayload(
     dedupeKey: `verify-alarm-flow:${runId}`,
     occurredAt: new Date().toISOString(),
     eventType,
+    ...overrides,
   };
 }
 
@@ -224,6 +234,24 @@ async function requestAckAlarm(
   });
 }
 
+async function requestBatchAckAlarms(
+  baseUrl: string,
+  token: string,
+  payload: AlarmBatchAckRequest,
+): Promise<JsonResponse<AlarmBatchAckResponse | { message: string }>> {
+  return fetchJson<AlarmBatchAckResponse | { message: string }>(
+    `${baseUrl}/api/admin/alarms/batch-ack`,
+    {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${token}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
 async function requestAlarmSummary(
   baseUrl: string,
   token: string,
@@ -241,6 +269,7 @@ async function main() {
   const fastify = buildBackendApp();
   let areaASocket: Socket | null = null;
   let areaBSocket: Socket | null = null;
+  let adminSocket: Socket | null = null;
   let snapshotSocket: Socket | null = null;
 
   try {
@@ -255,6 +284,7 @@ async function main() {
     const runId = `${Date.now()}`;
     const areaAToken = createAuthToken(AREA_A_USER);
     const areaBToken = createAuthToken(AREA_B_USER);
+    const adminToken = createAuthToken(ADMIN_USER);
     const initialRaisePayload = buildVerificationAlarmPayload(runId, 'raise', '首次产生验证报警');
 
     await delay(300);
@@ -383,6 +413,266 @@ async function main() {
     );
     assert.equal(reopenUpsert.alarm.id, firstAlarm.id, 'reopen 应复用原报警记录');
 
+    const areaBAdminPayload = buildVerificationAlarmPayload(
+      runId,
+      'raise',
+      'AREA-B admin 视角验证',
+      {
+        areaCode: 'AREA-B',
+        sourceKey: `verify-admin-area-b:${runId}`,
+        dedupeKey: `verify-admin-area-b:${runId}`,
+        title: `AREA-B admin 视角验证 ${runId}`,
+      },
+    );
+
+    const areaBAdminUpsertPromise = waitForSocketEvent<AlarmUpsertPayload>(
+      areaBSocket,
+      'alarm:upsert',
+      (payload) => payload.alarm.source_key === areaBAdminPayload.sourceKey,
+    );
+    await publishAlarmEvent(areaBAdminPayload);
+    const areaBAdminUpsert = await areaBAdminUpsertPromise;
+    assert.equal(areaBAdminUpsert.alarm.area_code, 'AREA-B', 'AREA-B 报警应广播到 AREA-B 用户');
+
+    const adminActiveList = await requestAlarmList(baseUrl, adminToken);
+    assert.equal(adminActiveList.status, 200, 'admin 应能查询活动报警');
+    assert.ok(
+      findAlarmBySourceKey(adminActiveList.body.items, initialRaisePayload.sourceKey),
+      'admin 活动报警查询应包含 AREA-A 报警',
+    );
+    assert.ok(
+      findAlarmBySourceKey(adminActiveList.body.items, areaBAdminPayload.sourceKey),
+      'admin 活动报警查询应包含 AREA-B 报警',
+    );
+
+    const adminSummary = await requestAlarmSummary(baseUrl, adminToken);
+    assert.equal(adminSummary.status, 200, 'admin 报警汇总查询应成功');
+    assert.ok(adminSummary.body.by_area.length >= 2, 'admin 汇总应覆盖多个区域');
+
+    const adminDetailTarget = findAlarmBySourceKey(
+      adminActiveList.body.items,
+      areaBAdminPayload.sourceKey,
+    );
+    assert.ok(adminDetailTarget, 'admin 应能定位 AREA-B 报警详情');
+    const adminDetail = await requestAlarmDetail(baseUrl, adminToken, adminDetailTarget.id);
+    assert.equal(adminDetail.status, 200, 'admin 应能读取 AREA-B 报警详情');
+
+    const adminConnection = await connectSocket(
+      baseUrl,
+      adminToken,
+      (payload) =>
+        payload.active_items.some((item) => item.source_key === initialRaisePayload.sourceKey) &&
+        payload.active_items.some((item) => item.source_key === areaBAdminPayload.sourceKey),
+    );
+
+    adminSocket = adminConnection.socket;
+    assert.ok(adminConnection.snapshot, 'admin 新连接应收到首屏快照');
+    assert.ok(
+      adminConnection.snapshot?.active_items.some(
+        (item) => item.source_key === areaBAdminPayload.sourceKey,
+      ),
+      'admin 首屏快照应包含 AREA-B 报警',
+    );
+
+    const batchAckSuccessPayload = buildVerificationAlarmPayload(runId, 'raise', '批量确认成功项', {
+      sourceKey: `verify-batch-success:${runId}`,
+      dedupeKey: `verify-batch-success:${runId}`,
+      title: `批量确认成功项 ${runId}`,
+    });
+    const batchAckConflictPayload = buildVerificationAlarmPayload(
+      runId,
+      'raise',
+      '批量确认冲突项',
+      {
+        areaCode: 'AREA-B',
+        sourceKey: `verify-batch-conflict:${runId}`,
+        dedupeKey: `verify-batch-conflict:${runId}`,
+        title: `批量确认冲突项 ${runId}`,
+      },
+    );
+    const batchAckAlreadyPayload = buildVerificationAlarmPayload(
+      runId,
+      'raise',
+      '批量确认已确认项',
+      {
+        sourceKey: `verify-batch-already:${runId}`,
+        dedupeKey: `verify-batch-already:${runId}`,
+        title: `批量确认已确认项 ${runId}`,
+      },
+    );
+
+    const batchSuccessUpsertPromise = waitForSocketEvent<AlarmUpsertPayload>(
+      areaASocket,
+      'alarm:upsert',
+      (payload) => payload.alarm.source_key === batchAckSuccessPayload.sourceKey,
+    );
+    await publishAlarmEvent(batchAckSuccessPayload);
+    await batchSuccessUpsertPromise;
+
+    const batchConflictUpsertPromise = waitForSocketEvent<AlarmUpsertPayload>(
+      areaBSocket,
+      'alarm:upsert',
+      (payload) => payload.alarm.source_key === batchAckConflictPayload.sourceKey,
+    );
+    await publishAlarmEvent(batchAckConflictPayload);
+    await batchConflictUpsertPromise;
+
+    const batchAlreadyUpsertPromise = waitForSocketEvent<AlarmUpsertPayload>(
+      areaASocket,
+      'alarm:upsert',
+      (payload) => payload.alarm.source_key === batchAckAlreadyPayload.sourceKey,
+    );
+    await publishAlarmEvent(batchAckAlreadyPayload);
+    await batchAlreadyUpsertPromise;
+
+    const adminListBeforeBatch = await requestAlarmList(baseUrl, adminToken);
+    assert.equal(adminListBeforeBatch.status, 200, '批量确认前 admin 列表查询应成功');
+
+    const successAlarm = findAlarmBySourceKey(
+      adminListBeforeBatch.body.items,
+      batchAckSuccessPayload.sourceKey,
+    );
+    const conflictAlarmBeforeRefresh = findAlarmBySourceKey(
+      adminListBeforeBatch.body.items,
+      batchAckConflictPayload.sourceKey,
+    );
+    const alreadyAckedAlarm = findAlarmBySourceKey(
+      adminListBeforeBatch.body.items,
+      batchAckAlreadyPayload.sourceKey,
+    );
+
+    assert.ok(successAlarm, '批量确认成功项应存在');
+    assert.ok(conflictAlarmBeforeRefresh, '批量确认冲突项应存在');
+    assert.ok(alreadyAckedAlarm, '批量确认已确认项应存在');
+
+    const conflictRefreshPayload = buildVerificationAlarmPayload(
+      runId,
+      'raise',
+      '批量确认冲突项刷新版本',
+      {
+        areaCode: 'AREA-B',
+        sourceKey: batchAckConflictPayload.sourceKey,
+        dedupeKey: batchAckConflictPayload.dedupeKey,
+        title: batchAckConflictPayload.title,
+      },
+    );
+
+    const conflictRefreshUpsertPromise = waitForSocketEvent<AlarmUpsertPayload>(
+      areaBSocket,
+      'alarm:upsert',
+      (payload) => payload.alarm.source_key === batchAckConflictPayload.sourceKey,
+    );
+    await publishAlarmEvent(conflictRefreshPayload);
+    await conflictRefreshUpsertPromise;
+
+    const alreadyAckedDetailBefore = await requestAlarmDetail(
+      baseUrl,
+      adminToken,
+      alreadyAckedAlarm.id,
+    );
+    assert.equal(alreadyAckedDetailBefore.status, 200, '批量确认前应能读取已确认项详情');
+    const alreadyAckedLogCountBefore = alreadyAckedDetailBefore.body.logs.length;
+
+    const singleAckForAlready = await requestAckAlarm(baseUrl, adminToken, alreadyAckedAlarm.id, {
+      expected_version: alreadyAckedDetailBefore.body.alarm.version,
+      operator_note: 'pre-batch-ack',
+    });
+    assert.equal(singleAckForAlready.status, 200, '预先确认批量已确认项应成功');
+
+    const conflictDetailAfterRefresh = await requestAlarmDetail(
+      baseUrl,
+      adminToken,
+      conflictAlarmBeforeRefresh.id,
+    );
+    assert.equal(conflictDetailAfterRefresh.status, 200, '批量确认冲突项详情应可读取');
+    const conflictLogCountBefore = conflictDetailAfterRefresh.body.logs.length;
+
+    const batchUpsertPromise = waitForSocketEvent<AlarmUpsertPayload>(
+      adminSocket,
+      'alarm:upsert',
+      (payload) => payload.reason === 'ack' && payload.alarm.id === successAlarm.id,
+    );
+    const batchSummaryPromise = waitForSocketEvent<AlarmSummary>(
+      adminSocket,
+      'alarm:summary',
+      (payload) => payload.total_unacked >= 0,
+    );
+
+    const batchAckResponse = await requestBatchAckAlarms(baseUrl, adminToken, {
+      operator_note: 'batch-ack-note',
+      items: [
+        {
+          alarm_id: successAlarm.id,
+          expected_version: successAlarm.version,
+        },
+        {
+          alarm_id: conflictAlarmBeforeRefresh.id,
+          expected_version: conflictAlarmBeforeRefresh.version,
+        },
+        {
+          alarm_id: alreadyAckedAlarm.id,
+          expected_version: alreadyAckedAlarm.version,
+        },
+        {
+          alarm_id: 999999,
+          expected_version: 1,
+        },
+      ],
+    });
+
+    assert.equal(batchAckResponse.status, 200, 'admin 批量确认请求应成功');
+    const batchAckBody = batchAckResponse.body as AlarmBatchAckResponse;
+    assert.deepEqual(
+      batchAckBody.results,
+      [
+        { alarm_id: successAlarm.id, status: 'acked' },
+        { alarm_id: conflictAlarmBeforeRefresh.id, status: 'conflict' },
+        { alarm_id: alreadyAckedAlarm.id, status: 'already_acked' },
+        { alarm_id: 999999, status: 'not_found' },
+      ],
+      '批量确认结果应覆盖成功、冲突、已确认和不存在四种状态',
+    );
+    assert.equal(batchAckBody.requested_count, 4, '批量确认请求总数应正确');
+    assert.equal(batchAckBody.acked_count, 1, '批量确认成功数应正确');
+
+    await batchUpsertPromise;
+    await batchSummaryPromise;
+
+    const successDetailAfterBatch = await requestAlarmDetail(baseUrl, adminToken, successAlarm.id);
+    assert.equal(successDetailAfterBatch.status, 200, '批量确认成功项详情应可读取');
+    assert.equal(successDetailAfterBatch.body.alarm.ack_state, 'acked', '成功项应进入已确认状态');
+    assert.ok(
+      successDetailAfterBatch.body.logs.some(
+        (log) => log.action === 'ack' && log.payload_json.operatorNote === 'batch-ack-note',
+      ),
+      '批量确认成功项应写入统一 operator_note',
+    );
+
+    const conflictDetailAfterBatch = await requestAlarmDetail(
+      baseUrl,
+      adminToken,
+      conflictAlarmBeforeRefresh.id,
+    );
+    assert.equal(conflictDetailAfterBatch.status, 200, '冲突项详情应可读取');
+    assert.equal(conflictDetailAfterBatch.body.alarm.ack_state, 'unacked', '冲突项不应被确认');
+    assert.equal(
+      conflictDetailAfterBatch.body.logs.length,
+      conflictLogCountBefore,
+      '冲突项不应产生新的确认日志',
+    );
+
+    const alreadyAckedDetailAfterBatch = await requestAlarmDetail(
+      baseUrl,
+      adminToken,
+      alreadyAckedAlarm.id,
+    );
+    assert.equal(alreadyAckedDetailAfterBatch.status, 200, '已确认项详情应可读取');
+    assert.equal(
+      alreadyAckedDetailAfterBatch.body.logs.length,
+      alreadyAckedLogCountBefore + 1,
+      '批量确认前的单条确认应写一条日志，批量本身不应追加新日志',
+    );
+
     const snapshotConnection = await connectSocket(baseUrl, areaAToken, (payload) =>
       payload.active_items.some((item) => item.source_key === initialRaisePayload.sourceKey),
     );
@@ -395,10 +685,13 @@ async function main() {
       '新连接的首屏快照应包含当前活动报警',
     );
 
-    console.log('[AlarmVerify] dedupe/reopen、区域过滤、确认冲突、Socket 首屏快照验证通过');
+    console.log(
+      '[AlarmVerify] dedupe/reopen、区域过滤、admin 全区域访问、批量确认和 Socket 首屏快照验证通过',
+    );
   } finally {
     areaASocket?.disconnect();
     areaBSocket?.disconnect();
+    adminSocket?.disconnect();
     snapshotSocket?.disconnect();
 
     try {

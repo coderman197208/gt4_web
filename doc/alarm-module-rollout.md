@@ -106,14 +106,36 @@ Web 后端 `redisSubscriber.ts` 订阅 `AlarmChanged` 后，会读取该键并�
 - dedupe 重复触发归并
 - clear 后 reopen
 - 区域过滤（HTTP 和 Socket）
+- admin 全区域访问（summary/list/detail 与首屏 snapshot）
 - 确认冲突 `409`
+- admin 批量确认的部分成功结果、统一备注日志写入与广播汇总更新
 - 新连接首屏 `alarm:snapshot`
 - `报警产生 -> 持久化 -> 推送 -> 人工确认 -> 历史可查` 的后端闭环
 
 当前已完成验证：
 
+- `shared` 的 `pnpm --filter @gt4_web/shared typecheck` 通过
 - `backend` 的 `pnpm typecheck` 通过
+- `frontend` 的 `pnpm --filter @gt4_web/frontend typecheck` 通过
 - `pnpm verify:alarms` 通过
+
+前端已完成一次手动联调验证（`admin` 登录后在 `http://127.0.0.1:5173/alarm-management`）：
+
+- 未登录直达 `/alarm-management` 会被路由守卫重定向到 `/login?redirect=/alarm-management`
+- admin 登录后会自动回跳到报警管理页，且默认进入“历史管理”模式
+- admin 侧边栏可见“报警管理”入口
+- 历史管理模式可对当前页未确认项执行批量确认，提交后页面会整页刷新并更新结果摘要
+- 用户区域配置模式只列普通用户目录项，不包含 admin 账号
+- 修改普通用户授权区域后，页面会重新读取并显示最新保存结果
+
+## 6. Admin 管理页边界与联调注意事项
+
+- `admin` 的全区域视角是角色语义，不依赖 `user_area` 预置数据。联调时如果 admin 看不到区域，先查 `alarm_area.enabled`，不要去补 admin 的 `user_area` 记录。
+- 独立管理页路由是 `/alarm-management`，它走拉取式刷新模型，不消费报警 Socket 增量事件来维护“当前页可见集合”。
+- 现有页头报警角标与右侧 `AlarmCenterPanel` 仍然是操作员语义的实时工作面；admin 管理页是独立的历史/授权工作台，不要把两者的状态容器混用。
+- 当前管理页依赖的新增接口为：`GET /api/admin/alarm-users`、`GET /api/users/:userId/alarm-areas`、`PUT /api/users/:userId/alarm-areas`、`POST /api/admin/alarms/batch-ack`。
+- 当前批量确认只面向 admin 管理页，仍沿用现有 `alarm:upsert` 和 `alarm:summary` 广播，不新增专用批量 Socket 事件。
+- 若前端本地调试页已打开但看不到新入口，优先确认 Vite dev server 已启动且页面不是旧缓存页；当前会话验证时同时启动了 frontend `:5173` 与 backend `:5001`。
 
 当前剩余阻塞：
 

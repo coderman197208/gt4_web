@@ -70,11 +70,15 @@ export {
 export {
   getMyAlarmAreas,
   getAlarmAreas,
+  getAlarmManagementUsers,
+  getManagedUserAlarmAreas,
+  saveManagedUserAlarmAreas,
   updateUserAlarmAreas,
   getAlarmSummary,
   getAlarms,
   getAlarmDetail,
   ackAlarm,
+  batchAckAlarms,
 } from './alarm';
 
 // 导出生产参数相关API

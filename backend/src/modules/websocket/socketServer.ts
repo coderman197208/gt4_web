@@ -44,6 +44,21 @@ function emitAlarmResyncRequired(socketId: string, reason: string) {
   socket.emit('alarm:resync-required', payload);
 }
 
+function getSocketAlarmAreaIds(socketId: string): number[] {
+  if (!io) {
+    return [];
+  }
+
+  const socket = io.sockets.sockets.get(socketId);
+  if (!socket) {
+    return [];
+  }
+
+  return Array.isArray(socket.data.alarmAreaIds)
+    ? (socket.data.alarmAreaIds as number[]).filter((areaId) => Number.isInteger(areaId))
+    : [];
+}
+
 export async function emitAlarmSnapshotToSocket(socketId: string, areaIds: number[]) {
   if (!io || areaIds.length === 0) {
     return;
@@ -64,24 +79,37 @@ export async function emitAlarmSnapshotToSocket(socketId: string, areaIds: numbe
 }
 
 export async function broadcastAlarmMutation(change: AlarmMutationResult) {
+  await broadcastAlarmMutations([change]);
+}
+
+export async function broadcastAlarmMutations(changes: AlarmMutationResult[]) {
   if (!io) {
     return;
   }
 
-  const socketIds = await io.in(getAlarmRoomName(change.areaId)).allSockets();
+  const affectedSocketIds = new Set<string>();
 
-  for (const socketId of socketIds) {
+  for (const change of changes) {
+    const socketIds = await io.in(getAlarmRoomName(change.areaId)).allSockets();
+
+    for (const socketId of socketIds) {
+      const socket = io.sockets.sockets.get(socketId);
+      if (!socket) {
+        continue;
+      }
+
+      socket.emit('alarm:upsert', change.upsert);
+      affectedSocketIds.add(socketId);
+    }
+  }
+
+  for (const socketId of affectedSocketIds) {
     const socket = io.sockets.sockets.get(socketId);
     if (!socket) {
       continue;
     }
 
-    const areaIds = Array.isArray(socket.data.alarmAreaIds)
-      ? (socket.data.alarmAreaIds as number[]).filter((areaId) => Number.isInteger(areaId))
-      : [];
-
-    socket.emit('alarm:upsert', change.upsert);
-
+    const areaIds = getSocketAlarmAreaIds(socketId);
     if (areaIds.length === 0) {
       continue;
     }
@@ -117,7 +145,7 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
     const token =
       typeof socket.handshake.auth?.token === 'string' ? socket.handshake.auth.token : null;
     const authUser = resolveAuthenticatedUser(token);
-    const alarmAreaIds = authUser ? await getAuthorizedAlarmAreaIds(authUser.id) : [];
+    const alarmAreaIds = authUser ? await getAuthorizedAlarmAreaIds(authUser) : [];
 
     socket.data.authUser = authUser;
     socket.data.alarmAreaIds = alarmAreaIds;

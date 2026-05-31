@@ -3,6 +3,8 @@ import type {
   AckAlarmRequest,
   AckAlarmResponse,
   AlarmAckState,
+  AlarmBatchAckRequest,
+  AlarmBatchAckResponse,
   AlarmConditionState,
   AlarmDetail,
   AlarmDetailResponse,
@@ -67,6 +69,31 @@ interface AckAlarmResult {
   response: AckAlarmResponse;
   change: AlarmMutationResult | null;
 }
+
+interface AlarmBatchAckResult {
+  response: AlarmBatchAckResponse;
+  changes: AlarmMutationResult[];
+}
+
+type AckAlarmCoreResult =
+  | {
+      status: 'acked';
+      response: AckAlarmResponse;
+      change: AlarmMutationResult;
+    }
+  | {
+      status: 'already_acked';
+      response: AckAlarmResponse;
+      change: null;
+    }
+  | {
+      status: 'conflict';
+      change: null;
+    }
+  | {
+      status: 'not_found';
+      change: null;
+    };
 
 interface AlarmListFilters {
   scope: AlarmListScope;
@@ -155,6 +182,18 @@ function mapAlarmDetail(record: AlarmEventWithAreaAndLogs): AlarmDetailResponse 
   return {
     alarm,
     logs,
+  };
+}
+
+function buildAckAlarmResponse(record: AlarmEventWithArea): AckAlarmResponse {
+  return {
+    alarm: {
+      id: record.id,
+      ack_state: record.ack_state as AckAlarmResponse['alarm']['ack_state'],
+      acked_at: toIsoString(record.acked_at),
+      acked_by_name: record.acked_by_name,
+      version: record.version,
+    },
   };
 }
 
@@ -721,91 +760,145 @@ export async function ackAlarmEvent(
   user: AuthenticatedUser,
   request: AckAlarmRequest,
 ): Promise<AckAlarmResult> {
-  if (authorizedAreaIds.length === 0) {
+  const result = await prisma.$transaction((tx) =>
+    ackAlarmEventCore(tx, authorizedAreaIds, alarmId, user, request),
+  );
+
+  if (result.status === 'not_found') {
     throw new Error('ALARM_NOT_FOUND');
   }
 
-  return prisma.$transaction(async (tx) => {
-    const record = await tx.alarmEvent.findFirst({
-      where: {
-        id: alarmId,
-        area_id: { in: authorizedAreaIds },
-      },
-      include: {
-        area: true,
-      },
-    });
+  if (result.status === 'conflict') {
+    throw new Error('ALARM_VERSION_CONFLICT');
+  }
 
-    if (!record) {
-      throw new Error('ALARM_NOT_FOUND');
-    }
+  return {
+    response: result.response,
+    change: result.change,
+  };
+}
 
-    if (record.version !== request.expected_version) {
-      throw new Error('ALARM_VERSION_CONFLICT');
-    }
-
-    if (record.ack_state === 'acked') {
-      return {
-        response: {
-          alarm: {
-            id: record.id,
-            ack_state: record.ack_state as AckAlarmResponse['alarm']['ack_state'],
-            acked_at: toIsoString(record.acked_at),
-            acked_by_name: record.acked_by_name,
-            version: record.version,
-          },
-        },
-        change: null,
-      };
-    }
-
-    const ackedAt = new Date();
-    const updatedRecord = await tx.alarmEvent.update({
-      where: { id: record.id },
-      data: {
-        ack_state: 'acked',
-        acked_at: ackedAt,
-        acked_by_user_id: user.id,
-        acked_by_name: user.username,
-        version: { increment: 1 },
-      },
-      include: {
-        area: true,
-      },
-    });
-
-    await tx.alarmEventLog.create({
-      data: {
-        alarm_event_id: updatedRecord.id,
-        action: 'ack',
-        operator_type: 'user',
-        operator_id: user.id,
-        operator_name: user.username,
-        payload_json: {
-          operatorNote: request.operator_note ?? null,
-        } as Prisma.InputJsonValue,
-      },
-    });
-
+async function ackAlarmEventCore(
+  tx: Prisma.TransactionClient,
+  authorizedAreaIds: number[],
+  alarmId: number,
+  user: AuthenticatedUser,
+  request: AckAlarmRequest,
+): Promise<AckAlarmCoreResult> {
+  if (authorizedAreaIds.length === 0) {
     return {
-      response: {
-        alarm: {
-          id: updatedRecord.id,
-          ack_state: updatedRecord.ack_state as AckAlarmResponse['alarm']['ack_state'],
-          acked_at: updatedRecord.acked_at?.toISOString() ?? null,
-          acked_by_name: updatedRecord.acked_by_name,
-          version: updatedRecord.version,
-        },
-      },
-      change: {
-        areaId: updatedRecord.area_id,
-        upsert: {
-          reason: 'ack',
-          alarm: mapAlarmEventToListItem(updatedRecord),
-        },
-      },
+      status: 'not_found',
+      change: null,
     };
+  }
+
+  const record = await tx.alarmEvent.findFirst({
+    where: {
+      id: alarmId,
+      area_id: { in: authorizedAreaIds },
+    },
+    include: {
+      area: true,
+    },
   });
+
+  if (!record) {
+    return {
+      status: 'not_found',
+      change: null,
+    };
+  }
+
+  if (record.ack_state === 'acked') {
+    return {
+      status: 'already_acked',
+      response: buildAckAlarmResponse(record),
+      change: null,
+    };
+  }
+
+  if (record.version !== request.expected_version) {
+    return {
+      status: 'conflict',
+      change: null,
+    };
+  }
+
+  const ackedAt = new Date();
+  const updatedRecord = await tx.alarmEvent.update({
+    where: { id: record.id },
+    data: {
+      ack_state: 'acked',
+      acked_at: ackedAt,
+      acked_by_user_id: user.id,
+      acked_by_name: user.username,
+      version: { increment: 1 },
+    },
+    include: {
+      area: true,
+    },
+  });
+
+  await tx.alarmEventLog.create({
+    data: {
+      alarm_event_id: updatedRecord.id,
+      action: 'ack',
+      operator_type: 'user',
+      operator_id: user.id,
+      operator_name: user.username,
+      payload_json: {
+        operatorNote: request.operator_note ?? null,
+      } as Prisma.InputJsonValue,
+    },
+  });
+
+  return {
+    status: 'acked',
+    response: buildAckAlarmResponse(updatedRecord),
+    change: {
+      areaId: updatedRecord.area_id,
+      upsert: {
+        reason: 'ack',
+        alarm: mapAlarmEventToListItem(updatedRecord),
+      },
+    },
+  };
+}
+
+export async function batchAckAlarmEvents(
+  authorizedAreaIds: number[],
+  user: AuthenticatedUser,
+  request: AlarmBatchAckRequest,
+): Promise<AlarmBatchAckResult> {
+  const results: AlarmBatchAckResponse['results'] = [];
+  const changes: AlarmMutationResult[] = [];
+
+  for (const item of request.items) {
+    const result = await prisma.$transaction((tx) =>
+      ackAlarmEventCore(tx, authorizedAreaIds, item.alarm_id, user, {
+        expected_version: item.expected_version,
+        operator_note: request.operator_note,
+      }),
+    );
+
+    results.push({
+      alarm_id: item.alarm_id,
+      status: result.status,
+    });
+
+    if (result.status === 'acked') {
+      changes.push(result.change);
+    }
+  }
+
+  return {
+    response: {
+      requested_count: request.items.length,
+      acked_count: changes.length,
+      results,
+    },
+    changes,
+  };
 }
 
 export async function buildAlarmSnapshot(areaIds: number[]): Promise<AlarmSnapshotPayload> {

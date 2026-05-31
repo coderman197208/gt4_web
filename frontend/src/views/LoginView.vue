@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { login, saveAuthInfo } from '@/api';
 import { Button } from '@/components/ui/button';
 import {
@@ -82,6 +82,7 @@ import { useWebSocket } from '@/services/websocket';
 import { useAlarmCenterStore } from '@/stores/alarmCenter';
 
 const router = useRouter();
+const route = useRoute();
 const alarmCenterStore = useAlarmCenterStore();
 
 const formData = reactive({
@@ -114,8 +115,12 @@ const handleSubmit = async () => {
     refreshAuth();
     await alarmCenterStore.initialize(true);
 
-    // 登录成功后跳转到首页
-    router.push('/');
+    const redirectTarget =
+      typeof route.query.redirect === 'string' && route.query.redirect.length > 0
+        ? route.query.redirect
+        : '/';
+
+    router.push(redirectTarget);
   } catch (error) {
     console.error('登录失败:', error);
     if (

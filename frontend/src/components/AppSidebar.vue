@@ -8,6 +8,19 @@
     <div v-if="isOpen" class="p-4">
       <nav class="space-y-2">
         <router-link
+          v-if="isAdmin"
+          to="/alarm-management"
+          :class="[
+            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+            isActive('/alarm-management')
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground',
+          ]"
+          @click="handleNavClick"
+        >
+          报警管理
+        </router-link>
+        <router-link
           to="/health-check"
           :class="[
             'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
@@ -109,6 +122,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { getCurrentUser } from '@/api';
 import { useRoute } from 'vue-router';
 
 defineProps<{
@@ -120,6 +135,7 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
+const isAdmin = computed(() => getCurrentUser()?.role === 'admin');
 
 function isActive(path: string): boolean {
   return route.path === path;

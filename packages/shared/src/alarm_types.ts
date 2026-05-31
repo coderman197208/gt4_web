@@ -31,6 +31,24 @@ export interface UserAlarmAreaContext {
   areas: UserAlarmArea[];
 }
 
+export type ManagedUserAlarmAreaContext = UserAlarmAreaContext;
+
+export type AlarmAccessMode = 'all-enabled' | 'assigned';
+
+export interface AlarmAccessScope {
+  mode: AlarmAccessMode;
+  default_area_id: number;
+  area_ids: number[];
+  areas: UserAlarmArea[];
+}
+
+export interface AlarmManagementUserDirectoryItem {
+  id: number;
+  username: string;
+  email: string;
+  role: 'user';
+}
+
 export interface AlarmSummaryBySeverity {
   critical: number;
   major: number;
@@ -121,6 +139,29 @@ export interface AlarmListResponse {
 export interface AckAlarmRequest {
   expected_version: number;
   operator_note?: string;
+}
+
+export interface AlarmBatchAckItem {
+  alarm_id: number;
+  expected_version: number;
+}
+
+export interface AlarmBatchAckRequest {
+  operator_note?: string;
+  items: AlarmBatchAckItem[];
+}
+
+export type AlarmBatchAckStatus = 'acked' | 'already_acked' | 'conflict' | 'not_found';
+
+export interface AlarmBatchAckResult {
+  alarm_id: number;
+  status: AlarmBatchAckStatus;
+}
+
+export interface AlarmBatchAckResponse {
+  requested_count: number;
+  acked_count: number;
+  results: AlarmBatchAckResult[];
 }
 
 export interface UpdateUserAlarmAreasRequest {

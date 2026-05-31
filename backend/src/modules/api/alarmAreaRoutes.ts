@@ -1,26 +1,66 @@
 import type { FastifyInstance } from 'fastify';
 import type {
   AlarmArea,
+  AlarmManagementUserDirectoryItem,
+  ManagedUserAlarmAreaContext,
   UpdateUserAlarmAreasRequest,
   UpdateUserAlarmAreasResponse,
   UserAlarmAreaContext,
 } from '@gt4_web/shared';
 import {
-  getUserAlarmAreaContext,
+  getCurrentUserAlarmAreaContext,
+  getManagedUserAlarmAreaContext,
   listVisibleAlarmAreas,
   replaceUserAlarmAreas,
 } from '../auth/alarmAreaAccess.js';
+import { listAlarmManagementUsers } from './mockData.js';
 import { requireAdminUser, requireAuthenticatedUser } from '../auth/authSession.js';
 
 export async function registerAlarmAreaRoutes(fastify: FastifyInstance) {
   fastify.get<{ Reply: UserAlarmAreaContext }>('/api/users/me/alarm-areas', async (request) => {
     const user = requireAuthenticatedUser(fastify, request.headers.authorization);
-    return getUserAlarmAreaContext(user.id);
+    return getCurrentUserAlarmAreaContext(user);
   });
 
   fastify.get<{ Reply: AlarmArea[] }>('/api/alarm-areas', async (request) => {
     const user = requireAuthenticatedUser(fastify, request.headers.authorization);
-    return listVisibleAlarmAreas(user.id);
+    return listVisibleAlarmAreas(user);
+  });
+
+  fastify.get<{ Reply: AlarmManagementUserDirectoryItem[] }>(
+    '/api/admin/alarm-users',
+    async (request) => {
+      requireAdminUser(fastify, request.headers.authorization);
+      return listAlarmManagementUsers();
+    },
+  );
+
+  fastify.get<{
+    Params: { userId: string };
+    Reply: ManagedUserAlarmAreaContext;
+  }>('/api/users/:userId/alarm-areas', async (request) => {
+    requireAdminUser(fastify, request.headers.authorization);
+
+    const userId = Number.parseInt(request.params.userId, 10);
+    if (Number.isNaN(userId) || userId <= 0) {
+      throw fastify.httpErrors.badRequest('Invalid user id');
+    }
+
+    try {
+      return await getManagedUserAlarmAreaContext(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'TARGET_USER_NOT_FOUND') {
+          throw fastify.httpErrors.notFound('Target user not found');
+        }
+
+        if (error.message === 'TARGET_USER_NOT_MANAGEABLE') {
+          throw fastify.httpErrors.badRequest('Target user must be a regular user');
+        }
+      }
+
+      throw error;
+    }
   });
 
   fastify.put<{
@@ -39,6 +79,14 @@ export async function registerAlarmAreaRoutes(fastify: FastifyInstance) {
       return await replaceUserAlarmAreas(userId, request.body);
     } catch (error) {
       if (error instanceof Error) {
+        if (error.message === 'TARGET_USER_NOT_FOUND') {
+          throw fastify.httpErrors.notFound('Target user not found');
+        }
+
+        if (error.message === 'TARGET_USER_NOT_MANAGEABLE') {
+          throw fastify.httpErrors.badRequest('Target user must be a regular user');
+        }
+
         if (error.message === 'AREA_IDS_REQUIRED') {
           throw fastify.httpErrors.badRequest('area_ids must not be empty');
         }

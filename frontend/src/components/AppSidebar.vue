@@ -8,113 +8,18 @@
     <div v-if="isOpen" class="p-4">
       <nav class="space-y-2">
         <router-link
-          v-if="isAdmin"
-          to="/alarm-management"
+          v-for="item in visibleSidebarItems"
+          :key="item.key"
+          :to="item.path"
           :class="[
             'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/alarm-management')
+            isNavigationItemActive(item, route.path)
               ? 'bg-accent text-accent-foreground'
               : 'hover:bg-accent hover:text-accent-foreground',
           ]"
           @click="handleNavClick"
         >
-          报警管理
-        </router-link>
-        <router-link
-          to="/health-check"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/health-check')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          健康检查
-        </router-link>
-        <router-link
-          to="/api-demo"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/api-demo')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          API测试
-        </router-link>
-        <router-link
-          to="/tube-edit-ndt"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/tube-edit-ndt')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          NDT管捆编辑
-        </router-link>
-        <router-link
-          to="/bundle-manage"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/bundle-manage')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          管捆编辑
-        </router-link>
-        <router-link
-          to="/contract-editing"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/contract-editing')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          合同数据编辑
-        </router-link>
-        <router-link
-          to="/main-monitor"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/main-monitor')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          主监控
-        </router-link>
-        <router-link
-          to="/parameter-setting"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/parameter-setting')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          参数设定
-        </router-link>
-        <router-link
-          to="/mode-setting"
-          :class="[
-            'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
-            isActive('/mode-setting')
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground',
-          ]"
-          @click="handleNavClick"
-        >
-          格式设定
+          {{ item.label }}
         </router-link>
       </nav>
     </div>
@@ -125,6 +30,7 @@
 import { computed } from 'vue';
 import { getCurrentUser } from '@/api';
 import { useRoute } from 'vue-router';
+import { isNavigationItemActive, sidebarNavigationItems } from '@/lib/appNavigation';
 
 defineProps<{
   isOpen: boolean;
@@ -136,10 +42,9 @@ const emit = defineEmits<{
 
 const route = useRoute();
 const isAdmin = computed(() => getCurrentUser()?.role === 'admin');
-
-function isActive(path: string): boolean {
-  return route.path === path;
-}
+const visibleSidebarItems = computed(() =>
+  sidebarNavigationItems.filter((item) => !item.requiresAdmin || isAdmin.value),
+);
 
 function handleNavClick() {
   emit('close');

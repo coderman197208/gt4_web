@@ -107,12 +107,14 @@ export type UserCommandPayload =
   | AddTubeCmd
   | SetCurrentContractCmd
   | TagPrintEvent
+  | string
+  | number
   | Record<string, unknown>;
 
 // WebSocket 操作命令发送消息（字段名与C++端一致）
 export interface CmdPushMessage {
   cmd_name: string; // 操作命令名称
-  cmd_para?: UserCommandPayload; // 命令参数对象，无参数时可省略
+  cmd_para?: UserCommandPayload; // 命令参数，可为对象、字符串或数字；无参数时可省略
 }
 
 // ==================== 以下是生产数据类型定义 ====================

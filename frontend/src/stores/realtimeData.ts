@@ -59,6 +59,9 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const wbRelease = ref<boolean>(false); // 步进梁释放信号
   const nbwbRelease = ref<boolean>(false); // 内保步进梁释放信号
   const wbBase = ref<boolean>(false); // 步进梁原位信号
+  const l2WbRelease = ref<boolean>(false); // L2步进梁释放信号
+  const weightRelease = ref<boolean>(false); // 称重工位释放信号
+  const sprayRelease = ref<boolean>(false); // 喷涂工位释放信号
   /**
    * 更新指定tag的数据
    * @param tag 标签名称
@@ -190,6 +193,18 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         wbBase.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] wbBase 数据已更新:', wbBase.value);
         break;
+      case 'L2_WB_RELEASE':
+        l2WbRelease.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] l2WbRelease 数据已更新:', l2WbRelease.value);
+        break;
+      case 'WEIGHT_RELEASE':
+        weightRelease.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] weightRelease 数据已更新:', weightRelease.value);
+        break;
+      case 'SPRAY_RELEASE':
+        sprayRelease.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] sprayRelease 数据已更新:', sprayRelease.value);
+        break;
       default:
         console.warn('[RealtimeDataStore] 未知的tag:', {
           rawTag: tag,
@@ -232,6 +247,9 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     wbRelease.value = false;
     nbwbRelease.value = false;
     wbBase.value = false;
+    l2WbRelease.value = false;
+    weightRelease.value = false;
+    sprayRelease.value = false;
     console.log('[RealtimeDataStore] 所有数据已重置');
   }
 
@@ -267,6 +285,9 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     wbRelease,
     nbwbRelease,
     wbBase,
+    l2WbRelease,
+    weightRelease,
+    sprayRelease,
     // 方法
     updateData,
     resetData,

@@ -689,6 +689,17 @@ function handleClearScrap(): void {
   handleDeleteTube('scrapt', -1);
 }
 
+const handleReleaseAllPos = () => {
+  sendUserCommand('release_all_pos_cmd');
+  console.log('[MainMonitorView] 已发送 release_all_pos_cmd');
+};
+
+//0封锁1释放
+const handleReleaseNbWb = () => {
+  sendUserCommand('release_nbwb_cmd', realtimeStore.nbwbRelease ? 0 : 1);
+  console.log('[MainMonitorView] 已发送 release_nbwb_cmd');
+};
+
 const stationIndicators = [
   { key: 'align', label: '对齐' },
   { key: 'weight', label: '称重' },
@@ -823,6 +834,9 @@ onMounted(() => {
     'WB_RELEASE',
     'NBWB_RELEASE',
     'WB_BASE',
+    'L2_WB_RELEASE',
+    'WEIGHT_RELEASE',
+    'SPRAY_RELEASE',
   ]);
 });
 </script>
@@ -1055,7 +1069,7 @@ onMounted(() => {
                 <ConveyorRoller :active="realtimeStore.sprayPosOn" color="green" :size="60" />
                 <div class="flex items-center gap-1 mt-2">
                   <Label class="text-sm font-bold">封锁</Label>
-                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
+                  <IndicatorLight :active="realtimeStore.sprayRelease" color="red" :size="18" />
                   <Label class="text-sm font-bold">测长完成</Label>
                   <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
                 </div>
@@ -1122,7 +1136,7 @@ onMounted(() => {
                 <ConveyorRoller :active="realtimeStore.weightPosOn" color="green" :size="60" />
                 <div class="flex items-center gap-2 mt-2">
                   <Label class="text-sm font-bold">工位封锁</Label>
-                  <IndicatorLight :active="realtimeStore.weightPosOn" color="red" :size="18" />
+                  <IndicatorLight :active="realtimeStore.weightRelease" color="red" :size="18" />
                 </div>
               </div>
               <div class="mt-4 grid grid-cols-3 gap-2">
@@ -1467,10 +1481,17 @@ onMounted(() => {
               class="flex flex-1 items-start justify-left gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
             >
               <div class="grid grid-cols-[120px_1fr] gap-4 items-center mt-2 w-full">
-                <SvgToggle :model-value="stationReady.release" :width="120" :height="30" />
+                <SvgToggle
+                  :model-value="realtimeStore.l2WbRelease"
+                  :width="120"
+                  :height="30"
+                  @click="
+                    sendUserCommand('l2_wb_release_cmd', realtimeStore.l2WbRelease ? '0' : '1')
+                  "
+                ></SvgToggle>
                 <div class="justify-self-center font-bold">L1信号状态</div>
 
-                <Button size="sm" variant="outline" @click="handleMoveTube('position-release')">
+                <Button size="sm" variant="outline" @click="handleReleaseAllPos()">
                   L2所有工位释放
                 </Button>
                 <div class="justify-self-center">
@@ -1483,7 +1504,7 @@ onMounted(() => {
                   />
                 </div>
 
-                <Button size="sm" variant="outline" @click="handleMoveTube('position-release')">
+                <Button size="sm" variant="outline" @click="handleReleaseNbWb()">
                   内保步进梁释放
                 </Button>
                 <div class="justify-self-center">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, onMounted, watch } from 'vue';
+import { computed, reactive, ref, onMounted, onUnmounted, watch } from 'vue';
 import Button from '@/components/custom/WinButton.vue';
 import WinTableFrame from '@/components/custom/WinTableFrame.vue';
 import Input from '@/components/custom/WinInput.vue';
@@ -156,6 +156,19 @@ function formatRealtimeValue(value: string | number | null | undefined): string 
   return value == null ? '' : String(value);
 }
 
+function formatFixedDecimalValue(
+  value: string | number | null | undefined,
+  fractionDigits: number,
+): string {
+  const formattedValue = formatRealtimeValue(value);
+  if (formattedValue.trim() === '') {
+    return formattedValue;
+  }
+
+  const parsedValue = Number(formattedValue);
+  return Number.isFinite(parsedValue) ? parsedValue.toFixed(fractionDigits) : formattedValue;
+}
+
 function toTrackRow(stationKey: string, tubeInfo?: TubeInfo | null): TubeTrackRow {
   const hasTubeInfo = tubeInfo != null;
 
@@ -168,7 +181,7 @@ function toTrackRow(stationKey: string, tubeInfo?: TubeInfo | null): TubeTrackRo
     rollNo: formatRealtimeValue(tubeInfo?.roll_no),
     meltNo: formatRealtimeValue(tubeInfo?.melt_no),
     lotNo: formatRealtimeValue(tubeInfo?.lot_no),
-    length: formatRealtimeValue(tubeInfo?.length),
+    length: formatFixedDecimalValue(tubeInfo?.length, 3),
     lengthOk: tubeInfo?.length_ok ?? false,
     showLengthOk: hasTubeInfo,
     weight: formatRealtimeValue(tubeInfo?.weight),
@@ -311,6 +324,8 @@ function submitTrackRowEdit(stationKey: string, event?: KeyboardEvent): void {
     return;
   }
 
+  draft.length = formatFixedDecimalValue(draft.length, 3);
+
   const cmd = buildModifyTubeCmd(stationKey, draft);
 
   sendUserCommand('ModifyTubeCmd', cmd);
@@ -349,7 +364,7 @@ function toTubeDetailRow(positionName: string, tubeInfo: TubeInfo, index: number
     rollNo: formatRealtimeValue(tubeInfo.roll_no),
     meltNo: formatRealtimeValue(tubeInfo.melt_no),
     lotNo: formatRealtimeValue(tubeInfo.lot_no),
-    length: formatRealtimeValue(tubeInfo.length),
+    length: formatFixedDecimalValue(tubeInfo.length, 3),
     weight: formatRealtimeValue(tubeInfo.weight),
     meltNoCoupling: formatRealtimeValue(tubeInfo.meltno_coupling),
     lotNoCoupling: formatRealtimeValue(tubeInfo.lotno_coupling),
@@ -507,6 +522,8 @@ function submitTubeDetailRowEdit(
   if (!draft || !draft.hasTubeInfo) {
     return;
   }
+
+  draft.length = formatFixedDecimalValue(draft.length, 3);
 
   const cmd = buildTubeDetailModifyTubeCmd(positionName, draft, seqNo);
   sendUserCommand('ModifyTubeCmd', cmd);
@@ -805,45 +822,51 @@ function handleManualCarve() {
   console.log('发送 manual_carve_cmd');
 }
 
-// 在组件挂载时订阅tag（subscribe 为全量替换，新页面 mount 时自动覆盖旧订阅，无需 unmount 时清空）
+const mainMonitorTags = [
+  'PlanInfo',
+  'ALIGN_POS_TUBE_INFO',
+  'WEIGHT_POS_TUBE_INFO',
+  'CARVE_POS_TUBE_INFO',
+  'SPRAY_POS_TUBE_INFO',
+  'CIRCLE_POS_TUBE_INFO',
+  'SCRAPTROLLER_POS_TUBE_INFO',
+  'SCRAPT_POS_TUBE_INFO',
+  'BACKBUFFER_POS_TUBE_INFO',
+  'BASKET_POS_TUBE_INFO',
+  'ALIGN_POS_ON',
+  'WEIGHT_POS_ON',
+  'CARVE_POS_ON',
+  'SPRAY_POS_ON',
+  'CIRCLE_POS_ON',
+  'SCRAPTROLLER_POS_ON',
+  'LEN_MEA_FINISH',
+  'ALIGN_POS_RDY',
+  'WEIGHT_POS_RDY',
+  'CARVE_POS_RDY',
+  'SPRAY_POS_RDY',
+  'CIRCLE_POS_RDY',
+  'SCRAPT_ROLLER_POS_RDY',
+  'WB_RELEASE',
+  'NBWB_RELEASE',
+  'WB_BASE',
+  'L2_WB_RELEASE',
+  'WEIGHT_RELEASE',
+  'SPRAY_RELEASE',
+] as const;
+
+// WebSocket 是全局单例；跳转到不订阅实时数据的页面时，需要在卸载时显式清空当前订阅。
 onMounted(() => {
-  subscribe([
-    'PlanInfo',
-    'ALIGN_POS_TUBE_INFO',
-    'WEIGHT_POS_TUBE_INFO',
-    'CARVE_POS_TUBE_INFO',
-    'SPRAY_POS_TUBE_INFO',
-    'CIRCLE_POS_TUBE_INFO',
-    'SCRAPTROLLER_POS_TUBE_INFO',
-    'SCRAPT_POS_TUBE_INFO',
-    'BACKBUFFER_POS_TUBE_INFO',
-    'BASKET_POS_TUBE_INFO',
-    'ALIGN_POS_ON',
-    'WEIGHT_POS_ON',
-    'CARVE_POS_ON',
-    'SPRAY_POS_ON',
-    'CIRCLE_POS_ON',
-    'SCRAPTROLLER_POS_ON',
-    'LEN_MEA_FINISH',
-    'ALIGN_POS_RDY',
-    'WEIGHT_POS_RDY',
-    'CARVE_POS_RDY',
-    'SPRAY_POS_RDY',
-    'CIRCLE_POS_RDY',
-    'SCRAPT_ROLLER_POS_RDY',
-    'WB_RELEASE',
-    'NBWB_RELEASE',
-    'WB_BASE',
-    'L2_WB_RELEASE',
-    'WEIGHT_RELEASE',
-    'SPRAY_RELEASE',
-  ]);
+  subscribe([...mainMonitorTags]);
+});
+
+onUnmounted(() => {
+  subscribe([]);
 });
 </script>
 
 <template>
   <div class="main-monitor-view h-full w-full overflow-hidden bg-[#d8d8d8] p-2 text-slate-900">
-    <div class="grid h-full grid-rows-[minmax(0,2.5fr)_minmax(0,2.5fr)_auto_minmax(0,3fr)] gap-4">
+    <div class="grid h-full grid-rows-[minmax(0,2.5fr)_minmax(0,2.5fr)_auto_minmax(0,2.5fr)] gap-4">
       <div
         class="relative mt-2 border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
       >
@@ -865,7 +888,7 @@ onMounted(() => {
               <TubeBasket active color="cyan" :top-width="72" :bottom-width="98" :height="48" />
             </div> -->
             <div class="grid gap-2">
-              <div class="flex items-center justify-between mt-4">
+              <div class="flex items-center justify-between mt-2">
                 <Label class="text-base">合同号</Label>
                 <span class="font-bold text-base">{{
                   realtimeStore.basketPosTubeInfo?.[0]?.order_no ?? ''
@@ -963,7 +986,7 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <Label class="text-[15px] font-bold text-[#111827]">废料辊道</Label>
-            <div class="-translate-y-1 mt-2">
+            <div class="-translate-y-2 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
                   :active="(realtimeStore.scraptrollerPosTubeInfo?.length ?? 0) > 0"
@@ -975,9 +998,11 @@ onMounted(() => {
                   color="green"
                   :size="60"
                 />
-                <IndicatorLight color="green" :size="18" class="mt-2 invisible" />
+                <div class="mt-2 flex h-6 items-center justify-center">
+                  <IndicatorLight color="green" :size="18" class="invisible" />
+                </div>
               </div>
-              <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="mt-3 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -1019,7 +1044,7 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <Label class="text-[15px] font-bold text-[#111827]">色环</Label>
-            <div class="-translate-y-1 mt-2">
+            <div class="-translate-y-2 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
                   :active="(realtimeStore.circlePosTubeInfo?.length ?? 0) > 0"
@@ -1027,14 +1052,16 @@ onMounted(() => {
                   :size="60"
                 />
                 <ConveyorRoller :active="realtimeStore.circlePosOn" color="green" :size="60" />
-                <IndicatorLight
-                  :active="processRunning.circle"
-                  color="red"
-                  :size="18"
-                  class="mt-2 invisible"
-                />
+                <div class="mt-2 flex h-6 items-center justify-center">
+                  <IndicatorLight
+                    :active="processRunning.circle"
+                    color="red"
+                    :size="18"
+                    class="invisible"
+                  />
+                </div>
               </div>
-              <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="mt-3 grid grid-cols-3 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -1059,7 +1086,7 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <Label class="text-[15px] font-bold text-[#111827]">喷印</Label>
-            <div class="-translate-y-1 mt-2">
+            <div class="-translate-y-2 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
                   :active="(realtimeStore.sprayPosTubeInfo?.length ?? 0) > 0"
@@ -1067,14 +1094,14 @@ onMounted(() => {
                   :size="60"
                 />
                 <ConveyorRoller :active="realtimeStore.sprayPosOn" color="green" :size="60" />
-                <div class="flex items-center gap-1 mt-2">
+                <div class="mt-2 flex h-6 items-center justify-center gap-1">
                   <Label class="text-sm font-bold">封锁</Label>
-                  <IndicatorLight :active="realtimeStore.sprayRelease" color="red" :size="18" />
+                  <IndicatorLight :active="realtimeStore.sprayRelease" off-color="red" :size="18" />
                   <Label class="text-sm font-bold">测长完成</Label>
                   <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
                 </div>
               </div>
-              <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="mt-3 grid grid-cols-3 gap-2">
                 <Button size="sm" variant="outline" @click="handleMoveTube('spray', 'circle')">
                   &lt;
                 </Button>
@@ -1095,7 +1122,7 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <Label class="text-[15px] font-bold text-[#111827]">刻印</Label>
-            <div class="-translate-y-1 mt-2">
+            <div class="-translate-y-2 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
                   :active="(realtimeStore.carvePosTubeInfo?.length ?? 0) > 0"
@@ -1103,9 +1130,11 @@ onMounted(() => {
                   :size="60"
                 />
                 <ConveyorRoller :active="realtimeStore.carvePosOn" color="green" :size="60" />
-                <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
+                <div class="mt-2 flex h-6 items-center justify-center">
+                  <IndicatorLight color="red" :size="18" class="invisible" />
+                </div>
               </div>
-              <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="mt-3 grid grid-cols-3 gap-2">
                 <Button size="sm" variant="outline" @click="handleMoveTube('carve', 'spray')">
                   &lt;
                 </Button>
@@ -1126,7 +1155,7 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <Label class="text-[15px] font-bold text-[#111827]">称重</Label>
-            <div class="-translate-y-1 mt-2">
+            <div class="-translate-y-2 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
                   :active="(realtimeStore.weightPosTubeInfo?.length ?? 0) > 0"
@@ -1134,12 +1163,16 @@ onMounted(() => {
                   :size="60"
                 />
                 <ConveyorRoller :active="realtimeStore.weightPosOn" color="green" :size="60" />
-                <div class="flex items-center gap-2 mt-2">
+                <div class="mt-2 flex h-6 items-center justify-center gap-2">
                   <Label class="text-sm font-bold">工位封锁</Label>
-                  <IndicatorLight :active="realtimeStore.weightRelease" color="red" :size="18" />
+                  <IndicatorLight
+                    :active="realtimeStore.weightRelease"
+                    off-color="red"
+                    :size="18"
+                  />
                 </div>
               </div>
-              <div class="mt-4 grid grid-cols-3 gap-2">
+              <div class="mt-3 grid grid-cols-3 gap-2">
                 <Button size="sm" variant="outline" @click="handleMoveTube('weight', 'carve')">
                   &lt;
                 </Button>
@@ -1161,7 +1194,7 @@ onMounted(() => {
             class="flex min-h-0 flex-col border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <Label class="text-[15px] font-bold text-[#111827]">定位</Label>
-            <div class="-translate-y-1 mt-2">
+            <div class="-translate-y-2 mt-2">
               <div class="flex flex-col items-center justify-center gap-0.5">
                 <Tube
                   :active="(realtimeStore.alignPosTubeInfo?.length ?? 0) > 0"
@@ -1169,9 +1202,11 @@ onMounted(() => {
                   :size="60"
                 />
                 <ConveyorRoller :active="realtimeStore.alignPosOn" color="green" :size="60" />
-                <IndicatorLight color="red" :size="18" class="mt-2 invisible" />
+                <div class="mt-2 flex h-6 items-center justify-center">
+                  <IndicatorLight color="red" :size="18" class="invisible" />
+                </div>
               </div>
-              <div class="mt-4 grid grid-cols-4 gap-2">
+              <div class="mt-3 grid grid-cols-4 gap-2">
                 <Button size="sm" variant="outline" @click="handleMoveTube('align', 'weight')">
                   &lt;
                 </Button>
@@ -1476,42 +1511,56 @@ onMounted(() => {
           >
             设备状态
           </div>
-          <div class="flex h-full gap-3">
+          <div class="grid h-full grid-cols-[minmax(0,1fr)_90px] gap-2 overflow-hidden">
             <div
-              class="flex flex-1 items-start justify-left gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
+              class="flex min-w-0 items-start justify-left gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 shadow-[inset_0_1px_0_#f4f4f4]"
             >
-              <div class="grid grid-cols-[120px_1fr] gap-4 items-center mt-2 w-full">
+              <div class="mt-2 grid w-full grid-cols-[140px_minmax(0,1fr)] items-center gap-4">
                 <SvgToggle
                   :model-value="realtimeStore.l2WbRelease"
-                  :width="120"
+                  :width="140"
                   :height="30"
+                  on-text="步进梁释放"
+                  off-text="步进梁封锁"
                   @click="
                     sendUserCommand('l2_wb_release_cmd', realtimeStore.l2WbRelease ? '0' : '1')
                   "
                 ></SvgToggle>
-                <div class="justify-self-center font-bold">L1信号状态</div>
-
-                <Button size="sm" variant="outline" @click="handleReleaseAllPos()">
-                  L2所有工位释放
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="min-w-0 w-full whitespace-normal px-2 text-center leading-tight"
+                  @click="handleReleaseAllPos()"
+                >
+                  L2工位释放
                 </Button>
+
+                <div class="justify-self-center">
+                  <Label class="text-sm">步进梁释放状态</Label>
+                </div>
                 <div class="justify-self-center">
                   <IndicatorLight
                     :active="realtimeStore.wbRelease"
                     color="green"
-                    color-off="red"
+                    off-color="red"
                     :size="20"
                     class="translate-y-[2px]"
                   />
                 </div>
 
-                <Button size="sm" variant="outline" @click="handleReleaseNbWb()">
-                  内保步进梁释放
+                <Button
+                  size="sm"
+                  variant="outline"
+                  class="min-w-0 w-full whitespace-normal px-2 text-center leading-tight"
+                  @click="handleReleaseNbWb()"
+                >
+                  内保步进梁释放/封锁
                 </Button>
                 <div class="justify-self-center">
                   <IndicatorLight
                     :active="realtimeStore.nbwbRelease"
                     color="green"
-                    color-off="red"
+                    off-color="red"
                     :size="20"
                     class="translate-y-[2px]"
                   />
@@ -1532,29 +1581,29 @@ onMounted(() => {
             </div>
 
             <div
-              class="grid w-[100px] gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 text-sm shadow-[inset_0_1px_0_#f4f4f4]"
+              class="grid w-full gap-2 border border-[#8a8a8a] rounded-[2px] bg-[#d8d8d8] p-2 text-sm shadow-[inset_0_1px_0_#f4f4f4]"
             >
-              <div class="flex items-center justify-evenly gap-2">
+              <div class="flex items-center justify-between gap-2 whitespace-nowrap">
                 <Label>对齐</Label>
                 <IndicatorLight :active="realtimeStore.alignPosRdy" color="green" :size="18" />
               </div>
-              <div class="flex items-center justify-evenly gap-2">
+              <div class="flex items-center justify-between gap-2 whitespace-nowrap">
                 <Label>称重</Label>
                 <IndicatorLight :active="realtimeStore.weightPosRdy" color="green" :size="18" />
               </div>
-              <div class="flex items-center justify-evenly gap-2">
+              <div class="flex items-center justify-between gap-2 whitespace-nowrap">
                 <Label>刻印</Label>
                 <IndicatorLight :active="realtimeStore.carvePosRdy" color="green" :size="18" />
               </div>
-              <div class="flex items-center justify-evenly gap-2">
+              <div class="flex items-center justify-between gap-2 whitespace-nowrap">
                 <Label>喷印</Label>
                 <IndicatorLight :active="realtimeStore.sprayPosRdy" color="green" :size="18" />
               </div>
-              <div class="flex items-center justify-evenly gap-2">
+              <div class="flex items-center justify-between gap-2 whitespace-nowrap">
                 <Label>色环</Label>
                 <IndicatorLight :active="realtimeStore.circlePosRdy" color="green" :size="18" />
               </div>
-              <div class="flex items-center justify-evenly gap-2">
+              <div class="flex items-center justify-between gap-2 whitespace-nowrap">
                 <Label>出料</Label>
                 <IndicatorLight
                   :active="realtimeStore.scraptrollerPosRdy"
@@ -1568,7 +1617,7 @@ onMounted(() => {
       </div>
 
       <div
-        class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+        class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-2 shadow-[inset_0_1px_0_#f7f7f7]"
       >
         <div
           class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
@@ -1597,7 +1646,10 @@ onMounted(() => {
             </TabsList>
 
             <TabsContent value="basket" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
-              <WinTableFrame :columns="tubeTableColumns" class="min-h-0 flex-1 overflow-y-auto">
+              <WinTableFrame
+                :columns="tubeTableColumns"
+                class="monitor-scroll-table min-h-0 flex-none overflow-hidden"
+              >
                 <TableBody>
                   <TableRow
                     v-for="(editableRow, rowIndex) in editableBasketRows"
@@ -1802,7 +1854,10 @@ onMounted(() => {
             </TabsContent>
 
             <TabsContent value="backbuffer" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
-              <WinTableFrame :columns="tubeTableColumns" class="min-h-0 flex-1 overflow-y-auto">
+              <WinTableFrame
+                :columns="tubeTableColumns"
+                class="monitor-scroll-table min-h-0 flex-none overflow-hidden"
+              >
                 <TableBody>
                   <TableRow
                     v-for="(editableRow, rowIndex) in editableBackbufferRows"
@@ -2008,7 +2063,10 @@ onMounted(() => {
             </TabsContent>
 
             <TabsContent value="scrapt" class="flex min-h-0 flex-1 flex-col gap-3 mt-0">
-              <WinTableFrame :columns="scraptTableColumns" class="min-h-0 flex-1 overflow-y-auto">
+              <WinTableFrame
+                :columns="scraptTableColumns"
+                class="monitor-scroll-table min-h-0 flex-none overflow-hidden"
+              >
                 <TableBody>
                   <TableRow v-for="row in scraptRows" :key="row.rowKey ?? `scrapt-${row.flowNo}`">
                     <TableCell>{{ row.flowNo }}</TableCell>
@@ -2033,7 +2091,7 @@ onMounted(() => {
           </Tabs>
         </div>
 
-        <div class="grid min-h-0 grid-rows-[minmax(0,1.8fr)_minmax(0,1fr)] gap-4">
+        <div class="grid min-h-0 grid-rows-[minmax(0,2.2fr)_minmax(0,0.8fr)] gap-4">
           <div
             class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
           >
@@ -2043,7 +2101,7 @@ onMounted(() => {
               生产统计信息
             </div>
             <div class="flex h-full flex-col gap-2">
-              <div class="mb-2 flex items-center gap-4 text-s font-semibold text-[#1d47a4]">
+              <div class="mb-0 flex items-center gap-4 text-s font-semibold text-[#1d47a4]">
                 <span>合同号 {{ productionStats.statOrderNo }}</span>
                 <span>炉号 {{ productionStats.statMeltNo }}</span>
                 <span>试批号 {{ productionStats.statLotNo }}</span>
@@ -2167,18 +2225,18 @@ onMounted(() => {
           </div>
 
           <div
-            class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-[14px] pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
+            class="relative border border-[#868686] rounded-[3px] bg-[#d3d3d3] px-2 pt-2 pb-2 shadow-[inset_0_1px_0_#f7f7f7]"
           >
             <div
               class="absolute -top-[11px] left-3 bg-[#d8d8d8] text-[#6f1616] font-bold leading-[1.2]"
             >
               进程工作状态
             </div>
-            <div class="grid h-full grid-cols-5 gap-2">
+            <div class="grid h-[60px] grid-cols-5 gap-1">
               <div
                 v-for="item in processStatusCards"
                 :key="item.key"
-                class="flex flex-col items-center justify-between gap-[6px] py-1 text-center"
+                class="flex flex-col items-center justify-center gap-2 pt-2 text-center"
               >
                 <IndicatorLight
                   :active="processStatus[item.key]"
@@ -2187,7 +2245,7 @@ onMounted(() => {
                   :size="20"
                 />
                 <span class="text-xs font-bold leading-4 text-slate-800">{{ item.label }}</span>
-                <Button size="sm" variant="outline" @click="handleMoveTube(item.key)">
+                <Button v-if="false" size="sm" variant="outline" @click="handleMoveTube(item.key)">
                   启动
                 </Button>
               </div>
@@ -2234,5 +2292,10 @@ onMounted(() => {
 :deep(.win-tab-trigger[data-state='active']) {
   background: #ededed;
   color: #6f1616;
+}
+
+:deep(.monitor-scroll-table [data-slot='table-container']) {
+  height: 180px;
+  overflow-y: auto;
 }
 </style>

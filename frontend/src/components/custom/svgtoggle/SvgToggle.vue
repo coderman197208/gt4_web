@@ -1,8 +1,8 @@
 <template>
   <div class="inline-block cursor-pointer" @click="toggle">
     <svg
-      :width="width"
-      :height="height"
+      :width="props.width"
+      :height="props.height"
       viewBox="0 0 200 50"
       xmlns="http://www.w3.org/2000/svg"
       class="drop-shadow-sm transition-all duration-300"
@@ -13,7 +13,7 @@
         width="200"
         height="50"
         rx="5"
-        :class="modelValue ? 'fill-green-600' : 'fill-red-600'"
+        :class="props.modelValue ? 'fill-green-600' : 'fill-red-600'"
         class="transition-colors duration-300"
       />
 
@@ -26,11 +26,11 @@
         fill="white"
         class="select-none pointer-events-none font-bold"
       >
-        {{ modelValue ? '释放' : '封锁' }}
+        {{ props.modelValue ? props.onText : props.offText }}
       </text>
 
       <circle
-        :cx="modelValue ? 175 : 25"
+        :cx="props.modelValue ? 175 : 25"
         cy="25"
         r="15"
         fill="white"
@@ -51,11 +51,15 @@ interface Props {
   modelValue: boolean;
   width?: number | string;
   height?: number | string;
+  onText?: string;
+  offText?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   width: 200,
   height: 50,
+  onText: '释放',
+  offText: '封锁',
 });
 
 // 定义事件，支持 v-model

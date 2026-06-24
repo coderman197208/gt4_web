@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 // import type { SetFeedNumCmd } from '@gt4_web/shared';
 import SvgToggle from '@/components/custom/svgtoggle/SvgToggle.vue';
 import { Button } from '@/components/ui/button';
@@ -186,6 +186,11 @@ async function sendSetFeedNumCmd() {
 onMounted(() => {
   subscribe(['tag1', 'tag2', 'tag3', 'PlanInfo']);
   console.log('[HealthCheckView] 已订阅 tag1, tag2, tag3, PlanInfo');
+});
+
+onUnmounted(() => {
+  subscribe([]);
+  console.log('[HealthCheckView] 已清空所有订阅');
 });
 </script>
 

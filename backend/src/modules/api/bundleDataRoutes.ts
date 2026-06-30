@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { FastifyInstance } from 'fastify';
 import type {
   BundleDeleteParams,
@@ -17,9 +16,16 @@ import type {
   OrderData,
   TubeRecord,
 } from '@gt4_web/shared';
-import prisma from '../database/prismaClient.js';
+import {
+  execute,
+  queryRows,
+  rawSql,
+  sql,
+  type SqlExecutor,
+  withTransaction,
+} from '../database/sqlClient.js';
 
-const bundleTimeSql = Prisma.sql`
+const bundleTimeSql = rawSql(`
   CASE
     WHEN NULLIF(produce_time, '') IS NOT NULL AND LENGTH(NULLIF(produce_time, '')) = 14 THEN
       TO_TIMESTAMP(produce_time, 'YYYYMMDDHH24MISS')
@@ -29,7 +35,7 @@ const bundleTimeSql = Prisma.sql`
       TO_TIMESTAMP(toc, 'YYYY-MM-DD HH24:MI:SS')
     ELSE NULL
   END
-`;
+`);
 
 const bundleRequiredFields: Array<[keyof BundleRecord, string]> = [
   ['order_no', '合同号'],
@@ -288,12 +294,13 @@ function validateBundlePayload(bundle: BundleRecord, tubes: TubeRecord[]) {
 }
 
 async function findDuplicateBundle(
-  tx: typeof prisma,
+  tx: SqlExecutor | undefined,
   key: BundleRecordKey,
   originalKey?: BundleRecordKey | null,
 ) {
   if (originalKey) {
-    const rows = await tx.$queryRaw<BundleRecordKey[]>(Prisma.sql`
+    const rows = await queryRows<BundleRecordKey>(
+      sql`
       SELECT order_no, item_no, bundle_no
       FROM api_bundle_data_t
       WHERE order_no = ${key.order_no}
@@ -305,19 +312,24 @@ async function findDuplicateBundle(
           AND bundle_no = ${originalKey.bundle_no}
         )
       LIMIT 1
-    `);
+    `,
+      tx,
+    );
 
     return rows.length > 0;
   }
 
-  const rows = await tx.$queryRaw<BundleRecordKey[]>(Prisma.sql`
+  const rows = await queryRows<BundleRecordKey>(
+    sql`
     SELECT order_no, item_no, bundle_no
     FROM api_bundle_data_t
     WHERE order_no = ${key.order_no}
       AND item_no = ${key.item_no}
       AND bundle_no = ${key.bundle_no}
     LIMIT 1
-  `);
+  `,
+    tx,
+  );
 
   return rows.length > 0;
 }
@@ -337,7 +349,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
         let rows: BundleRecord[];
 
         if (bundleNo) {
-          rows = await prisma.$queryRaw<BundleRecord[]>(Prisma.sql`
+          rows = await queryRows<BundleRecord>(sql`
           SELECT *
           FROM api_bundle_data_t
           WHERE bundle_no = ${bundleNo}
@@ -346,7 +358,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
         } else {
           const { start, end } = buildBusinessWindow(queryDate!);
 
-          rows = await prisma.$queryRaw<BundleRecord[]>(Prisma.sql`
+          rows = await queryRows<BundleRecord>(sql`
           SELECT *
           FROM api_bundle_data_t
           WHERE ${bundleTimeSql} >= TO_TIMESTAMP(${start}, 'YYYY-MM-DD HH24:MI:SS')
@@ -375,7 +387,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
       }
 
       try {
-        const bundles = await prisma.$queryRaw<BundleRecord[]>(Prisma.sql`
+        const bundles = await queryRows<BundleRecord>(sql`
         SELECT *
         FROM api_bundle_data_t
         WHERE order_no = ${order_no}
@@ -388,7 +400,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
           return reply.code(404).send({ message: '未查询到管捆明细' } as never);
         }
 
-        const tubes = await prisma.$queryRaw<TubeRecord[]>(Prisma.sql`
+        const tubes = await queryRows<TubeRecord>(sql`
         SELECT *
         FROM api_tube_data_t
         WHERE order_no = ${order_no}
@@ -417,20 +429,26 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
       }
 
       try {
-        const result = await prisma.$transaction(async (tx) => {
-          const deletedTubes = await tx.$executeRaw(Prisma.sql`
+        const result = await withTransaction(async (tx) => {
+          const deletedTubes = await execute(
+            sql`
             DELETE FROM api_tube_data_t
             WHERE order_no = ${order_no}
               AND item_no = ${item_no}
               AND bundle_no = ${bundle_no}
-          `);
+          `,
+            tx,
+          );
 
-          const deletedBundles = await tx.$executeRaw(Prisma.sql`
+          const deletedBundles = await execute(
+            sql`
             DELETE FROM api_bundle_data_t
             WHERE order_no = ${order_no}
               AND item_no = ${item_no}
               AND bundle_no = ${bundle_no}
-          `);
+          `,
+            tx,
+          );
 
           return {
             deletedBundles,
@@ -462,7 +480,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
       }
 
       try {
-        const rows = await prisma.$queryRaw<OrderData[]>(Prisma.sql`
+        const rows = await queryRows<OrderData>(sql`
           SELECT *
           FROM api_order_data_t
           WHERE order_no = ${order_no}
@@ -496,7 +514,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
 
       try {
         const duplicate = await findDuplicateBundle(
-          prisma,
+          undefined,
           { order_no, item_no, bundle_no },
           original_bundle_no ? { order_no, item_no, bundle_no: original_bundle_no } : null,
         );
@@ -544,29 +562,36 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
       }
 
       try {
-        await prisma.$transaction(async (tx) => {
-          const duplicate = await findDuplicateBundle(tx as typeof prisma, targetKey, originalKey);
+        await withTransaction(async (tx) => {
+          const duplicate = await findDuplicateBundle(tx, targetKey, originalKey);
           if (duplicate) {
             throw new Error('DUPLICATE_BUNDLE');
           }
 
           const deleteKey = originalKey ?? targetKey;
 
-          await tx.$executeRaw(Prisma.sql`
+          await execute(
+            sql`
           DELETE FROM api_tube_data_t
           WHERE order_no = ${deleteKey.order_no}
             AND item_no = ${deleteKey.item_no}
             AND bundle_no = ${deleteKey.bundle_no}
-        `);
+        `,
+            tx,
+          );
 
-          await tx.$executeRaw(Prisma.sql`
+          await execute(
+            sql`
           DELETE FROM api_bundle_data_t
           WHERE order_no = ${deleteKey.order_no}
             AND item_no = ${deleteKey.item_no}
             AND bundle_no = ${deleteKey.bundle_no}
-        `);
+        `,
+            tx,
+          );
 
-          await tx.$executeRaw(Prisma.sql`
+          await execute(
+            sql`
           INSERT INTO api_bundle_data_t (
             order_no, item_no, bundle_no, roll_no, melt_no, lot_no,
             prod_code, prod_cname, mat_no, mat_text, std_sg_code, std_text, sg_text,
@@ -600,17 +625,22 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
             ${normalizedBundle.wal_thick_up_ctrl}::numeric, ${normalizedBundle.weight_per_meter}::numeric,
             ${normalizedBundle.weight_ew}::numeric, ${normalizedBundle.room_no}
           )
-        `);
+        `,
+            tx,
+          );
 
           for (const tube of normalizedTubes) {
-            await tx.$executeRaw(Prisma.sql`
+            await execute(
+              sql`
             INSERT INTO api_tube_data_t (
               order_no, item_no, bundle_no, weight, length, flow_no, tube_no
             ) VALUES (
               ${tube.order_no}, ${tube.item_no}, ${tube.bundle_no},
               ${tube.weight}::numeric, ${tube.length}::numeric, ${tube.flow_no}::int, ${tube.tube_no}::int
             )
-          `);
+          `,
+              tx,
+            );
           }
         });
 

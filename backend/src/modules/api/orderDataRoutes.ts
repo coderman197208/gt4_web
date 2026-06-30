@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import type { OrderData } from '@gt4_web/shared';
-import prisma from '../database/prismaClient.js';
+import { execute, queryRows, sql } from '../database/sqlClient.js';
 
 export async function registerOrderDataRoutes(fastify: FastifyInstance) {
   // 查询日期范围内的合同号列表
@@ -10,11 +10,11 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ message: '请提供查询日期范围' });
     }
     try {
-      const rows = await prisma.$queryRaw<{ order_no: string }[]>`
+      const rows = await queryRows<{ order_no: string }>(sql`
         SELECT DISTINCT order_no FROM api_order_data_t
         WHERE toc >= ${dateFrom} AND toc < ${dateTo + ' 23:59:59'}
         ORDER BY order_no
-      `;
+      `);
       return rows.map((r) => r.order_no);
     } catch (err) {
       fastify.log.error(err);
@@ -35,18 +35,18 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
     try {
       let rows: { item_no: string }[];
       if (dateFrom && dateTo) {
-        rows = await prisma.$queryRaw<{ item_no: string }[]>`
+        rows = await queryRows<{ item_no: string }>(sql`
           SELECT DISTINCT item_no FROM api_order_data_t
           WHERE order_no = ${orderNo}
             AND toc >= ${dateFrom} AND toc < ${dateTo + ' 23:59:59'}
           ORDER BY item_no
-        `;
+        `);
       } else {
-        rows = await prisma.$queryRaw<{ item_no: string }[]>`
+        rows = await queryRows<{ item_no: string }>(sql`
           SELECT DISTINCT item_no FROM api_order_data_t
           WHERE order_no = ${orderNo}
           ORDER BY item_no
-        `;
+        `);
       }
       return rows.map((r) => r.item_no);
     } catch (err) {
@@ -62,11 +62,11 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ message: '请提供合同号和项目号' });
     }
     try {
-      const rows = await prisma.$queryRaw<OrderData[]>`
+      const rows = await queryRows<OrderData>(sql`
         SELECT * FROM api_order_data_t
         WHERE order_no = ${orderNo} AND item_no = ${itemNo}
         LIMIT 1
-      `;
+      `);
       if (rows.length === 0) {
         return reply.code(404).send({ message: '未查询到合同数据' });
       }
@@ -84,7 +84,7 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ message: '合同号和项目号不能为空' });
     }
     try {
-      await prisma.$executeRaw`
+      await execute(sql`
         INSERT INTO api_order_data_t (
           order_no, item_no, roll_no, diameter, wall_thickness,
           prod_code, prod_cname, heat_treat_code, heat_treat_text,
@@ -138,7 +138,7 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
           ${data.weight_ew}::numeric, ${data.theory_weight_eng}::numeric,
           ${data.order_no_old}, ${data.color_circle}, ${data.color_circle_pos}
         )
-      `;
+      `);
       return { message: '合同数据新增成功' };
     } catch (err: unknown) {
       fastify.log.error(err);
@@ -156,7 +156,7 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ message: '合同号和项目号不能为空' });
     }
     try {
-      const affected = await prisma.$executeRaw`
+      const affected = await execute(sql`
         UPDATE api_order_data_t SET
           roll_no = ${data.roll_no},
           diameter = ${data.diameter}::numeric,
@@ -241,7 +241,7 @@ export async function registerOrderDataRoutes(fastify: FastifyInstance) {
           stamp_req_7_manual = ${data.stamp_req_7_manual},
           stamp_req_8_manual = ${data.stamp_req_8_manual}
         WHERE order_no = ${data.order_no} AND item_no = ${data.item_no}
-      `;
+      `);
       if (affected === 0) {
         return reply.code(404).send({ message: '未找到要更新的合同记录' });
       }

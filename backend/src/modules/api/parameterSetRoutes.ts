@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import type { ParameterSet } from '@gt4_web/shared';
-import prisma from '../database/prismaClient.js';
+import { execute, queryRows, sql, withTransaction } from '../database/sqlClient.js';
 
 export async function registerParameterSetRoutes(fastify: FastifyInstance) {
   // 查询生产参数（0或1条记录）
   fastify.get('/api/parameter-set', async (_request, reply) => {
     try {
-      const rows = await prisma.$queryRaw<ParameterSet[]>`SELECT * FROM parameter_set LIMIT 1`;
+      const rows = await queryRows<ParameterSet>(sql`SELECT * FROM parameter_set LIMIT 1`);
       if (rows.length === 0) {
         return reply.code(404).send({ message: '没有查询到参数记录' });
       }
@@ -21,9 +21,10 @@ export async function registerParameterSetRoutes(fastify: FastifyInstance) {
   fastify.post('/api/parameter-set', async (request, reply) => {
     const data = request.body as ParameterSet;
     try {
-      await prisma.$transaction(async (tx) => {
-        await tx.$executeRaw`DELETE FROM parameter_set`;
-        await tx.$executeRaw`
+      await withTransaction(async (tx) => {
+        await execute(sql`DELETE FROM parameter_set`, tx);
+        await execute(
+          sql`
           INSERT INTO parameter_set (
             order_no, item_no, diameter, wall_thickness, direction_code,
             bundle_type, bundle_number, produce_job_point, order_weight,
@@ -67,7 +68,9 @@ export async function registerParameterSetRoutes(fastify: FastifyInstance) {
             ${data.tube_no}::int, ${data.qrcode_spray_enable}::int,
             ${data.weight_per_meter}::real, ${data.weight_ew}::real
           )
-        `;
+        `,
+          tx,
+        );
       });
       return { message: '参数保存成功' };
     } catch (err) {

@@ -11,7 +11,7 @@ const redisPassword = process.env.REDIS_PASSWORD;
 
 // Redis 连接配置
 const REDIS_CONFIG = {
-  host: process.env.REDIS_HOST || '140.32.1.192',
+  host: process.env.REDIS_HOST || '140.32.1.162',
   port: Number.isNaN(redisPort) ? 6379 : redisPort,
   db: Number.isNaN(redisDb) ? 0 : redisDb,
   password: redisPassword && redisPassword.length > 0 ? redisPassword : 'ggl2e=mc2',

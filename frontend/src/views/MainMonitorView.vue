@@ -57,8 +57,8 @@ type EditableTrackField =
 type ToggleableTrackField = 'lengthOk' | 'weightOk';
 
 interface TubeDetailRow {
-  rowKey?: string;
-  hasTubeInfo?: boolean;
+  rowKey: string;
+  hasTubeInfo: boolean;
   flowNo: string;
   tubeNo?: string;
   flowNoOrg?: string;
@@ -545,7 +545,7 @@ const canDeleteBasketRow = computed(
 const editableBasketRows = computed(() =>
   basketRows.value.map((row) => ({
     row,
-    draft: row.rowKey ? (basketRowDrafts[row.rowKey] ?? row) : row,
+    draft: basketRowDrafts[row.rowKey] ?? row,
   })),
 );
 
@@ -559,7 +559,7 @@ const canDeleteBackbufferRow = computed(
 const editableBackbufferRows = computed(() =>
   backbufferRows.value.map((row) => ({
     row,
-    draft: row.rowKey ? (backbufferRowDrafts[row.rowKey] ?? row) : row,
+    draft: backbufferRowDrafts[row.rowKey] ?? row,
   })),
 );
 
@@ -824,6 +824,7 @@ function handleManualCarve() {
 
 const mainMonitorTags = [
   'PlanInfo',
+  'YIELD_STATISTICS',
   'ALIGN_POS_TUBE_INFO',
   'WEIGHT_POS_TUBE_INFO',
   'CARVE_POS_TUBE_INFO',
@@ -2102,16 +2103,16 @@ onUnmounted(() => {
             </div>
             <div class="flex h-full flex-col gap-2">
               <div class="mb-0 flex items-center gap-4 text-s font-semibold text-[#1d47a4]">
-                <span>合同号 {{ productionStats.statOrderNo }}</span>
-                <span>炉号 {{ productionStats.statMeltNo }}</span>
-                <span>试批号 {{ productionStats.statLotNo }}</span>
+                <span>合同号 {{ realtimeStore.yieldStatistics?.order_no }}</span>
+                <span>炉号 {{ realtimeStore.yieldStatistics?.melt_no }}</span>
+                <span>试批号 {{ realtimeStore.yieldStatistics?.lot_no }}</span>
               </div>
 
               <div class="grid grid-cols-[150px_1fr_1fr_1fr] gap-3">
                 <Label class="text-sm font-bold">当前合同已完成</Label>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.orderWeight"
+                    :model-value="realtimeStore.yieldStatistics?.order_weight?.toFixed(1) ?? ''"
                     variant="readonly"
                     class="h-7 text-right"
                   />
@@ -2119,7 +2120,7 @@ onUnmounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.orderLength"
+                    :model-value="realtimeStore.yieldStatistics?.order_length?.toFixed(0) ?? ''"
                     variant="readonly"
                     class="h-7 text-right"
                   />
@@ -2127,7 +2128,7 @@ onUnmounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.orderCount"
+                    :model-value="realtimeStore.yieldStatistics?.order_count ?? ''"
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2140,7 +2141,13 @@ onUnmounted(() => {
                 <Label class="text-sm font-bold" />
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.orderWeightEng"
+                    :model-value="
+                      realtimeStore.yieldStatistics?.order_weight
+                        ? (realtimeStore.yieldStatistics.order_weight * 1000 * 2.20462262).toFixed(
+                            1,
+                          )
+                        : 0
+                    "
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2149,7 +2156,11 @@ onUnmounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.orderLengthEng"
+                    :model-value="
+                      realtimeStore.yieldStatistics?.order_length
+                        ? (realtimeStore.yieldStatistics.order_length * 3.28084).toFixed(0)
+                        : 0
+                    "
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2163,7 +2174,7 @@ onUnmounted(() => {
                 <Label class="text-sm font-bold">当前炉批已完成</Label>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.lotWeight"
+                    :model-value="realtimeStore.yieldStatistics?.lot_weight?.toFixed(1) ?? ''"
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2172,7 +2183,7 @@ onUnmounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.lotLength"
+                    :model-value="realtimeStore.yieldStatistics?.lot_length?.toFixed(0) ?? ''"
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2181,7 +2192,7 @@ onUnmounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.lotCount"
+                    :model-value="realtimeStore.yieldStatistics?.lot_count ?? ''"
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2195,7 +2206,7 @@ onUnmounted(() => {
                 <Label class="text-sm font-bold">班产量</Label>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.shiftWeight"
+                    :model-value="realtimeStore.yieldStatistics?.shift_weight ?? ''"
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2204,7 +2215,7 @@ onUnmounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.shiftLength"
+                    :model-value="realtimeStore.yieldStatistics?.shift_length ?? ''"
                     readonly
                     variant="readonly"
                     class="h-7 text-right"
@@ -2213,7 +2224,7 @@ onUnmounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <Input
-                    v-model="productionStats.shiftCount"
+                    :model-value="realtimeStore.yieldStatistics?.shift_count ?? ''"
                     readonly
                     variant="readonly"
                     class="h-7 text-right"

@@ -5,7 +5,14 @@
 
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { Tag1Data, Tag2Data, Tag3Data, PlanInfo, TubeInfo } from '@gt4_web/shared';
+import type {
+  Tag1Data,
+  Tag2Data,
+  Tag3Data,
+  PlanInfo,
+  TubeInfo,
+  YieldStatistics,
+} from '@gt4_web/shared';
 
 function normalizeBooleanTagValue(value: unknown): boolean {
   if (typeof value === 'boolean') {
@@ -34,6 +41,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const tag2 = ref<Tag2Data | null>(null);
   const tag3 = ref<Tag3Data | null>(null);
   const planInfo = ref<PlanInfo | null>(null);
+  const yieldStatistics = ref<YieldStatistics | null>(null);
   const alignPosTubeInfo = ref<TubeInfo[] | null>(null); // 定位工位管子信息
   const weightPosTubeInfo = ref<TubeInfo[] | null>(null); // 称重工位管子信息
   const carvePosTubeInfo = ref<TubeInfo[] | null>(null); // 刻印工位管子信息
@@ -86,6 +94,10 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
       case 'PlanInfo':
         planInfo.value = value as PlanInfo;
         console.log('[RealtimeDataStore] planInfo 数据已更新:', planInfo.value);
+        break;
+      case 'YIELD_STATISTICS':
+        yieldStatistics.value = value as YieldStatistics;
+        console.log('[RealtimeDataStore] yieldStatistics 数据已更新:', yieldStatistics.value);
         break;
       case 'ALIGN_POS_TUBE_INFO':
         alignPosTubeInfo.value = value as TubeInfo[];
@@ -222,6 +234,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     tag2.value = null;
     tag3.value = null;
     planInfo.value = null;
+    yieldStatistics.value = null;
     alignPosTubeInfo.value = null;
     weightPosTubeInfo.value = null;
     carvePosTubeInfo.value = null;
@@ -260,6 +273,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     tag3,
     // 实际数据
     planInfo,
+    yieldStatistics,
     alignPosTubeInfo,
     weightPosTubeInfo,
     carvePosTubeInfo,

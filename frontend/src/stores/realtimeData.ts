@@ -57,7 +57,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const sprayPosOn = ref<boolean>(false); // 喷涂工位有料信号状态
   const circlePosOn = ref<boolean>(false); // 色环工位有料信号状态
   const scraptrollerPosOn = ref<boolean>(false); // 出废工位有料信号状态
-  const lenMeaFinish = ref<boolean>(false); // 测长完成信号状态
+  const lengthFinish = ref<boolean>(false); // 测长完成信号状态
   const alignPosRdy = ref<boolean>(false); // 测长工位备妥
   const weightPosRdy = ref<boolean>(false); // 称重工位备妥
   const carvePosRdy = ref<boolean>(false); // 压印工位备妥
@@ -70,6 +70,11 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const l2WbRelease = ref<boolean>(false); // L2步进梁释放信号
   const weightRelease = ref<boolean>(false); // 称重工位释放信号
   const sprayRelease = ref<boolean>(false); // 喷涂工位释放信号
+  const nextTubeFlowNo = ref<number | null>(null); // 下一个管子的流水号
+  const nextBundleFlowNo = ref<number | null>(null); // 下一个包的流水号
+  const bundleNumber = ref<number | null>(null); // 成捆支数
+  const latestBundleNo = ref<number | null>(null); // 最新成捆号
+  const sprayString = ref<string | null>(null); // 喷码工位喷码字符串
   /**
    * 更新指定tag的数据
    * @param tag 标签名称
@@ -165,9 +170,9 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         scraptrollerPosOn.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] scraptrollerPosOn 数据已更新:', scraptrollerPosOn.value);
         break;
-      case 'LEN_MEA_FINISH':
-        lenMeaFinish.value = normalizeBooleanTagValue(value);
-        console.log('[RealtimeDataStore] lenMeaFinish 数据已更新:', lenMeaFinish.value);
+      case 'LENGTH_FINISH':
+        lengthFinish.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] lengthFinish 数据已更新:', lengthFinish.value);
         break;
       case 'ALIGN_POS_RDY':
         alignPosRdy.value = normalizeBooleanTagValue(value);
@@ -217,6 +222,26 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         sprayRelease.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] sprayRelease 数据已更新:', sprayRelease.value);
         break;
+      case 'NEXT_TUBE_FLOW_NO':
+        nextTubeFlowNo.value = Number(value);
+        console.log('[RealtimeDataStore] nextTubeFlowNo 数据已更新:', nextTubeFlowNo.value);
+        break;
+      case 'NEXT_BUNDLE_FLOW_NO':
+        nextBundleFlowNo.value = Number(value);
+        console.log('[RealtimeDataStore] nextBundleFlowNo 数据已更新:', nextBundleFlowNo.value);
+        break;
+      case 'BUNDLE_NUMBER':
+        bundleNumber.value = Number(value);
+        console.log('[RealtimeDataStore] bundleNumber 数据已更新:', bundleNumber.value);
+        break;
+      case 'LATEST_BUNDLE_NO':
+        latestBundleNo.value = Number(value);
+        console.log('[RealtimeDataStore] latestBundleNo 数据已更新:', latestBundleNo.value);
+        break;
+      case 'SPRAY_STRING':
+        sprayString.value = String(value);
+        console.log('[RealtimeDataStore] sprayString 数据已更新:', sprayString.value);
+        break;
       default:
         console.warn('[RealtimeDataStore] 未知的tag:', {
           rawTag: tag,
@@ -250,7 +275,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     sprayPosOn.value = false;
     circlePosOn.value = false;
     scraptrollerPosOn.value = false;
-    lenMeaFinish.value = false;
+    lengthFinish.value = false;
     alignPosRdy.value = false;
     weightPosRdy.value = false;
     carvePosRdy.value = false;
@@ -263,6 +288,10 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     l2WbRelease.value = false;
     weightRelease.value = false;
     sprayRelease.value = false;
+    nextBundleFlowNo.value = 0;
+    bundleNumber.value = 0;
+    latestBundleNo.value = 0;
+    sprayString.value = null;
     console.log('[RealtimeDataStore] 所有数据已重置');
   }
 
@@ -289,7 +318,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     sprayPosOn,
     circlePosOn,
     scraptrollerPosOn,
-    lenMeaFinish,
+    lengthFinish,
     alignPosRdy,
     weightPosRdy,
     carvePosRdy,
@@ -302,6 +331,11 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     l2WbRelease,
     weightRelease,
     sprayRelease,
+    nextTubeFlowNo,
+    nextBundleFlowNo,
+    bundleNumber,
+    latestBundleNo,
+    sprayString,
     // 方法
     updateData,
     resetData,

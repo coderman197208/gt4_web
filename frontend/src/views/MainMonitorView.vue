@@ -184,7 +184,7 @@ function toTrackRow(stationKey: string, tubeInfo?: TubeInfo | null): TubeTrackRo
     length: formatFixedDecimalValue(tubeInfo?.length, 3),
     lengthOk: tubeInfo?.length_ok ?? false,
     showLengthOk: hasTubeInfo,
-    weight: formatRealtimeValue(tubeInfo?.weight),
+    weight: formatFixedDecimalValue(tubeInfo?.weight, 1),
     weightOk: tubeInfo?.weight_ok ?? false,
     showWeightOk: hasTubeInfo,
     meltNoCoupling: formatRealtimeValue(tubeInfo?.meltno_coupling),
@@ -840,7 +840,7 @@ const mainMonitorTags = [
   'SPRAY_POS_ON',
   'CIRCLE_POS_ON',
   'SCRAPTROLLER_POS_ON',
-  'LEN_MEA_FINISH',
+  'LENGTH_FINISH',
   'ALIGN_POS_RDY',
   'WEIGHT_POS_RDY',
   'CARVE_POS_RDY',
@@ -853,6 +853,11 @@ const mainMonitorTags = [
   'L2_WB_RELEASE',
   'WEIGHT_RELEASE',
   'SPRAY_RELEASE',
+  'NEXT_TUBE_FLOW_NO',
+  'NEXT_BUNDLE_FLOW_NO',
+  'BUNDLE_NUMBER',
+  'LATEST_BUNDLE_NO',
+  'SPRAY_STRING',
 ] as const;
 
 // WebSocket 是全局单例；跳转到不订阅实时数据的页面时，需要在卸载时显式清空当前订阅。
@@ -915,12 +920,12 @@ onUnmounted(() => {
               <div class="flex items-center justify-between">
                 <Label class="text-base">料筐支数</Label>
                 <span class="font-bold text-base">{{
-                  realtimeStore.basketPosTubeInfo?.length ?? ''
+                  realtimeStore.basketPosTubeInfo?.length ?? 0
                 }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <Label class="text-base">成捆支数</Label>
-                <Input v-model="mainForm.basketBundleCount" class="h-7 text-right w-20" />
+                <span class="font-bold text-base">{{ realtimeStore.bundleNumber ?? 0 }}</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <Button size="sm" variant="outline"> 打捆 </Button>
@@ -974,11 +979,15 @@ onUnmounted(() => {
               </div>
               <div class="flex items-center justify-between">
                 <span>最近管捆号</span>
-                <span class="font-bold text-[#1d47a4]">{{ mainForm.lastBundleNo }}</span>
+                <span class="font-bold text-[#1d47a4]">{{
+                  realtimeStore.latestBundleNo ?? 0
+                }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span>下一流水号</span>
-                <span class="font-bold text-[#1d47a4]">{{ mainForm.bundleFlowNo }}</span>
+                <span class="font-bold text-[#1d47a4]">{{
+                  realtimeStore.nextBundleFlowNo ?? 0
+                }}</span>
               </div>
             </div>
           </div>
@@ -1099,7 +1108,7 @@ onUnmounted(() => {
                   <Label class="text-sm font-bold">封锁</Label>
                   <IndicatorLight :active="realtimeStore.sprayRelease" off-color="red" :size="18" />
                   <Label class="text-sm font-bold">测长完成</Label>
-                  <IndicatorLight :active="realtimeStore.lenMeaFinish" color="green" :size="18" />
+                  <IndicatorLight :active="realtimeStore.lengthFinish" color="green" :size="18" />
                 </div>
               </div>
               <div class="mt-3 grid grid-cols-3 gap-2">
@@ -1272,7 +1281,11 @@ onUnmounted(() => {
               </div>
               <div class="flex items-center gap-2">
                 <Label class="text-base w-22 text-right">下一流水号</Label>
-                <Input v-model="mainForm.flowNo" class="h-7 text-center flex-1" />
+                <Input
+                  :model-value="realtimeStore.nextTubeFlowNo ?? 0"
+                  class="h-7 text-center flex-1"
+                  readonly
+                />
               </div>
             </div>
           </div>
@@ -1626,7 +1639,7 @@ onUnmounted(() => {
           喷印字符串
         </div>
         <div class="px-2 py-2 text-lg font-bold text-slate-800">
-          {{ sprayString }}
+          {{ realtimeStore.sprayString ? realtimeStore.sprayString : '' }}
         </div>
       </div>
 

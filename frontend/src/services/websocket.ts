@@ -42,12 +42,29 @@ function buildSocketAuth() {
   };
 }
 
+function looksLikeJsonLiteral(value: string): boolean {
+  if (value === 'true' || value === 'false' || value === 'null') {
+    return true;
+  }
+
+  if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(value)) {
+    return true;
+  }
+
+  const firstChar = value[0];
+  return firstChar === '{' || firstChar === '[' || firstChar === '"';
+}
+
 function parseDataPushValue(message: DataPushMessage): unknown {
   const rawValue = message.value.trim();
 
   if (rawValue === '') {
     console.warn('[WebSocket] 收到空数据推送，按 null 处理:', message.tag);
     return null;
+  }
+
+  if (!looksLikeJsonLiteral(rawValue)) {
+    return rawValue;
   }
 
   try {

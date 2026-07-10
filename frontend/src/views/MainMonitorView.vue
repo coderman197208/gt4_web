@@ -89,61 +89,6 @@ type EditableTubeDetailField =
 const { subscribe, sendUserCommand } = useWebSocket();
 const realtimeStore = useRealtimeDataStore();
 
-const mainForm = reactive({
-  basketBundleCount: '20',
-  orderNo: 'A123456789',
-  feedCount: '9',
-  feedRollNo: 'RL2301',
-  feedLotNo: '0123456',
-  feedMeltNo: '01234567',
-  flowNo: '1234',
-  basketOrderNo: 'A123456789',
-  basketMeltNo: '01234567',
-  basketLotNo: '0123456',
-  lastBundleNo: 'B24030801',
-  bundleFlowNo: '0021',
-});
-
-const sprayString = ref('A123456789A123456789A123456789A123456789A123456789A123456789A123456789');
-
-const productionStats = reactive({
-  statOrderNo: '0123456789',
-  statMeltNo: '01234567',
-  statLotNo: '0123456',
-  orderWeight: '9999.9',
-  orderLength: '99999',
-  orderCount: '9999',
-  orderWeightEng: '99999999',
-  orderLengthEng: '99999',
-  lotWeight: '9999.9',
-  lotLength: '99999',
-  lotCount: '9999',
-  shiftWeight: '9999.9',
-  shiftLength: '99999',
-  shiftCount: '9999',
-});
-
-const processRunning = reactive({
-  circle: true,
-  spray: true,
-  carve: true,
-  weight: true,
-  length: true,
-  waste: true,
-});
-
-const stationReady = reactive({
-  release: true,
-  innerProtect: true,
-  beamHome: true,
-  length: true,
-  weight: true,
-  carve: true,
-  spray: true,
-  circle: true,
-  outfeed: true,
-});
-
 const processStatus = reactive({
   sprayProcess: true,
   tagPrint: true,
@@ -928,8 +873,10 @@ onUnmounted(() => {
                 <span class="font-bold text-base">{{ realtimeStore.bundleNumber ?? 0 }}</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline"> 打捆 </Button>
-                <Button size="sm" variant="outline" @click="handleBundle()"> &gt; </Button>
+                <Button size="sm" variant="outline" @click="handleBundle()"> 打捆 </Button>
+                <Button size="sm" variant="outline" @click="handleMoveTube('basket', 'backbuffer')">
+                  &gt;
+                </Button>
               </div>
             </div>
           </div>
@@ -1063,12 +1010,7 @@ onUnmounted(() => {
                 />
                 <ConveyorRoller :active="realtimeStore.circlePosOn" color="green" :size="60" />
                 <div class="mt-2 flex h-6 items-center justify-center">
-                  <IndicatorLight
-                    :active="processRunning.circle"
-                    color="red"
-                    :size="18"
-                    class="invisible"
-                  />
+                  <IndicatorLight color="red" :size="18" class="invisible" />
                 </div>
               </div>
               <div class="mt-3 grid grid-cols-3 gap-2">

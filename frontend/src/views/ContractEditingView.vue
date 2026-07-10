@@ -14,11 +14,11 @@
           <div class="flex items-center gap-4 pt-1">
             <div class="flex items-center gap-2">
               <Label :class="baseLabelClass">合同号</Label>
-              <Input v-model="requestForm.orderNo" class="h-8 w-36 shadow-none" />
+              <Input v-model="requestOrder.orderNo" class="h-8 w-36 shadow-none" />
             </div>
             <div class="flex items-center gap-2">
               <Label :class="baseLabelClass">项目号</Label>
-              <Input v-model="requestForm.itemNo" class="h-8 w-20 text-right shadow-none" />
+              <Input v-model="requestOrder.itemNo" class="h-8 w-20 text-right shadow-none" />
             </div>
             <Button class="min-w-22" @click="handleRequest">申请</Button>
           </div>
@@ -405,7 +405,7 @@ import WinSelect from '@/components/custom/WinSelect.vue';
 import { Label } from '@/components/ui/label';
 import { getOrderNos, getItemNos, getOrderData, updateOrderData, createOrderData } from '@/api';
 import type { OrderData } from '@gt4_web/shared';
-import type { SetCurrentContractCmd } from '@gt4_web/shared';
+import type { SetCurrentContractCmd, RequestOrderDataCmd } from '@gt4_web/shared';
 import { useWebSocket } from '@/services/websocket';
 
 const { sendUserCommand } = useWebSocket();
@@ -427,7 +427,7 @@ const tenDaysAgo = new Date();
 tenDaysAgo.setDate(today.getDate() - 10);
 
 // 合同申请表单
-const requestForm = reactive({
+const requestOrder = reactive({
   orderNo: '',
   itemNo: '1',
 });
@@ -749,7 +749,13 @@ watch(
 
 // 事件处理
 function handleRequest() {
-  console.log('request', requestForm);
+  const cmd: RequestOrderDataCmd = {
+    order_no: requestOrder.orderNo,
+    item_no: requestOrder.itemNo,
+  };
+  sendUserCommand('RequestOrderDataCmd', cmd);
+
+  console.log('request', requestOrder);
 }
 
 // 点击查询按钮，根据合同号、项目号查询合同明细

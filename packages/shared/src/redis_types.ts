@@ -92,6 +92,11 @@ export interface SetCurrentContractCmd {
   item_no: string; // 项目号
 }
 
+export interface RequestOrderDataCmd {
+  order_no: string; // 合同号
+  item_no: string; // 项目号
+}
+
 // 标签打印事件/命令
 export interface TagPrintEvent {
   order_no: string; // 合同号
@@ -106,6 +111,7 @@ export type UserCommandPayload =
   | DeleteTubeCmd
   | AddTubeCmd
   | SetCurrentContractCmd
+  | RequestOrderDataCmd
   | TagPrintEvent
   | string
   | number
@@ -145,4 +151,25 @@ export interface TubeInfo {
   weight_ok: boolean; // 重量合格
   lotno_coupling: string; // 接箍批号
   meltno_coupling: string; // 接箍炉号
+}
+
+export interface YieldStatistics {
+  order_no: string;
+  item_no: string;
+  melt_no: string;
+  lot_no: string;
+  diameter: number;
+  thickness: number;
+  order_weight: number;
+  order_length: number;
+  order_count: number;
+  order_weight_correct: number;
+  order_length_correct: number;
+  order_count_correct: number;
+  lot_weight: number;
+  lot_length: number;
+  lot_count: number;
+  shift_weight: number;
+  shift_length: number;
+  shift_count: number;
 }

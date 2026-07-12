@@ -28,7 +28,8 @@ export interface SubscribeRequest {
 // WebSocket 数据推送消息
 export interface DataPushMessage {
   tag: string; // 标签名称
-  value: string; // JSON字符串格式的数据（前端需要解析）
+  hasValue?: boolean; // false 表示本次仅通知事件发生，不附带 Redis 值
+  value?: string; // JSON字符串格式的数据（前端需要解析）
 }
 
 // ==================== 以下是操作命令类型定义 ====================

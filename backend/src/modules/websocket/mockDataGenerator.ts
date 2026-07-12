@@ -32,6 +32,7 @@ function updateAndPushTag1() {
   if (subscribers.length > 0) {
     const message: DataPushMessage = {
       tag: 'tag1',
+      hasValue: true,
       value: JSON.stringify(tag1Data),
     };
 
@@ -55,6 +56,7 @@ function updateAndPushTag2() {
   if (subscribers.length > 0) {
     const message: DataPushMessage = {
       tag: 'tag2',
+      hasValue: true,
       value: JSON.stringify(tag2Data),
     };
 
@@ -78,6 +80,7 @@ function updateAndPushTag3() {
   if (subscribers.length > 0) {
     const message: DataPushMessage = {
       tag: 'tag3',
+      hasValue: true,
       value: JSON.stringify(tag3Data),
     };
 

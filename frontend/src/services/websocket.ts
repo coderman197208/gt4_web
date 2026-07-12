@@ -56,6 +56,10 @@ function looksLikeJsonLiteral(value: string): boolean {
 }
 
 function parseDataPushValue(message: DataPushMessage): unknown {
+  if (message.hasValue === false || message.value == null) {
+    return undefined;
+  }
+
   const rawValue = message.value.trim();
 
   if (rawValue === '') {
@@ -80,6 +84,11 @@ function parseDataPushValue(message: DataPushMessage): unknown {
 // 有参时也只移除指定的外部回调。
 function handleInternalDataPush(message: DataPushMessage) {
   console.log('[WebSocket] 收到数据推送:', message);
+
+  if (message.hasValue === false || message.value == null) {
+    console.log('[WebSocket] 收到无值事件推送，仅通知外部监听器:', message.tag);
+    return;
+  }
 
   const parsedValue = parseDataPushValue(message);
   if (parsedValue === undefined) {

@@ -62,7 +62,19 @@ export function startRedisSubscriber(): void {
       // 从 Redis 读取 tag 的值
       const tagValue = await redisDataClient.get(payloadKey);
       if (tagValue === null) {
-        console.warn(`[RedisSubscriber] tag "${payloadKey}" 在 Redis 中不存在`);
+        const message: DataPushMessage = {
+          tag: payloadKey,
+          hasValue: false,
+        };
+
+        const io = getSocketServer();
+        subscribers.forEach((socketId) => {
+          io.to(socketId).emit('data:push', message);
+        });
+
+        console.warn(
+          `[RedisSubscriber] tag "${payloadKey}" 在 Redis 中不存在，按无值事件推送给 ${subscribers.length} 个订阅者`,
+        );
         return;
       }
 
@@ -71,6 +83,7 @@ export function startRedisSubscriber(): void {
 
       const message: DataPushMessage = {
         tag: payloadKey,
+        hasValue: true,
         value: normalizedValue,
       };
 

@@ -398,17 +398,17 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, onMounted, onUnmounted } from 'vue';
 import Button from '@/components/custom/WinButton.vue';
 import Input from '@/components/custom/WinInput.vue';
 import WinSelect from '@/components/custom/WinSelect.vue';
 import { Label } from '@/components/ui/label';
 import { getOrderNos, getItemNos, getOrderData, updateOrderData, createOrderData } from '@/api';
-import type { OrderData } from '@gt4_web/shared';
+import type { DataPushMessage, OrderData } from '@gt4_web/shared';
 import type { SetCurrentContractCmd, RequestOrderDataCmd } from '@gt4_web/shared';
 import { useWebSocket } from '@/services/websocket';
 
-const { sendUserCommand } = useWebSocket();
+const { subscribe, sendUserCommand, onDataPush, offDataPush } = useWebSocket();
 
 const baseLabelClass = 'whitespace-nowrap text-[15px]';
 
@@ -813,4 +813,28 @@ async function handleContractModify() {
     alert('保存合同数据失败');
   }
 }
+
+function handleRequestOrderResultPush(message: DataPushMessage) {
+  if (message.tag !== 'REQUEST_ORDER_RESULT') {
+    return;
+  }
+
+  if (message.hasValue === false || message.value == null) {
+    window.alert('REQUEST_ORDER_RESULT 事件已触发');
+    return;
+  }
+
+  window.alert(message.value);
+}
+
+// WebSocket 是全局单例；跳转到不订阅实时数据的页面时，需要在卸载时显式清空当前订阅。
+onMounted(() => {
+  onDataPush(handleRequestOrderResultPush);
+  subscribe(['REQUEST_ORDER_RESULT']);
+});
+
+onUnmounted(() => {
+  offDataPush(handleRequestOrderResultPush);
+  subscribe([]);
+});
 </script>

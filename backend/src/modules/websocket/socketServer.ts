@@ -181,7 +181,11 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
           const value = await redisDataClient.get(tag);
           if (value === null) continue;
           const normalizedValue = normalizeRealtimeTagValue(tag, value);
-          socket.emit('data:push', { tag, value: normalizedValue } as DataPushMessage);
+          socket.emit('data:push', {
+            tag,
+            hasValue: true,
+            value: normalizedValue,
+          } as DataPushMessage);
         } catch (err) {
           console.error(`[SocketServer] 初始推送 tag "${tag}" 失败:`, err);
         }

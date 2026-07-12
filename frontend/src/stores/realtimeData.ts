@@ -242,6 +242,9 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         sprayString.value = String(value);
         console.log('[RealtimeDataStore] sprayString 数据已更新:', sprayString.value);
         break;
+      case 'REQUEST_ORDER_RESULT':
+        console.log('不写入Store，由页面直接处理', value);
+        break;
       default:
         console.warn('[RealtimeDataStore] 未知的tag:', {
           rawTag: tag,

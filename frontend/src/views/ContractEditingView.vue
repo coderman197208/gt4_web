@@ -411,9 +411,36 @@ import { useWebSocket } from '@/services/websocket';
 const { subscribe, sendUserCommand, onDataPush, offDataPush } = useWebSocket();
 
 const baseLabelClass = 'whitespace-nowrap text-[15px]';
+const REQUEST_ORDER_COOLDOWN_MS = 2000;
 
 // 缓存查询到的完整记录，修改时以此为基础合并表单数据
 const cachedOrderData = ref<OrderData | null>(null);
+const requestOrderResultArmed = ref(false);
+let lastRequestOrderAt = 0;
+let requestOrderTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
+
+function clearRequestOrderTimeout() {
+  if (requestOrderTimeoutId == null) {
+    return;
+  }
+
+  window.clearTimeout(requestOrderTimeoutId);
+  requestOrderTimeoutId = null;
+}
+
+function armRequestOrderTimeout() {
+  clearRequestOrderTimeout();
+  requestOrderTimeoutId = window.setTimeout(() => {
+    requestOrderTimeoutId = null;
+
+    if (!requestOrderResultArmed.value) {
+      return;
+    }
+
+    requestOrderResultArmed.value = false;
+    window.alert('申请合同失败');
+  }, REQUEST_ORDER_COOLDOWN_MS);
+}
 
 function formatDateForInput(date: Date): string {
   const year = date.getFullYear();
@@ -549,6 +576,51 @@ function toNum(val: string): number | null {
 
 function toStr(val: string): string | null {
   return val === '' ? null : val;
+}
+
+function insertUniqueOption(options: string[], value: string): string[] {
+  const normalizedValue = value.trim();
+  if (!normalizedValue) {
+    return options;
+  }
+
+  if (options.includes(normalizedValue)) {
+    return options;
+  }
+
+  return [normalizedValue, ...options];
+}
+
+function syncRequestedOrderIntoQueryOptions() {
+  orderNoOptions.value = insertUniqueOption(orderNoOptions.value, requestOrder.orderNo);
+
+  if (queryForm.orderNo === requestOrder.orderNo) {
+    itemNoOptions.value = insertUniqueOption(itemNoOptions.value, requestOrder.itemNo);
+  }
+}
+
+async function refreshQueryOptionsAfterRequest() {
+  if (!queryForm.dateFrom || !queryForm.dateTo) {
+    return;
+  }
+
+  try {
+    orderNoOptions.value = await getOrderNos(queryForm.dateFrom, queryForm.dateTo);
+
+    if (queryForm.orderNo === requestOrder.orderNo && requestOrder.orderNo) {
+      itemNoOptions.value = await getItemNos(
+        requestOrder.orderNo,
+        queryForm.dateFrom,
+        queryForm.dateTo,
+      );
+    }
+  } catch (err) {
+    console.error('刷新合同下拉选项失败', err);
+  }
+}
+
+function isFailedRequestOrderResultMessage(value: string): boolean {
+  return /失败|fail|error|不存在|无效/i.test(value);
 }
 
 // 表单数据 -> 本页面编辑的字段
@@ -749,6 +821,16 @@ watch(
 
 // 事件处理
 function handleRequest() {
+  const now = Date.now();
+  if (now - lastRequestOrderAt < REQUEST_ORDER_COOLDOWN_MS) {
+    window.alert('2秒内禁止重复申请');
+    return;
+  }
+
+  lastRequestOrderAt = now;
+  requestOrderResultArmed.value = true;
+  armRequestOrderTimeout();
+
   const cmd: RequestOrderDataCmd = {
     order_no: requestOrder.orderNo,
     item_no: requestOrder.itemNo,
@@ -814,14 +896,26 @@ async function handleContractModify() {
   }
 }
 
-function handleRequestOrderResultPush(message: DataPushMessage) {
+async function handleRequestOrderResultPush(message: DataPushMessage) {
   if (message.tag !== 'REQUEST_ORDER_RESULT') {
     return;
   }
 
+  if (!requestOrderResultArmed.value) {
+    return;
+  }
+
+  clearRequestOrderTimeout();
+  requestOrderResultArmed.value = false;
+
   if (message.hasValue === false || message.value == null) {
     window.alert('REQUEST_ORDER_RESULT 事件已触发');
     return;
+  }
+
+  if (!isFailedRequestOrderResultMessage(message.value)) {
+    syncRequestedOrderIntoQueryOptions();
+    await refreshQueryOptionsAfterRequest();
   }
 
   window.alert(message.value);
@@ -834,6 +928,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearRequestOrderTimeout();
+  requestOrderResultArmed.value = false;
   offDataPush(handleRequestOrderResultPush);
   subscribe([]);
 });

@@ -106,6 +106,13 @@ export interface TagPrintEvent {
   count: number; // 打印数量
 }
 
+export interface ApiBundleDataEvent {
+  flag: 'D' | 'I' | 'U'; // 操作标志：删除/新增/修改
+  order_no: string; // 合同号
+  item_no: string; // 项目号
+  bundle_no: string; // 管捆号
+}
+
 export type UserCommandPayload =
   | MoveTubeCmd
   | ModifyTubeCmd
@@ -114,6 +121,7 @@ export type UserCommandPayload =
   | SetCurrentContractCmd
   | RequestOrderDataCmd
   | TagPrintEvent
+  | ApiBundleDataEvent
   | string
   | number
   | Record<string, unknown>;

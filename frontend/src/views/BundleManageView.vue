@@ -582,6 +582,7 @@ import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import type { AcceptableValue } from 'reka-ui';
 import type {
   TagPrintEvent,
+  ApiBundleDataEvent,
   BundleRecord,
   BundleRecordKey,
   OrderData,
@@ -1258,6 +1259,17 @@ function validateBeforeSave(bundle: BundleRecord, tubes: TubeRecord[]) {
   return null;
 }
 
+function notifyBundleDataChanged(flag: ApiBundleDataEvent['flag'], bundleKey: BundleRecordKey) {
+  const cmd: ApiBundleDataEvent = {
+    flag,
+    order_no: bundleKey.order_no,
+    item_no: bundleKey.item_no,
+    bundle_no: bundleKey.bundle_no,
+  };
+
+  sendUserCommand('api_bundle_data_event', cmd);
+}
+
 async function handleSave() {
   if (!draftBundle.value) {
     window.alert('请先选择或新增管捆草稿');
@@ -1288,6 +1300,7 @@ async function handleSave() {
     return;
   }
 
+  const operationFlag: ApiBundleDataEvent['flag'] = originalBundleKey.value ? 'U' : 'I';
   isSaving.value = true;
   try {
     const result = await saveBundleDraft({
@@ -1296,6 +1309,11 @@ async function handleSave() {
       original_key: originalBundleKey.value,
     });
 
+    notifyBundleDataChanged(operationFlag, {
+      order_no: bundle.order_no,
+      item_no: bundle.item_no,
+      bundle_no: bundle.bundle_no,
+    });
     window.alert(result.message);
     statusMessage.value = result.message;
     queryState.bundleNo = bundle.bundle_no;
@@ -1326,6 +1344,7 @@ async function handleDeleteBundle() {
 
   try {
     const result = await deleteBundle(deleteKey);
+    notifyBundleDataChanged('D', deleteKey);
     const remainingRows = bundleResults.value.filter(
       (row) =>
         !(

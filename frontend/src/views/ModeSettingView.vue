@@ -27,35 +27,35 @@
             >
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">1.</Label>
-                <Input v-model="formData.label_req_1" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_1_manual" class="h-8 shadow-none" />
               </div>
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">2.</Label>
-                <Input v-model="formData.label_req_2" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_2_manual" class="h-8 shadow-none" />
               </div>
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">3.</Label>
-                <Input v-model="formData.label_req_3" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_3_manual" class="h-8 shadow-none" />
               </div>
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">4.</Label>
-                <Input v-model="formData.label_req_4" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_4_manual" class="h-8 shadow-none" />
               </div>
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">5.</Label>
-                <Input v-model="formData.label_req_5" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_5_manual" class="h-8 shadow-none" />
               </div>
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">6.</Label>
-                <Input v-model="formData.label_req_6" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_6_manual" class="h-8 shadow-none" />
               </div>
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">7.</Label>
-                <Input v-model="formData.label_req_7" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_7_manual" class="h-8 shadow-none" />
               </div>
               <div class="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2">
                 <Label :class="lineNoClass">8.</Label>
-                <Input v-model="formData.label_req_8" class="h-8 shadow-none" />
+                <Input v-model="formData.label_req_8_manual" class="h-8 shadow-none" />
               </div>
             </div>
 
@@ -140,7 +140,7 @@
 
             <div>
               <textarea
-                v-model="formData.stencil_req"
+                v-model="formData.stencil_req_manual"
                 class="win-textarea win-textarea-edit h-28"
               />
             </div>
@@ -216,14 +216,14 @@ const formData = reactive({
   order_no: '',
   item_no: '',
   // 标签打印格式（8行） - 对应 label_req_1_manual ~ label_req_8_manual
-  label_req_1: '',
-  label_req_2: '',
-  label_req_3: '',
-  label_req_4: '',
-  label_req_5: '',
-  label_req_6: '',
-  label_req_7: '',
-  label_req_8: '',
+  label_req_1_manual: '',
+  label_req_2_manual: '',
+  label_req_3_manual: '',
+  label_req_4_manual: '',
+  label_req_5_manual: '',
+  label_req_6_manual: '',
+  label_req_7_manual: '',
+  label_req_8_manual: '',
   // 标签格式选项 - 0=公制/固定, 1=英制/自由
   label_length_type: '0',
   label_weight_type: '0',
@@ -251,14 +251,14 @@ function apiToForm(data: OrderData) {
   formData.order_no = data.order_no ?? '';
   formData.item_no = data.item_no ?? '';
   // 标签打印 - 自由格式使用 manual 字段
-  formData.label_req_1 = data.label_req_1_manual ?? '';
-  formData.label_req_2 = data.label_req_2_manual ?? '';
-  formData.label_req_3 = data.label_req_3_manual ?? '';
-  formData.label_req_4 = data.label_req_4_manual ?? '';
-  formData.label_req_5 = data.label_req_5_manual ?? '';
-  formData.label_req_6 = data.label_req_6_manual ?? '';
-  formData.label_req_7 = data.label_req_7_manual ?? '';
-  formData.label_req_8 = data.label_req_8_manual ?? '';
+  formData.label_req_1_manual = data.label_req_1_manual ?? '';
+  formData.label_req_2_manual = data.label_req_2_manual ?? '';
+  formData.label_req_3_manual = data.label_req_3_manual ?? '';
+  formData.label_req_4_manual = data.label_req_4_manual ?? '';
+  formData.label_req_5_manual = data.label_req_5_manual ?? '';
+  formData.label_req_6_manual = data.label_req_6_manual ?? '';
+  formData.label_req_7_manual = data.label_req_7_manual ?? '';
+  formData.label_req_8_manual = data.label_req_8_manual ?? '';
   // 标签格式选项
   formData.label_length_type = String(data.label_length_type ?? 0);
   formData.label_weight_type = String(data.label_weight_type ?? 0);
@@ -283,14 +283,14 @@ function apiToForm(data: OrderData) {
 function formToApi(): OrderData {
   return {
     ...cachedOrderData.value!,
-    label_req_1_manual: formData.label_req_1 || null,
-    label_req_2_manual: formData.label_req_2 || null,
-    label_req_3_manual: formData.label_req_3 || null,
-    label_req_4_manual: formData.label_req_4 || null,
-    label_req_5_manual: formData.label_req_5 || null,
-    label_req_6_manual: formData.label_req_6 || null,
-    label_req_7_manual: formData.label_req_7 || null,
-    label_req_8_manual: formData.label_req_8 || null,
+    label_req_1_manual: formData.label_req_1_manual || null,
+    label_req_2_manual: formData.label_req_2_manual || null,
+    label_req_3_manual: formData.label_req_3_manual || null,
+    label_req_4_manual: formData.label_req_4_manual || null,
+    label_req_5_manual: formData.label_req_5_manual || null,
+    label_req_6_manual: formData.label_req_6_manual || null,
+    label_req_7_manual: formData.label_req_7_manual || null,
+    label_req_8_manual: formData.label_req_8_manual || null,
     label_length_type: Number(formData.label_length_type),
     label_weight_type: Number(formData.label_weight_type),
     label_type: Number(formData.label_type),

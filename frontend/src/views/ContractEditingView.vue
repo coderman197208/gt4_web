@@ -403,7 +403,14 @@ import Button from '@/components/custom/WinButton.vue';
 import Input from '@/components/custom/WinInput.vue';
 import WinSelect from '@/components/custom/WinSelect.vue';
 import { Label } from '@/components/ui/label';
-import { getOrderNos, getItemNos, getOrderData, updateOrderData, createOrderData } from '@/api';
+import {
+  getOrderNos,
+  getItemNos,
+  getOrderData,
+  updateOrderData,
+  createOrderData,
+  getParameterSet,
+} from '@/api';
 import type { DataPushMessage, OrderData } from '@gt4_web/shared';
 import type { SetCurrentContractCmd, RequestOrderDataCmd } from '@gt4_web/shared';
 import { useWebSocket } from '@/services/websocket';
@@ -418,6 +425,7 @@ const cachedOrderData = ref<OrderData | null>(null);
 const requestOrderResultArmed = ref(false);
 let lastRequestOrderAt = 0;
 let requestOrderTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
+let preserveQuerySelection = false;
 
 function clearRequestOrderTimeout() {
   if (requestOrderTimeoutId == null) {
@@ -623,6 +631,32 @@ function isFailedRequestOrderResultMessage(value: string): boolean {
   return /失败|fail|error|不存在|无效/i.test(value);
 }
 
+async function hydrateCurrentContractFromParameterSet() {
+  try {
+    const data = await getParameterSet();
+    const orderNo = data.order_no?.trim() ?? '';
+    const itemNo = data.item_no?.trim() ?? '';
+
+    if (!orderNo || !itemNo) {
+      return;
+    }
+
+    preserveQuerySelection = true;
+    orderNoOptions.value = insertUniqueOption(orderNoOptions.value, orderNo);
+    queryForm.orderNo = orderNo;
+
+    const itemNos = await getItemNos(orderNo, queryForm.dateFrom, queryForm.dateTo);
+    itemNoOptions.value = insertUniqueOption(itemNos, itemNo);
+    queryForm.itemNo = itemNo;
+
+    await handleQuery();
+  } catch (err) {
+    console.error('加载当前合同失败', err);
+  } finally {
+    preserveQuerySelection = false;
+  }
+}
+
 // 表单数据 -> 本页面编辑的字段
 function formFields() {
   return {
@@ -791,6 +825,12 @@ watch(
     try {
       const nos = await getOrderNos(dateFrom, dateTo);
       orderNoOptions.value = nos;
+
+      if (preserveQuerySelection) {
+        orderNoOptions.value = insertUniqueOption(orderNoOptions.value, queryForm.orderNo);
+        return;
+      }
+
       // 清空已选合同号和项目号
       queryForm.orderNo = '';
       queryForm.itemNo = '';
@@ -814,6 +854,12 @@ watch(
     try {
       const nos = await getItemNos(orderNo, queryForm.dateFrom, queryForm.dateTo);
       itemNoOptions.value = nos;
+
+      if (preserveQuerySelection) {
+        itemNoOptions.value = insertUniqueOption(itemNoOptions.value, queryForm.itemNo);
+        return;
+      }
+
       queryForm.itemNo = '';
     } catch (err) {
       console.error('查询项目号失败', err);
@@ -927,6 +973,7 @@ async function handleRequestOrderResultPush(message: DataPushMessage) {
 onMounted(() => {
   onDataPush(handleRequestOrderResultPush);
   subscribe(['REQUEST_ORDER_RESULT']);
+  void hydrateCurrentContractFromParameterSet();
 });
 
 onUnmounted(() => {

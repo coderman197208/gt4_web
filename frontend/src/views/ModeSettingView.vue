@@ -175,12 +175,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import Button from '@/components/custom/WinButton.vue';
 import Input from '@/components/custom/WinInput.vue';
 import WinRadioGroup from '@/components/custom/WinRadioGroup.vue';
 import { Label } from '@/components/ui/label';
-import { getOrderData, updateOrderData } from '@/api';
+import { getOrderData, getParameterSet, updateOrderData } from '@/api';
 import type { OrderData } from '@gt4_web/shared';
 
 // 缓存查询到的完整记录，保存时以此为基础合并表单修改
@@ -324,8 +324,26 @@ async function handleQuery() {
   }
 }
 
+async function loadCurrentOrderFromParameterSet() {
+  try {
+    const data = await getParameterSet();
+    const orderNo = data.order_no?.trim() ?? '';
+    const itemNo = data.item_no?.trim() ?? '';
+
+    if (!orderNo || !itemNo) {
+      return;
+    }
+
+    formData.order_no = orderNo;
+    formData.item_no = itemNo;
+    await handleQuery();
+  } catch (err) {
+    console.error('加载当前合同失败', err);
+  }
+}
+
 function handleToCurrentOrder() {
-  console.log('return to current order');
+  void loadCurrentOrderFromParameterSet();
 }
 
 // 点击保存按钮
@@ -342,6 +360,10 @@ async function handleSaveFormat() {
     alert('保存数据失败');
   }
 }
+
+onMounted(() => {
+  void loadCurrentOrderFromParameterSet();
+});
 </script>
 
 <style scoped>

@@ -470,7 +470,7 @@ const queryForm = reactive({
 // 下拉选项
 const orderNoOptions = ref<string[]>([]);
 const itemNoOptions = ref<string[]>([]);
-const prodCNameOptions = ref<string[]>([]);
+const prodCNameOptions = ref<string[]>(['套管', '油管', '接箍料']);
 
 // 合同明细表单数据
 const formData = reactive({
@@ -708,6 +708,8 @@ function formToApiForCreate(): OrderData {
 
 // API 数据 -> 表单数据
 function apiToForm(data: OrderData) {
+  prodCNameOptions.value = insertUniqueOption(prodCNameOptions.value, data.prod_cname ?? '');
+
   formData.order_no = data.order_no ?? '';
   formData.item_no = data.item_no ?? '';
   formData.roll_no = data.roll_no ?? '';

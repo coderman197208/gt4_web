@@ -36,10 +36,10 @@
       </div> -->
     </div>
 
-    <div class="flex flex-1 gap-3 px-3 pb-3 mt-2">
-      <div class="flex w-[560px] flex-shrink-0 flex-col">
+    <div class="mt-2 flex min-h-0 flex-1 gap-3 px-3 pb-3">
+      <div class="flex min-h-0 w-[560px] flex-shrink-0 flex-col">
         <div
-          class="relative flex flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
+          class="relative flex min-h-0 flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
         >
           <div
             class="absolute -top-[11px] left-3 bg-[#d8d8d8] px-1 text-sm font-bold leading-[1.2] text-[#6f1616]"
@@ -91,9 +91,9 @@
         </div>
       </div>
 
-      <div class="flex flex-1 flex-col">
+      <div class="flex min-h-0 flex-1 flex-col">
         <div
-          class="relative flex flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
+          class="relative flex min-h-0 flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
         >
           <div
             class="absolute -top-[11px] left-3 bg-[#d8d8d8] px-1 text-sm font-bold leading-[1.2] text-[#6f1616]"
@@ -102,7 +102,7 @@
           </div>
 
           <div
-            class="flex flex-1 flex-col overflow-auto rounded-[2px] border border-[#8a8a8a] bg-[#d8d8d8] px-4 py-3 shadow-[inset_0_1px_0_#f4f4f4]"
+            class="flex min-h-0 flex-1 flex-col overflow-auto rounded-[2px] border border-[#8a8a8a] bg-[#d8d8d8] px-4 py-3 shadow-[inset_0_1px_0_#f4f4f4]"
           >
             <div class="grid grid-cols-6 gap-3">
               <div
@@ -498,9 +498,9 @@
         </div>
       </div>
 
-      <div class="flex w-[520px] flex-shrink-0 flex-col">
+      <div class="flex min-h-0 w-[520px] flex-shrink-0 flex-col">
         <div
-          class="relative flex flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
+          class="relative flex min-h-0 flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
         >
           <div
             class="absolute -top-[11px] left-3 bg-[#d8d8d8] px-1 text-sm font-bold leading-[1.2] text-[#6f1616]"

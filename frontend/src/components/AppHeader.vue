@@ -24,8 +24,15 @@
     <!-- 中间：系统标题 -->
     <h1 class="text-lg font-semibold">管体4号线L2过程机系统</h1>
 
-    <!-- 右侧：全屏按钮 + 实时时钟 -->
+    <!-- 右侧：班号 + 全屏按钮 + 实时时钟 -->
     <div class="flex items-center gap-2">
+      <div
+        class="flex h-9 min-w-[92px] items-center justify-center rounded-[2px] border border-[#8a8a8a] bg-[linear-gradient(180deg,#f8f8f8_0%,#e9e9e9_100%)] px-3 text-sm font-semibold text-[#6f1616] shadow-[inset_0_1px_0_#ffffff]"
+      >
+        <span>班号：</span>
+        <span class="ml-1 min-w-[2ch] text-[#1f2937]">{{ shiftName || '--' }}</span>
+      </div>
+
       <Button
         variant="outline"
         class="relative h-9 gap-2 rounded-[2px] border-[#8a8a8a] bg-[linear-gradient(180deg,#f8f8f8_0%,#e9e9e9_100%)] px-3 text-slate-900 shadow-[inset_0_1px_0_#ffffff] hover:bg-[linear-gradient(180deg,#ffffff_0%,#f1f1f1_100%)]"
@@ -58,9 +65,11 @@ import FullscreenToggle from './FullscreenToggle.vue';
 withDefaults(
   defineProps<{
     alarmUnackedCount?: number;
+    shiftName?: string | null;
   }>(),
   {
     alarmUnackedCount: 0,
+    shiftName: null,
   },
 );
 

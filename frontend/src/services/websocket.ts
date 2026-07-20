@@ -25,6 +25,7 @@ let isInitialized = false;
 
 // 当前订阅的tags，用于重连后自动恢复订阅
 let currentTags: string[] = [];
+let persistentTags: string[] = [];
 
 // 仅跟踪外部注册的 data:push 监听器，避免误删内部处理器
 const externalDataPushListeners = new Set<(data: DataPushMessage) => void>();
@@ -40,6 +41,25 @@ function buildSocketAuth() {
   return {
     token: getAuthToken() ?? undefined,
   };
+}
+
+function normalizeTags(tags: string[]): string[] {
+  return tags.map((tag) => tag.trim()).filter(Boolean);
+}
+
+function buildMergedTags(tags: string[]): string[] {
+  return Array.from(new Set([...persistentTags, ...normalizeTags(tags)]));
+}
+
+function emitSubscription(tags: string[]): void {
+  if (!socket) {
+    return;
+  }
+
+  const mergedTags = buildMergedTags(tags);
+  const request: SubscribeRequest = { tags: mergedTags };
+  socket.emit('subscribe', request);
+  console.log('[WebSocket] 已发送订阅请求:', mergedTags);
 }
 
 function looksLikeJsonLiteral(value: string): boolean {
@@ -95,9 +115,46 @@ function handleInternalDataPush(message: DataPushMessage) {
     return;
   }
 
-  // 更新Pinia store
   const store = useRealtimeDataStore();
   store.updateData(message.tag, parsedValue);
+}
+
+function handleAlarmSnapshot(payload: AlarmSnapshotPayload) {
+  const store = useAlarmCenterStore();
+  store.applySnapshot(payload);
+}
+
+function handleAlarmUpsert(payload: AlarmUpsertPayload) {
+  const store = useAlarmCenterStore();
+  store.applyUpsert(payload);
+}
+
+function handleAlarmSummary(payload: AlarmSummaryPayload) {
+  const store = useAlarmCenterStore();
+  store.applySummary(payload);
+}
+
+function handleAlarmResyncRequired(payload: AlarmResyncRequiredPayload) {
+  const store = useAlarmCenterStore();
+  store.markResyncRequired(payload.reason);
+}
+
+function setupAlarmHandlers() {
+  if (!socket) return;
+
+  socket.on('alarm:snapshot', handleAlarmSnapshot);
+  socket.on('alarm:upsert', handleAlarmUpsert);
+  socket.on('alarm:summary', handleAlarmSummary);
+  socket.on('alarm:resync-required', handleAlarmResyncRequired);
+}
+
+/**
+ * 设置数据推送处理器，自动更新store
+ */
+function setupDataPushHandler() {
+  if (!socket) return;
+
+  socket.on('data:push', handleInternalDataPush);
 }
 
 /**
@@ -107,19 +164,18 @@ function initSocket() {
   if (socket) {
     return socket;
   }
-
   // 开发环境不指定URL，自动连接当前页面origin，走Vite的/socket.io代理
   // 生产环境可通过VITE_WS_URL指定后端地址
   const serverUrl = import.meta.env.VITE_WS_URL || undefined;
 
   socket = io(serverUrl ?? '', {
     auth: buildSocketAuth(),
-    transports: ['websocket'], // 直接使用WebSocket，跳过long-polling避免路由切换时断连
-    reconnection: true, // 启用自动重连
-    reconnectionAttempts: Infinity, // 无限次重连尝试
-    reconnectionDelay: 1000, // 初始重连延迟1秒
-    reconnectionDelayMax: 5000, // 最大重连延迟5秒
-    timeout: 20000, // 连接超时20秒
+    transports: ['websocket'],
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    timeout: 20000,
   });
 
   // 监听连接成功事件（初次连接和每次重连都会触发）
@@ -129,11 +185,14 @@ function initSocket() {
     error.value = null;
 
     // 仅在重连时自动恢复订阅；首次连接由组件onMounted主动调用subscribe，无需重复
-    if (hasConnectedOnce && currentTags.length > 0) {
-      const request: SubscribeRequest = { tags: currentTags };
-      socket!.emit('subscribe', request);
-      console.log('[WebSocket] 重连后自动恢复订阅:', currentTags);
+    if (persistentTags.length > 0 || currentTags.length > 0) {
+      emitSubscription(currentTags);
+
+      if (hasConnectedOnce) {
+        console.log('[WebSocket] 重连后自动恢复订阅:', buildMergedTags(currentTags));
+      }
     }
+
     hasConnectedOnce = true;
   });
 
@@ -181,19 +240,9 @@ function initSocket() {
 }
 
 /**
- * 设置数据推送处理器，自动更新store
- */
-function setupDataPushHandler() {
-  if (!socket) return;
-
-  socket.on('data:push', handleInternalDataPush);
-}
-
-/**
  * Vue Composable: 使用WebSocket
  */
 export function useWebSocket() {
-  // 确保Socket已初始化
   const socketInstance = initSocket();
 
   /**
@@ -207,11 +256,13 @@ export function useWebSocket() {
     }
 
     // 记录当前订阅，用于重连后自动恢复
-    currentTags = tags;
+    currentTags = normalizeTags(tags);
+    emitSubscription(currentTags);
+  }
 
-    const request: SubscribeRequest = { tags };
-    socketInstance.emit('subscribe', request);
-    console.log('[WebSocket] 已发送订阅请求:', tags);
+  function setPersistentSubscriptions(tags: string[]): void {
+    persistentTags = Array.from(new Set(normalizeTags(tags)));
+    emitSubscription(currentTags);
   }
 
   /**
@@ -251,12 +302,6 @@ export function useWebSocket() {
       externalDataPushListeners.clear();
     }
   }
-
-  // 组件卸载时不断开连接（因为是全局单例，其他页面可能还在使用）
-  // 如果需要在特定组件卸载时取消订阅，可以发送空订阅列表
-  // onUnmounted(() => {
-  //   subscribe([]);
-  // });
 
   /**
    * 发送操作命令到后端（通过WebSocket转发至Redis）
@@ -301,38 +346,10 @@ export function useWebSocket() {
     isConnected,
     error,
     subscribe,
+    setPersistentSubscriptions,
     sendUserCommand,
     refreshAuth,
     onDataPush,
     offDataPush,
   };
-}
-
-function handleAlarmSnapshot(payload: AlarmSnapshotPayload) {
-  const store = useAlarmCenterStore();
-  store.applySnapshot(payload);
-}
-
-function handleAlarmUpsert(payload: AlarmUpsertPayload) {
-  const store = useAlarmCenterStore();
-  store.applyUpsert(payload);
-}
-
-function handleAlarmSummary(payload: AlarmSummaryPayload) {
-  const store = useAlarmCenterStore();
-  store.applySummary(payload);
-}
-
-function handleAlarmResyncRequired(payload: AlarmResyncRequiredPayload) {
-  const store = useAlarmCenterStore();
-  store.markResyncRequired(payload.reason);
-}
-
-function setupAlarmHandlers() {
-  if (!socket) return;
-
-  socket.on('alarm:snapshot', handleAlarmSnapshot);
-  socket.on('alarm:upsert', handleAlarmUpsert);
-  socket.on('alarm:summary', handleAlarmSummary);
-  socket.on('alarm:resync-required', handleAlarmResyncRequired);
 }

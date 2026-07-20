@@ -8,6 +8,7 @@
     <div class="app-container flex h-full w-full flex-col overflow-hidden">
       <AppHeader
         :alarm-unacked-count="alarmCenterStore.totalUnacked"
+        :shift-name="realtimeDataStore.shiftName"
         @toggle-sidebar="toggleSidebar"
         @toggle-alarm-center="toggleAlarmCenter"
       />
@@ -72,6 +73,8 @@ import {
   type AppNavigationItem,
 } from '@/lib/appNavigation';
 import { useAlarmCenterStore } from '@/stores/alarmCenter';
+import { useRealtimeDataStore } from '@/stores/realtimeData';
+import { useWebSocket } from '@/services/websocket';
 import { useRoute, useRouter } from 'vue-router';
 import AlarmCenterPanel from '../components/AlarmCenterPanel.vue';
 import HmiViewport from '../components/HmiViewport.vue';
@@ -83,6 +86,8 @@ const isAlarmCenterOpen = ref(false);
 const route = useRoute();
 const router = useRouter();
 const alarmCenterStore = useAlarmCenterStore();
+const realtimeDataStore = useRealtimeDataStore();
+const { setPersistentSubscriptions } = useWebSocket();
 const footerNavigationSlotMap = new Map(
   footerNavigationItems.map((item) => [item.footerSlot ?? -1, item]),
 );
@@ -158,6 +163,8 @@ function handleFooterNavigate(item: AppNavigationItem) {
 }
 
 onMounted(() => {
+  setPersistentSubscriptions(['SHIFT_NAME']);
+
   if (isAuthenticated()) {
     void alarmCenterStore.initialize();
     return;

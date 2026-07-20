@@ -75,6 +75,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const bundleNumber = ref<number | null>(null); // 成捆支数
   const latestBundleNo = ref<number | null>(null); // 最新成捆号
   const sprayString = ref<string | null>(null); // 喷码工位喷码字符串
+  const shiftName = ref<string | null>(null); // 当前班号
   /**
    * 更新指定tag的数据
    * @param tag 标签名称
@@ -242,6 +243,10 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         sprayString.value = String(value);
         console.log('[RealtimeDataStore] sprayString 数据已更新:', sprayString.value);
         break;
+      case 'SHIFT_NAME':
+        shiftName.value = String(value);
+        console.log('[RealtimeDataStore] shiftName 数据已更新:', shiftName.value);
+        break;
       case 'REQUEST_ORDER_RESULT':
         console.log('不写入Store，由页面直接处理', value);
         break;
@@ -295,6 +300,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     bundleNumber.value = 0;
     latestBundleNo.value = 0;
     sprayString.value = null;
+    shiftName.value = null;
     console.log('[RealtimeDataStore] 所有数据已重置');
   }
 
@@ -339,6 +345,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     bundleNumber,
     latestBundleNo,
     sprayString,
+    shiftName,
     // 方法
     updateData,
     resetData,

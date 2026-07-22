@@ -21,13 +21,15 @@ If the input is missing key details, ask only for the minimum information needed
 
 1. Inspect existing patterns before editing.
    Use these files as the main references:
-   - [packages/shared/src/types.ts](../../packages/shared/src/types.ts)
+   - [packages/shared/src/index.ts](../../packages/shared/src/index.ts)
+   - [packages/shared/src/db_types.ts](../../packages/shared/src/db_types.ts)
+   - [packages/shared/src/redis_types.ts](../../packages/shared/src/redis_types.ts)
    - [backend/src/modules/api/mockRoutes.ts](../../backend/src/modules/api/mockRoutes.ts)
    - [frontend/src/api/users.ts](../../frontend/src/api/users.ts)
    - [frontend/src/api/index.ts](../../frontend/src/api/index.ts)
 
 2. Update shared contracts first.
-   Add or modify the needed interfaces and parameter types in [packages/shared/src/types.ts](../../packages/shared/src/types.ts).
+   Add or modify the needed interfaces and parameter types in the relevant file under [packages/shared/src](../../packages/shared/src), then ensure [packages/shared/src/index.ts](../../packages/shared/src/index.ts) exports them.
    Do not define duplicate frontend-only or backend-only domain types when the type is shared by both sides.
 
 3. Implement the backend route next.

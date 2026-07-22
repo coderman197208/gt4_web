@@ -60,7 +60,10 @@ backend/prisma/
   schema.prisma # Prisma schema (PostgreSQL introspection)
 
 packages/shared/src/
-  types.ts      # All shared TypeScript interfaces (ApiResponse<T>, Tag1/2/3Data, etc.)
+  index.ts      # Public barrel for all shared contracts
+  db_types.ts   # HTTP and database-facing contracts
+  redis_types.ts # WebSocket, Redis, and command payload contracts
+  alarm_types.ts # Alarm-related contracts
 ```
 
 ### Communication Patterns
@@ -71,7 +74,7 @@ packages/shared/src/
 
 **Redis bridge**: backend uses two ioredis singletons: a data client for GET/SET/PUBLISH and a subscriber client for Pub/Sub. `redisSubscriber.ts` listens to `RealDataChanged`, fetches the new value, and pushes it only to subscribed sockets; command writes go to `operation_cmd`.
 
-**Shared types**: Both frontend and backend import from `@gt4_web/shared` — always define new types there first.
+**Shared types**: Both frontend and backend import from `@gt4_web/shared` — define new contracts in the relevant `packages/shared/src/*.ts` file first and keep `packages/shared/src/index.ts` exporting them.
 
 ### HMI Layout Constraint
 
@@ -96,7 +99,7 @@ All pages use **fixed fullscreen layout with no scroll**. `HomePage.vue` is the 
 
 **Adding a new API resource**:
 
-1. Define types in `packages/shared/src/types.ts`
+1. Define types in the relevant file under `packages/shared/src/` and export them from `packages/shared/src/index.ts`
 2. Create `frontend/src/api/[resource].ts`
 3. Export from `frontend/src/api/index.ts`
 4. Add route in `backend/src/modules/api/` — mock 数据加到 `mockRoutes.ts`；真实数据库路由创建独立文件（如 `parameterSetRoutes.ts`），使用 Prisma 访问 PostgreSQL
@@ -111,7 +114,10 @@ All pages use **fixed fullscreen layout with no scroll**. `HomePage.vue` is the 
 
 | Purpose                           | File                                            |
 | --------------------------------- | ----------------------------------------------- |
-| Shared types                      | `packages/shared/src/types.ts`                  |
+| Shared type barrel                | `packages/shared/src/index.ts`                  |
+| Shared database/API types         | `packages/shared/src/db_types.ts`               |
+| Shared WebSocket/Redis types      | `packages/shared/src/redis_types.ts`            |
+| Shared alarm types                | `packages/shared/src/alarm_types.ts`            |
 | API client (axios + interceptors) | `frontend/src/api/client.ts`                    |
 | Router                            | `frontend/src/router/index.ts`                  |
 | App shell                         | `frontend/src/views/HomePage.vue`               |

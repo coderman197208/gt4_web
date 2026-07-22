@@ -11,7 +11,7 @@ These instructions apply to frontend API modules in this folder and add to the r
 ## Types And Responses
 
 - Import domain types and request parameter types from `@gt4_web/shared` whenever the backend and frontend share the contract.
-- Add new shared interfaces in `packages/shared/src/types.ts` before writing the API wrapper.
+- Add new shared interfaces in the relevant `packages/shared/src/*.ts` file before writing the API wrapper, and keep `packages/shared/src/index.ts` exporting them.
 - Match the actual backend response shape. Do not wrap every endpoint in `ApiResponse<T>` when the mock backend returns raw data objects.
 - Keep login/auth exceptions aligned with the current `auth.ts` behavior rather than forcing all modules into one response style.
 

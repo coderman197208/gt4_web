@@ -1,29 +1,58 @@
 
-## Architecture
+# gt4_web Agent Notes
 
-- Monorepo 由 `frontend`、`backend` 和 `packages/shared` 组成；共享类型统一定义在 `packages/shared/src/types.ts`。
-- 前端通过 axios 调用 `/api`，由 Vite 代理到 Fastify 后端；WebSocket 通过 `/socket.io` 代理到 Socket.IO 服务。
-- 前端当前以 `HomePage` 作为应用壳层，除 `LoginView` 外，其余业务页面作为其子路由挂载。
-- 后端 HTTP 路由位于 `backend/src/modules/api/`，WebSocket 逻辑位于 `backend/src/modules/websocket/`。
-- 后端通过 Redis Pub/Sub 与 C++ 业务后端通信，逻辑位于 `backend/src/modules/redis/`。
+## Scope
 
-### Redis Pub/Sub 数据流
+- This file applies to the `gt4_web` monorepo.
+- Use `.github/instructions/frontend.instructions.md` for `frontend/src/**`, `.github/instructions/backend.instructions.md` for `backend/src/**`, and `.github/instructions/shared.instructions.md` for `packages/shared/src/**`.
+- Keep this file high level. Link to repo docs and example files instead of restating detailed implementation rules here.
 
-**实时数据推送（C++ → 前端）**:
+## Build And Validation
 
-1. C++ 程序将 tag 值写入 Redis（`SET tagName value`）后，向 `RealDataChanged` 频道发布 tagName
-2. `redisSubscriber.ts` 监听 `RealDataChanged` 频道，收到 tagName 后通过 `subscriptionManager` 检查是否有前端订阅该 tag
-3. 若有订阅者，从 Redis 读取对应 tag 数据（`GET tagName`），通过 Socket.IO 的 `data:push` 事件推送给前端
-4. 前端 `useWebSocket()` 的内部处理器会把 `data:push` 更新写入 `frontend/src/stores/realtimeData.ts`
+- Require Node 20+ and `pnpm`. Install dependencies from the repo root with `pnpm install`.
+- Common workspace commands from the repo root are:
 
-**操作命令下发（前端 → C++）**:
+	```bash
+	npm run dev
+	npm run build
+	npm run typecheck
+	npm run lint
+	```
 
-1. 前端通过 `useWebSocket().sendUserCommand(cmdName, cmdPara?)` 发送命令
-2. Socket.IO 服务端监听 `cmd:push` 事件，将命令序列化为 JSON 后发布到 Redis 的 `operation_cmd` 频道
-3. C++ 业务后端订阅 `operation_cmd` 频道，接收并执行命令
+- Prefer the narrowest useful validation after edits:
+	- `npm run typecheck --workspace frontend`
+	- `npm run typecheck --workspace backend`
+	- `npm run typecheck --workspace @gt4_web/shared`
+- Use repo-level validation only when a change crosses package boundaries.
 
-**Redis 客户端设计**: `redisClient.ts` 使用 ioredis 维护两个单例连接——`redisDataClient`（数据读写 + 命令发布）和 `redisSubClient`（Pub/Sub 订阅专用）。
+## Project Map
 
-## Build
+- Monorepo structure:
+	- `frontend`: Vue 3 HMI application
+	- `backend`: Fastify + Socket.IO server
+	- `packages/shared`: shared TypeScript contracts
+- Shared contracts are split by concern under `packages/shared/src/` and re-exported from `packages/shared/src/index.ts`.
+	- `db_types.ts`: HTTP and database-facing contracts
+	- `redis_types.ts`: WebSocket, Redis, and command payload contracts
+	- `alarm_types.ts`: alarm module contracts
+- Frontend HTTP calls go through axios `/api` requests and Vite proxying. WebSocket traffic goes through `/socket.io`.
+- `frontend/src/views/HomePage.vue` is the app shell. Except for `LoginView`, business screens are child routes mounted beneath it.
+- Backend HTTP routes live under `backend/src/modules/api/`; WebSocket coordination lives under `backend/src/modules/websocket/`; Redis bridge code lives under `backend/src/modules/redis/`.
 
-- 安装依赖使用 `pnpm install`
+## Working Guidance
+
+- Preserve the HMI layout model: fixed fullscreen, no page scroll, and route-driven `meta.hmiScale` for fixed-resolution screens.
+- When a contract is shared by frontend and backend, update the relevant file under `packages/shared/src/` first and keep `packages/shared/src/index.ts` exporting it.
+- Keep frontend API modules thin and centered on `frontend/src/api/client.ts`. Keep backend route behavior consistent with existing raw-object responses.
+- WebSocket subscriptions are full replacements. An empty tag list clears subscriptions. Keep that behavior aligned across `frontend/src/services/websocket.ts`, `backend/src/modules/websocket/socketServer.ts`, and `backend/src/modules/redis/redisSubscriber.ts`.
+- Redis uses two ioredis singletons: data commands on the data client, Pub/Sub only on the subscriber client.
+- Follow the repo comment convention: business logic comments in Chinese, structural or technical comments in English.
+
+## High-Value References
+
+- Product and task context: `doc/prd.md`, `doc/mytasks/`
+- UI component guidance: `doc/ui-components-guide.md`, `doc/component-userguide.md`
+- Alarm rollout details: `doc/alarm-module-rollout.md`
+- Frontend HMI pattern references: `frontend/src/views/MainMonitorView.vue`, `frontend/src/views/ContractEditingView.vue`
+- WebSocket pattern references: `frontend/src/services/websocket.ts`, `frontend/src/stores/realtimeData.ts`, `backend/src/modules/websocket/socketServer.ts`
+- Backend route pattern references: `backend/src/modules/api/mockRoutes.ts`, `backend/src/modules/api/orderDataRoutes.ts`, `backend/src/modules/api/parameterSetRoutes.ts`

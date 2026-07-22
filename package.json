@@ -7,7 +7,7 @@
     "packages/shared"
   ],
   "scripts": {
-    "dev": "concurrently -n back,front -c green,blue \"npm:dev --workspace backend\" \"npm:dev --workspace frontend\"",
+    "dev": "concurrently -n back,front -c green,blue \"pnpm --filter @gt4_web/backend dev\" \"pnpm --filter @gt4_web/frontend dev\"",
     "build": "pnpm -r --if-present build",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "pnpm -r --if-present lint",

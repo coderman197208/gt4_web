@@ -70,6 +70,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
   const l2WbRelease = ref<boolean>(false); // L2步进梁释放信号
   const weightRelease = ref<boolean>(false); // 称重工位释放信号
   const sprayRelease = ref<boolean>(false); // 喷涂工位释放信号
+  const carveRelease = ref<boolean>(false); // 刻印工位释放信号
   const nextTubeFlowNo = ref<number | null>(null); // 下一个管子的流水号
   const nextBundleFlowNo = ref<number | null>(null); // 下一个包的流水号
   const bundleNumber = ref<number | null>(null); // 成捆支数
@@ -223,6 +224,10 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
         sprayRelease.value = normalizeBooleanTagValue(value);
         console.log('[RealtimeDataStore] sprayRelease 数据已更新:', sprayRelease.value);
         break;
+      case 'CARVE_RELEASE':
+        carveRelease.value = normalizeBooleanTagValue(value);
+        console.log('[RealtimeDataStore] carveRelease 数据已更新:', carveRelease.value);
+        break;
       case 'NEXT_TUBE_FLOW_NO':
         nextTubeFlowNo.value = Number(value);
         console.log('[RealtimeDataStore] nextTubeFlowNo 数据已更新:', nextTubeFlowNo.value);
@@ -296,6 +301,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     l2WbRelease.value = false;
     weightRelease.value = false;
     sprayRelease.value = false;
+    carveRelease.value = false;
     nextBundleFlowNo.value = 0;
     bundleNumber.value = 0;
     latestBundleNo.value = 0;
@@ -340,6 +346,7 @@ export const useRealtimeDataStore = defineStore('realtimeData', () => {
     l2WbRelease,
     weightRelease,
     sprayRelease,
+    carveRelease,
     nextTubeFlowNo,
     nextBundleFlowNo,
     bundleNumber,

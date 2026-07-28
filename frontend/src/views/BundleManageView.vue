@@ -1427,15 +1427,6 @@ watch(
   },
 );
 
-watch(
-  () => [draftTubes.value.length, draftBundle.value?.weight_per_meter],
-  () => {
-    if (draftBundle.value && draftTubes.value.length > 0) {
-      recalculateBundleDraft();
-    }
-  },
-);
-
 onBeforeUnmount(() => {
   if (duplicateTimer != null) {
     window.clearTimeout(duplicateTimer);

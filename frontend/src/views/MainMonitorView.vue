@@ -334,14 +334,12 @@ const scraptRows = computed<TubeDetailRow[]>(() =>
   ),
 );
 
-const scraptSummary = computed(() => {
-  const scrapTubeInfos = realtimeStore.scrapPosTubeInfo ?? [];
-
-  const totalWeight = scrapTubeInfos.reduce(
+function summarizeTubeInfos(tubeInfos: TubeInfo[]) {
+  const totalWeight = tubeInfos.reduce(
     (sum, tubeInfo) => sum + (Number.isFinite(tubeInfo.weight) ? tubeInfo.weight : 0),
     0,
   );
-  const totalLength = scrapTubeInfos.reduce(
+  const totalLength = tubeInfos.reduce(
     (sum, tubeInfo) => sum + (Number.isFinite(tubeInfo.length) ? tubeInfo.length : 0),
     0,
   );
@@ -350,7 +348,13 @@ const scraptSummary = computed(() => {
     totalWeight: totalWeight.toFixed(2),
     totalLength: totalLength.toFixed(3),
   };
-});
+}
+
+const basketSummary = computed(() => summarizeTubeInfos(realtimeStore.basketPosTubeInfo ?? []));
+const backbufferSummary = computed(() =>
+  summarizeTubeInfos(realtimeStore.backbufferPosTubeInfo ?? []),
+);
+const scraptSummary = computed(() => summarizeTubeInfos(realtimeStore.scrapPosTubeInfo ?? []));
 
 function syncTubeDetailRowDrafts(
   rows: TubeDetailRow[],
@@ -757,6 +761,11 @@ function handleManualSpray() {
   console.log('发送 manual_spray_cmd');
 }
 
+function handleManualLength() {
+  sendUserCommand('manual_length_cmd');
+  console.log('发送 manual_length_cmd');
+}
+
 function handleManualCircle() {
   sendUserCommand('manual_circle_cmd');
   console.log('发送 manual_circle_cmd');
@@ -798,6 +807,7 @@ const mainMonitorTags = [
   'L2_WB_RELEASE',
   'WEIGHT_RELEASE',
   'SPRAY_RELEASE',
+  'CARVE_RELEASE',
   'NEXT_TUBE_FLOW_NO',
   'NEXT_BUNDLE_FLOW_NO',
   'BUNDLE_NUMBER',
@@ -1064,9 +1074,13 @@ onUnmounted(() => {
                   &gt;
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full" @click="handleManualSpray()">
+              <!-- <Button size="sm" variant="outline" class="mt-2 w-full" @click="handleManualSpray()">
                 喷印
-              </Button>
+              </Button> -->
+              <div class="mt-2 grid grid-cols-2 gap-2">
+                <Button size="sm" variant="outline" @click="handleManualSpray"> 喷印 </Button>
+                <Button size="sm" variant="outline" @click="handleManualLength"> 测长 </Button>
+              </div>
             </div>
           </div>
 
@@ -1082,8 +1096,9 @@ onUnmounted(() => {
                   :size="60"
                 />
                 <ConveyorRoller :active="realtimeStore.carvePosOn" color="green" :size="60" />
-                <div class="mt-2 flex h-6 items-center justify-center">
-                  <IndicatorLight color="red" :size="18" class="invisible" />
+                <div class="mt-2 flex h-6 items-center justify-center gap-2">
+                  <Label class="text-sm font-bold">工位封锁</Label>
+                  <IndicatorLight :active="realtimeStore.carveRelease" off-color="red" :size="18" />
                 </div>
               </div>
               <div class="mt-3 grid grid-cols-3 gap-2">
@@ -1788,8 +1803,8 @@ onUnmounted(() => {
                 </TableBody>
               </WinTableFrame>
               <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
-                <span>总重 28.88</span>
-                <span>总长 120.118</span>
+                <span>总重 {{ basketSummary.totalWeight }}</span>
+                <span>总长 {{ basketSummary.totalLength }}</span>
               </div>
               <div class="flex items-center justify-end gap-2">
                 <Button size="sm" variant="outline" @click="handleAddTubeBasketbuffer('head')">
@@ -1997,8 +2012,8 @@ onUnmounted(() => {
               </WinTableFrame>
 
               <div class="flex items-center justify-end gap-6 text-sm font-semibold text-[#1d47a4]">
-                <span>总重 12.95</span>
-                <span>总长 120.118</span>
+                <span>总重 {{ backbufferSummary.totalWeight }}</span>
+                <span>总长 {{ backbufferSummary.totalLength }}</span>
               </div>
               <div class="flex items-center justify-end gap-2">
                 <Button size="sm" variant="outline" @click="handleAddTubeBackbuffer('head')">

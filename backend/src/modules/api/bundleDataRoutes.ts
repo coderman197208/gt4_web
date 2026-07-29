@@ -70,7 +70,7 @@ function normalizeString(value: string | null | undefined): string | null {
   }
 
   const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
+  return trimmed.length > 0 ? trimmed : ' ';
 }
 
 function normalizeProduceTime(value: string | null | undefined): string | null {

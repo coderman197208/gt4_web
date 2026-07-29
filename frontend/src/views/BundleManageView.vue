@@ -29,6 +29,7 @@
             {{ isSaving ? '保存中...' : '保存' }}
           </Button>
           <Button @click="handlePrintTag"> 标签打印 </Button>
+          <Button @click="handleSendL3"> 发送L3 </Button>
         </div>
       </div>
       <!-- <div v-if="statusMessage" class="px-1 text-sm text-muted-foreground">
@@ -1323,6 +1324,24 @@ async function handleSave() {
     window.alert(getErrorMessage(error, '保存管捆失败'));
   } finally {
     isSaving.value = false;
+  }
+}
+
+async function handleSendL3() {
+  if (!draftBundle.value) {
+    window.alert('请先选择管捆');
+    return;
+  }
+
+  try {
+    notifyBundleDataChanged('I', {
+      order_no: draftBundle.value.order_no,
+      item_no: draftBundle.value.item_no,
+      bundle_no: draftBundle.value.bundle_no,
+    });
+  } catch (error) {
+    console.error(error);
+    window.alert(getErrorMessage(error, '发送管捆到L3失败'));
   }
 }
 

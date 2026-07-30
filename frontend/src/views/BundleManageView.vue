@@ -477,10 +477,10 @@
               >
                 <Label class="text-sm">接箍炉号</Label>
                 <Input
-                  variant="readonly"
                   class="h-8 text-center shadow-none"
                   :model-value="displayBundle.pono_id_coupling ?? ''"
-                  readonly
+                  :disabled="!hasDraftBundle"
+                  @update:model-value="updateDraftTextField('pono_id_coupling', $event)"
                 />
               </div>
               <div
@@ -488,10 +488,10 @@
               >
                 <Label class="text-sm">接箍批号</Label>
                 <Input
-                  variant="readonly"
                   class="h-8 text-center shadow-none"
                   :model-value="displayBundle.lot_no_thread ?? ''"
-                  readonly
+                  :disabled="!hasDraftBundle"
+                  @update:model-value="updateDraftTextField('lot_no_thread', $event)"
                 />
               </div>
             </div>
@@ -499,7 +499,7 @@
         </div>
       </div>
 
-      <div class="flex min-h-0 w-[520px] flex-shrink-0 flex-col">
+      <div class="flex min-h-0 w-[460px] flex-shrink-0 flex-col">
         <div
           class="relative flex min-h-0 flex-1 flex-col rounded-[3px] border border-[#868686] bg-[#d8d8d8] px-3 pt-[14px] pb-3 shadow-[inset_0_1px_0_#f7f7f7]"
         >
@@ -522,7 +522,7 @@
                 class="cursor-pointer"
                 @click="selectedTubeIndex = index"
               >
-                <TableCell class="w-[100px] p-1">
+                <TableCell class="w-[90px] p-1">
                   <Input
                     variant="table"
                     :model-value="row.flow_no"
@@ -531,7 +531,7 @@
                     @update:model-value="updateTubeField(index, 'flow_no', $event)"
                   />
                 </TableCell>
-                <TableCell class="w-[100px] p-1">
+                <TableCell class="w-[90px] p-1">
                   <Input
                     variant="table"
                     :model-value="row.tube_no ?? 0"
@@ -540,7 +540,7 @@
                     @update:model-value="updateTubeField(index, 'tube_no', $event)"
                   />
                 </TableCell>
-                <TableCell class="w-[120px] p-1">
+                <TableCell class="w-[100px] p-1">
                   <Input
                     variant="table"
                     :model-value="row.length ?? 0"
@@ -550,7 +550,7 @@
                     @update:model-value="updateTubeField(index, 'length', $event)"
                   />
                 </TableCell>
-                <TableCell class="w-[120px] p-1">
+                <TableCell class="w-[100px] p-1">
                   <Input
                     variant="table"
                     :model-value="row.weight ?? 0"
@@ -645,10 +645,10 @@ const bundleListColumns = [
 ] as const;
 
 const tubeDraftColumns = [
-  { key: 'flow_no', label: '流水号', width: '100px' },
-  { key: 'tube_no', label: '管号', width: '100px' },
-  { key: 'length', label: '长度（米）', width: '120px' },
-  { key: 'weight', label: '重量（千克）', width: '120px' },
+  { key: 'flow_no', label: '流水号', width: '90px' },
+  { key: 'tube_no', label: '管号', width: '90px' },
+  { key: 'length', label: '长度（米）', width: '100px' },
+  { key: 'weight', label: '重量（千克）', width: '100px' },
 ] as const;
 
 const requiredBundleFields: Array<[keyof BundleRecord, string]> = [
@@ -840,6 +840,8 @@ function normalizeEditableBundle(bundle: BundleRecord): BundleRecord {
     ban_ci: bundle.ban_ci ?? '',
     product_job_point: bundle.product_job_point ?? '',
     direction_code: bundle.direction_code ?? '',
+    pono_id_coupling: bundle.pono_id_coupling ?? '',
+    lot_no_thread: bundle.lot_no_thread ?? '',
     produce_time: bundle.produce_time ?? '',
   };
 }
@@ -873,10 +875,10 @@ function mapContractBundleToDraftModel(bundle: BundleRecord, sourceOrder: OrderD
     melt_no: '',
     lot_no: '',
     produce_time: '',
-    bundle_type: '',
+    bundle_type: '000',
     ban_ci: '',
-    product_job_point: '',
-    direction_code: '',
+    product_job_point: 'E101',
+    direction_code: 'T310',
     length_from: null,
     length_to: null,
     tube: null,
@@ -946,7 +948,9 @@ function updateDraftTextField(
     | 'lot_no'
     | 'bundle_type'
     | 'product_job_point'
-    | 'direction_code',
+    | 'direction_code'
+    | 'pono_id_coupling'
+    | 'lot_no_thread',
   value: string | number,
 ) {
   if (!draftBundle.value) {
@@ -1226,6 +1230,8 @@ function buildSaveBundle() {
     ban_ci: draftBundle.value.ban_ci?.trim() ?? '',
     product_job_point: draftBundle.value.product_job_point?.trim() ?? '',
     direction_code: draftBundle.value.direction_code?.trim() ?? '',
+    pono_id_coupling: draftBundle.value.pono_id_coupling?.trim() ?? '',
+    lot_no_thread: draftBundle.value.lot_no_thread?.trim() ?? '',
     produce_time: mergeProduceTime(draftUi.produceDate, draftUi.produceClock),
   } satisfies BundleRecord;
 }

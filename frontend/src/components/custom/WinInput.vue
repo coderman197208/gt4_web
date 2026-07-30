@@ -26,6 +26,7 @@ const inputClass = computed(() =>
       : props.variant === 'table'
         ? 'win-input-table'
         : 'win-input-edit',
+    'px-2',
     props.class,
   ),
 );

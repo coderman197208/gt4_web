@@ -341,7 +341,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
           SELECT *
           FROM api_bundle_data_t
           WHERE bundle_no = ${bundleNo}
-          ORDER BY order_no, item_no, bundle_no
+          ORDER BY produce_time
         `);
         } else {
           const { start, end } = buildBusinessWindow(queryDate!);
@@ -351,7 +351,7 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
           FROM api_bundle_data_t
           WHERE ${bundleTimeSql} >= TO_TIMESTAMP(${start}, 'YYYY-MM-DD HH24:MI:SS')
             AND ${bundleTimeSql} < TO_TIMESTAMP(${end}, 'YYYY-MM-DD HH24:MI:SS')
-          ORDER BY order_no, item_no, bundle_no
+          ORDER BY produce_time
         `);
         }
 

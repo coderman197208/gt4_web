@@ -14,7 +14,7 @@ import type {
 } from '@gt4_web/shared';
 import type { AlarmMutationResult } from '../alarm/alarmService.js';
 import { buildAlarmSnapshot, getAlarmSummary } from '../alarm/alarmService.js';
-import { normalizeRealtimeTagValue } from '../redis/realtimeValueNormalizer';
+import { normalizeRealtimeTagValue } from '../redis/realtimeValueNormalizer.js';
 import { SubscriptionManager } from './subscriptionManager.js';
 import { getRedisDataClient } from '../redis/redisClient.js';
 import { getAuthorizedAlarmAreaIds } from '../auth/alarmAreaAccess.js';

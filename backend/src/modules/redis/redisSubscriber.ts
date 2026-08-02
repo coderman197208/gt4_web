@@ -6,7 +6,7 @@
 import type { DataPushMessage } from '@gt4_web/shared';
 import { handleAlarmChanged } from '../alarm/alarmService.js';
 import { getRedisDataClient, getRedisSubClient } from './redisClient.js';
-import { normalizeRealtimeTagValue } from './realtimeValueNormalizer';
+import { normalizeRealtimeTagValue } from './realtimeValueNormalizer.js';
 import {
   broadcastAlarmMutation,
   getSocketServer,

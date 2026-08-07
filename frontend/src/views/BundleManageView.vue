@@ -9,9 +9,15 @@
         >
           管捆查询
         </div>
-        <div class="flex flex-wrap items-center gap-3 pt-1">
+        <div class="flex flex-nowrap items-center gap-2 whitespace-nowrap pt-1">
           <Label class="whitespace-nowrap">查询日期</Label>
           <Input v-model="queryState.queryDate" type="date" class="h-8 w-40 shadow-none" />
+          <Label class="whitespace-nowrap">班次</Label>
+          <WinSelect
+            v-model="queryState.shift"
+            :options="queryShiftOptions"
+            trigger-class="h-8 !w-32 shrink-0 shadow-none"
+          />
           <Label class="whitespace-nowrap">管捆号</Label>
           <Input v-model="queryState.bundleNo" type="text" class="h-8 w-40 shadow-none" />
           <Button :disabled="isLoadingQuery" @click="handleQuery">
@@ -29,7 +35,8 @@
             {{ isSaving ? '保存中...' : '保存' }}
           </Button>
           <Button @click="handlePrintTag"> 标签打印 </Button>
-          <Button @click="handleSendL3"> 发送L3 </Button>
+          <Button @click="handleSendL3Insert"> L3新增电文补发 </Button>
+          <Button @click="handleSendL3Delete"> L3删除电文补发 </Button>
         </div>
       </div>
       <!-- <div v-if="statusMessage" class="px-1 text-sm text-muted-foreground">
@@ -584,6 +591,7 @@ import type { AcceptableValue } from 'reka-ui';
 import type {
   TagPrintEvent,
   ApiBundleDataEvent,
+  BundleQueryShift,
   BundleRecord,
   BundleRecordKey,
   OrderData,
@@ -621,6 +629,12 @@ const shiftSelectOptions = shiftOptions.map((item) => ({
   value: item.value,
   label: `${item.value}-${item.label}`,
 }));
+
+const queryShiftOptions = [
+  { value: 'all', label: '所有' },
+  { value: 'day', label: '早班' },
+  { value: 'night', label: '夜班' },
+] as const;
 
 const tableFrameTone = {
   borderColor: '#9a9a9a',
@@ -684,8 +698,15 @@ const requiredBundleFields: Array<[keyof BundleRecord, string]> = [
   ['thread_type', '螺纹类型'],
 ];
 
-const queryState = reactive({
+const queryState = reactive<{
+  queryDate: string;
+  shift: BundleQueryShift;
+  bundleNo: string;
+  orderNo: string;
+  itemNo: string;
+}>({
   queryDate: getTodayString(),
+  shift: 'all',
   bundleNo: '',
   orderNo: '',
   itemNo: '',
@@ -1103,6 +1124,7 @@ async function handleQuery() {
   try {
     const rows = await getBundles({
       query_date: queryState.bundleNo.trim() ? undefined : queryState.queryDate,
+      shift: queryState.shift,
       bundle_no: queryState.bundleNo.trim() || undefined,
     });
 
@@ -1266,9 +1288,37 @@ function validateBeforeSave(bundle: BundleRecord, tubes: TubeRecord[]) {
   return null;
 }
 
-function notifyBundleDataChanged(flag: ApiBundleDataEvent['flag'], bundleKey: BundleRecordKey) {
+function notifyBundleDataChangedLogic1(
+  flag: ApiBundleDataEvent['flag'],
+  bundleKey: BundleRecordKey,
+) {
   const cmd: ApiBundleDataEvent = {
     flag,
+    order_no: bundleKey.order_no,
+    item_no: bundleKey.item_no,
+    bundle_no: bundleKey.bundle_no,
+  };
+
+  sendUserCommand('api_bundle_data_event', cmd);
+}
+
+function notifyBundleDataChanged(
+  originalBundleKey: BundleRecordKey | null,
+  bundleKey: BundleRecordKey,
+) {
+  if (originalBundleKey) {
+    // 先发删除事件
+    const cmd: ApiBundleDataEvent = {
+      flag: 'D',
+      order_no: originalBundleKey.order_no,
+      item_no: originalBundleKey.item_no,
+      bundle_no: originalBundleKey.bundle_no,
+    };
+    sendUserCommand('api_bundle_data_event', cmd);
+  }
+
+  const cmd: ApiBundleDataEvent = {
+    flag: 'I',
     order_no: bundleKey.order_no,
     item_no: bundleKey.item_no,
     bundle_no: bundleKey.bundle_no,
@@ -1307,7 +1357,6 @@ async function handleSave() {
     return;
   }
 
-  const operationFlag: ApiBundleDataEvent['flag'] = originalBundleKey.value ? 'U' : 'I';
   isSaving.value = true;
   try {
     const result = await saveBundleDraft({
@@ -1316,11 +1365,13 @@ async function handleSave() {
       original_key: originalBundleKey.value,
     });
 
-    notifyBundleDataChanged(operationFlag, {
+    // const operationFlag: ApiBundleDataEvent['flag'] = originalBundleKey.value ? 'U' : 'I';
+    notifyBundleDataChanged(originalBundleKey.value, {
       order_no: bundle.order_no,
       item_no: bundle.item_no,
       bundle_no: bundle.bundle_no,
     });
+
     window.alert(result.message);
     statusMessage.value = result.message;
     queryState.bundleNo = bundle.bundle_no;
@@ -1333,14 +1384,14 @@ async function handleSave() {
   }
 }
 
-async function handleSendL3() {
+async function handleSendL3Insert() {
   if (!draftBundle.value) {
     window.alert('请先选择管捆');
     return;
   }
 
   try {
-    notifyBundleDataChanged('I', {
+    notifyBundleDataChangedLogic1('I', {
       order_no: draftBundle.value.order_no,
       item_no: draftBundle.value.item_no,
       bundle_no: draftBundle.value.bundle_no,
@@ -1348,6 +1399,24 @@ async function handleSendL3() {
   } catch (error) {
     console.error(error);
     window.alert(getErrorMessage(error, '发送管捆到L3失败'));
+  }
+}
+
+async function handleSendL3Delete() {
+  if (!draftBundle.value) {
+    window.alert('请先选择管捆');
+    return;
+  }
+
+  try {
+    notifyBundleDataChangedLogic1('D', {
+      order_no: draftBundle.value.order_no,
+      item_no: draftBundle.value.item_no,
+      bundle_no: draftBundle.value.bundle_no,
+    });
+  } catch (error) {
+    console.error(error);
+    window.alert(getErrorMessage(error, '发送管捆删除到L3失败'));
   }
 }
 

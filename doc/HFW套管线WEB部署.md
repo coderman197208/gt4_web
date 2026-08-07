@@ -2,7 +2,7 @@
 
 ## 1. 部署目标
 
-本方案用于在麒麟 Linux 服务器 140.32.1.163 上部署 HOT Web。你的现场条件已经明确，因此本文按以下前提编写：
+本方案用于在麒麟 Linux 服务器 140.32.1.162 上部署 GT4 Web。你的现场条件已经明确，因此本文按以下前提编写：
 
 - 系统里已经存在 `/data/www/` 和 `/data/software/`。
 - 部署运行用户使用 `baoadmin`。
@@ -75,7 +75,7 @@ ls -ld /data/www /data/software
 
 ```bash
 systemctl status redis
-systemctl status postgresql
+systemctl status postgresql-17
 ```
 
 为什么要做这一步：
@@ -147,22 +147,21 @@ curl -LO https://nodejs.org/dist/v20.19.0/node-v20.19.0-linux-x64.tar.xz
 
 ```bash
 tar -xJf /data/software/node-v20.19.0-linux-x64.tar.xz
-sudo ln -sfn /data/software/node-v20.19.0-linux-x64 /usr/local/node
-sudo ln -sfn /usr/local/node/bin/node /usr/local/bin/node
-sudo ln -sfn /usr/local/node/bin/npm /usr/local/bin/npm
-sudo ln -sfn /usr/local/node/bin/npx /usr/local/bin/npx
-sudo ln -sfn /usr/local/node/bin/corepack /usr/local/bin/corepack
+mv -r node-v20.19.0-linux-x64 /data/node-v20.19.0
 ```
 
-为什么这么做：
-
-- 解压后放在 `/data/software/`，方便以后升级版本。
-- `/usr/local/node` 作为固定入口，后续升级只要改软链接，不需要改 systemd。
-- 把 `node`、`npm`、`npx`、`corepack` 链接到 `/usr/local/bin/`，是为了让所有普通命令都能直接调用。
+vim ~/.bashrc
+export PATH="/data/node-v20.19.0/bin:$PATH"
+source ~/.bashrc
+hash -r
 
 ### 6.3 验证 Node.js
 
 ```bash
+which node
+which npm
+which npx
+which corepack
 node -v
 npm -v
 ```
@@ -172,80 +171,19 @@ npm -v
 - 确认命令真的指向新安装的 Node.js。
 - 避免后面 `pnpm` 依赖时才发现 Node 版本不对。
 
-## 7. 安装 pnpm（推荐直接用 npm 全局安装，绕开 Corepack 冲突）
-
-本仓库使用 pnpm workspace，因此 pnpm 版本要尽量和项目声明保持一致。你现场已经出现了 Corepack shim 与 pnpm 冲突（`pnpm -v` 仍触发 Corepack 下载和报错），生产环境建议直接固定到 npm 全局安装的 pnpm，避免再被 Corepack 接管。
-
-### 7.1 先修复 corepack 命令路径
-
-```bash
-sudo ln -sfn /usr/local/node/bin/corepack /usr/local/bin/corepack
-hash -r
-which corepack
+启用 Corepack（官方最佳实践）
+sudo corepack enable
 corepack -v
-```
 
-为什么这么做：
-
-- 你当前 Node.js 安装在 `/usr/local/node`，但 shell 的 PATH 主要找 `/usr/local/bin`。
-- 建立软链接后，`corepack` 才能像 `node` 一样直接调用。
-- `hash -r` 用于清理 bash 命令缓存，避免继续使用旧路径。
-
-### 7.2 先定位当前 pnpm 实际指向
-
-```bash
-which -a pnpm
-ls -l /usr/local/bin/pnpm || true
-npm prefix -g
-```
-
-为什么这么做：
-
-- 你需要先确认 `pnpm` 当前是不是指向了 Corepack 的 shim。
-- `npm prefix -g` 能告诉你 npm 全局安装目录，后面要用它来建立正确软链接。
-
-### 7.3 安装并固定 npm 全局 pnpm
-
-```bash
-npm install -g pnpm@10.30.3
-hash -r
-```
-
-为什么这么做：
-
-- 直接安装目标版本，避免 Corepack 在后台下载其他版本（例如 11.x）。
-- `hash -r` 用于清理 shell 的命令缓存。
-
-### 7.4 替换掉 Corepack 的 pnpm shim（关键步骤）
-
-```bash
-sudo rm -f /usr/local/bin/pnpm /usr/local/bin/pnpx
-sudo ln -sfn "$(npm prefix -g)/bin/pnpm" /usr/local/bin/pnpm
-sudo ln -sfn "$(npm prefix -g)/bin/pnpx" /usr/local/bin/pnpx
-hash -r
+用 Corepack 管理 pnpm（不再用 npm -g）
+corepack prepare pnpm@10.30.3 --activate
 which pnpm
 pnpm -v
-```
-
-为什么这么做：
-
-- 你当前错误的根因是 `pnpm` 命令命中了 Corepack shim，不是 npm 全局安装的 pnpm。
-- 删除旧 shim 并重建软链接后，`pnpm` 会稳定走 npm 全局版本。
-
-### 7.5 如果你不再使用 Corepack，可直接禁用
-
-```bash
-sudo corepack disable || true
-```
-
-为什么这么做：
-
-- 可避免后续误操作再次生成 Corepack shim 覆盖 `pnpm`。
-- `|| true` 用于兼容某些环境下 disable 报告“未启用”的情况。
+正常情况：
+/data/node-v20.19.0/bin/pnpm
+10.30.3
 
 ## 8. 创建部署目录
-
-因为你已经有 `/data/www/` 和 `/data/software/`，这里只创建项目需要的子目录。
 
 ### 8.1 创建项目目录
 
@@ -310,6 +248,7 @@ cd /data/www/gt4_web/releases/$RELEASE_ID
 
 ```bash
 git clone -b develop <你的仓库地址> .
+git clone -b develop https://github.com/coderman197208/gt4_web.git
 ```
 
 为什么这么做：
@@ -335,6 +274,7 @@ cd /data/www/gt4_web/releases/$RELEASE_ID
 ### 10.2 安装依赖
 
 ```bash
+cd gt4_web
 pnpm install --frozen-lockfile
 ```
 
@@ -350,10 +290,10 @@ pnpm install --frozen-lockfile
 ### 11.1 执行构建
 
 ```bash
-[baoadmin@PKVMGF0509 gt4_web-main]$ cd backend
-[baoadmin@PKVMGF0509 backend]$ pnpm prisma generate
-cd ..
-pnpm run build
+[baoadmin@PKVMGF0508 gt4_web]$$ cd backend
+[baoadmin@PKVMGF0508 backend]$ pnpm prisma generate
+[baoadmin@PKVMGF0508 backend]$ cd ..
+[baoadmin@PKVMGF0508 gt4_web]$ pnpm run build
 ```
 
 为什么这么做：
@@ -364,9 +304,12 @@ pnpm run build
 ### 11.2 检查构建结果
 
 ```bash
-ls -la /data/www/gt4_web/releases/$RELEASE_ID/backend/dist
-ls -la /data/www/gt4_web/releases/$RELEASE_ID/frontend/dist
+ls -la /data/www/gt4_web/releases/$RELEASE_ID/gt4_web/backend/dist
+ls -la /data/www/gt4_web/releases/$RELEASE_ID/gt4_web/frontend/dist
 ```
+
+[baoadmin@PKVMGF0508 gt4_web]$ pwd
+/data/www/gt4_web/releases/20260802-141708/gt4_web
 
 为什么这么做：
 
@@ -383,13 +326,13 @@ ls -la /data/www/gt4_web/releases/$RELEASE_ID/frontend/dist
 cat > /data/www/gt4_web/shared/backend.env <<'EOF'
 NODE_ENV=production
 PORT=5001
-FRONTEND_ORIGIN=http://140.32.1.163
+FRONTEND_ORIGIN=http://140.32.1.162
 
-DATABASE_URL=postgresql://username:password@127.0.0.1:5432/dbname?schema=public
+DATABASE_URL=postgresql://l2user:ggl2e=mc2@127.0.0.1:5432/mesl2?schema=public
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
-REDIS_PASSWORD=
+REDIS_PASSWORD=ggl2e=mc2
 REDIS_DB=0
 EOF
 ```
@@ -404,7 +347,7 @@ EOF
 
 请把 `username`、`password`、`dbname` 、`FRONTEND_ORIGIN`替换成你现场真实值。
 
-### 12.2 设置文件权限
+### 12.2 设置文件权限 没有做
 
 ```bash
 chown baoadmin:baoadmin /data/www/gt4_web/shared/backend.env
@@ -423,19 +366,19 @@ chmod 640 /data/www/gt4_web/shared/backend.env
 ### 13.1 创建服务文件
 
 ```bash
-sudo tee > /etc/systemd/system/hot-web-backend.service <<'EOF'
+sudo tee /etc/systemd/system/gt4-web-backend.service > /dev/null <<'EOF'
 [Unit]
 Description=GT4 Web Backend Service
-After=network.target redis.service postgresql.service
+After=network.target redis.service postgresql-17.service
 Wants=network.target
 
 [Service]
 Type=simple
 User=baoadmin
 Group=baoadmin
-WorkingDirectory=/data/www/gt4_web/current/backend
+WorkingDirectory=/data/www/gt4_web/current/gt4_web/backend
 EnvironmentFile=/data/www/gt4_web/shared/backend.env
-ExecStart=/usr/local/bin/node dist/index.js
+ExecStart=/data/node-v20.19.0/bin/node dist/index.js
 Restart=always
 RestartSec=5
 StandardOutput=journal
@@ -452,7 +395,7 @@ EOF
 - `WorkingDirectory` 指向后端目录，`dist/index.js` 才能正常找到相对路径资源。
 - `EnvironmentFile` 把生产配置和代码分离。
 - `Restart=always` 让服务异常退出后自动重启。
-- `After=redis.service postgresql.service` 让后端尽量等依赖服务起来后再启动。
+- `After=redis.service postgresql-17.service` 让后端尽量等依赖服务起来后再启动。
 
 如果你现场的 Redis 或 PostgreSQL 服务名不是这两个名字，可以改成实际服务名。
 
@@ -481,16 +424,16 @@ Nginx 负责三件事：
 ### 14.1 创建站点配置
 
 ```bash
-sudo tee /etc/nginx/conf.d/hot-web.conf > /dev/null <<'EOF'
+sudo tee /etc/nginx/conf.d/gt4-web.conf > /dev/null <<'EOF'
 server {
     listen 80;
-    server_name 140.32.1.163;
+    server_name 140.32.1.162;
 
-    root /data/www/gt4_web/current/frontend/dist;
+    root /data/www/gt4_web/current/gt4_web/frontend/dist;
     index index.html;
 
-    access_log /var/log/nginx/hot-web.access.log;
-    error_log /var/log/nginx/hot-web.error.log warn;
+    access_log /var/log/nginx/gt4-web.access.log;
+    error_log /var/log/nginx/gt4-web.error.log warn;
 
     location / {
         try_files $uri $uri/ /index.html;
@@ -546,6 +489,9 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
+如果没有启动
+sudo systemctl restart nginx
+
 为什么这么做：
 
 - reload 比 restart 更平滑。
@@ -557,7 +503,7 @@ sudo systemctl reload nginx
 
 ```bash
 ln -sfn /data/www/gt4_web/releases/$RELEASE_ID /data/www/gt4_web/current
-chown -h baoadmin:baoadmin /data/www/gt4_web/current
+chown -h baoadmin:baoadmin /data/www/gt4_web/current  这一步未做
 ```
 
 为什么这么做：
@@ -569,9 +515,9 @@ chown -h baoadmin:baoadmin /data/www/gt4_web/current
 ### 15.2 启动后端
 
 ```bash
-sudo systemctl enable hot-web-backend
-sudo systemctl restart hot-web-backend
-sudo systemctl status hot-web-backend
+sudo systemctl enable gt4-_web-backend
+sudo systemctl restart gt4-web-backend
+sudo systemctl status gt4-web-backend
 ```
 
 为什么这么做：
@@ -625,7 +571,7 @@ ss -lntp | grep -E ':80|:443|:5001|:6379|:5432'
 
 ```bash
 curl http://127.0.0.1:5001/api/health
-curl http://140.32.1.163/api/health
+curl http://140.32.1.162/api/health
 ```
 
 为什么这么做：
@@ -640,7 +586,7 @@ curl http://140.32.1.163/api/health
 浏览器访问：
 
 ```text
-http://140.32.1.163/
+http://140.32.1.162/
 ```
 
 为什么这么做：
@@ -662,7 +608,7 @@ http://140.32.1.163/
 ### 17.1 查看后端日志
 
 ```bash
-journalctl -u hot-web-backend -f
+journalctl -u gt4-web-backend -f
 ```
 
 为什么这么做：
@@ -670,11 +616,71 @@ journalctl -u hot-web-backend -f
 - 后端问题大多会先体现在这里。
 - `-f` 可以实时追踪启动和请求错误。
 
+https://yuanbao.tencent.com/chat/naQivTmsDa/0PJ2Y7JuUxk
+检查web后台状态
+
+1. 看最近有没有异常退出
+   journalctl -u gt4-web-backend --since "1 hour ago" | grep -i error
+2. 看重启次数（应该是 0）
+   systemctl show gt4-web-backend -p NRestarts
+
+如果 Redis 推送太频繁，可以考虑：
+降低日志级别
+或只在 debug 环境打印这些推送
+
+「最小改动、最安全」方案（强烈推荐）
+✅ 方案：给 journald 加“安全阀”（不改一行代码）
+1️⃣ 编辑配置
+sudo vi /etc/systemd/journald.conf
+取消注释并改成：
+[Journal]
+Storage=persistent
+SystemMaxUse=512M
+SystemKeepFree=1G
+MaxRetentionSec=7day
+含义：
+persistent：重启不丢日志 ✅
+512M：最多占半 GB
+7day：最多保留 7 天
+2️⃣ 创建目录（很重要）
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+3️⃣ 重启 journald
+sudo systemctl restart systemd-journald
+4️⃣ 验证
+journalctl --disk-usage
+ls /var/log/journal
+你会看到：
+日志目录出现
+使用量慢慢收敛到 ≤512MB
+✅ 这一步做完，你现在的 904MB 日志会被自动裁剪
+四、关于 Redis 高频日志的“温和建议”（非必须）
+你现在的日志：
+[RedisSubscriber] 推送 SPRAY_STRING ...
+从运维角度看：
+这是“调试日志”，不是“运行日志”
+不适合长期留在 production
+但既然你现在不想动代码，那至少做到：
+journal 有上限 ✅
+重启不丢 ✅
+7 天内可查 ✅
+这就已经是 80 分的生产水平​ 了。
+五、一句话总结
+✅ 你现在不会爆盘​
+❌ 但日志重启即失 + 无明确生命周期​
+✅ 按上面 3 步配置 journald，是目前性价比最高、风险最低的方案
+如果你后面想进一步做：
+Node 日志分级（info / debug / error）
+Redis 推送日志单独剥离
+对接 ELK / Grafana Loki
+我可以一步一步帮你拆，不用一次性大改。
+你现在这个状态，先稳住 journald 就够了。
+
 ### 17.2 查看 Nginx 日志
 
 ```bash
-tail -f /var/log/nginx/hot-web.access.log
-tail -f /var/log/nginx/hot-web.error.log
+tail -f /var/log/nginx/gt4-web.access.log
+tail -f /var/log/nginx/gt4-web.error.log
 ```
 
 为什么这么做：
@@ -686,9 +692,9 @@ tail -f /var/log/nginx/hot-web.error.log
 
 如果上线后页面或接口异常，建议按这个顺序排：
 
-1. 先看 `systemctl status hot-web-backend`。
-2. 再看 `journalctl -u hot-web-backend -n 200`。
-3. 再看 `nginx -t`。
+1. 先看 `systemctl status gt4-web-backend`。
+2. 再看 `journalctl -u gt4-web-backend -n 200`。
+3. 再看 `sudo nginx -t`。
 4. 再看 Nginx error log。
 5. 再看 `curl http://127.0.0.1:5001/api/health`。
 6. 最后再看 Redis 和 PostgreSQL 的连通性。

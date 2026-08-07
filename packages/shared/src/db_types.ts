@@ -357,8 +357,11 @@ export interface TubeRecord {
 }
 
 // 管捆查询参数
+export type BundleQueryShift = 'all' | 'day' | 'night';
+
 export interface BundleQueryParams {
   query_date?: string;
+  shift?: BundleQueryShift;
   bundle_no?: string | null;
 }
 

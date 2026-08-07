@@ -10,6 +10,7 @@ import type {
   BundleDuplicateCheckParams,
   BundleDuplicateCheckResponse,
   BundleQueryParams,
+  BundleQueryShift,
   BundleRecord,
   BundleRecordKey,
   BundleSavePayload,
@@ -186,14 +187,18 @@ function formatDateTime(date: Date): string {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-function buildBusinessWindow(queryDate: string) {
-  const end = new Date(`${queryDate}T19:45:00`);
-  if (Number.isNaN(end.getTime())) {
+function buildBusinessWindow(queryDate: string, shift: BundleQueryShift) {
+  const dayStart = new Date(`${queryDate}T07:45:00`);
+  const dayEnd = new Date(`${queryDate}T19:45:00`);
+  if (Number.isNaN(dayStart.getTime()) || Number.isNaN(dayEnd.getTime())) {
     throw new Error('INVALID_QUERY_DATE');
   }
 
-  const start = new Date(end);
-  start.setDate(start.getDate() - 1);
+  const previousDayEnd = new Date(dayEnd);
+  previousDayEnd.setDate(previousDayEnd.getDate() - 1);
+
+  const start = shift === 'day' ? dayStart : previousDayEnd;
+  const end = shift === 'night' ? dayStart : dayEnd;
 
   return {
     start: formatDateTime(start),
@@ -328,9 +333,14 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const bundleNo = request.query.bundle_no?.trim();
       const queryDate = request.query.query_date?.trim();
+      const shift = request.query.shift ?? 'all';
 
       if (!bundleNo && !queryDate) {
         return reply.code(400).send([{ message: '请提供查询日期或管捆号' }] as never);
+      }
+
+      if (!['all', 'day', 'night'].includes(shift)) {
+        return reply.code(400).send([{ message: '班次查询条件无效' }] as never);
       }
 
       try {
@@ -341,17 +351,17 @@ export async function registerBundleDataRoutes(fastify: FastifyInstance) {
           SELECT *
           FROM api_bundle_data_t
           WHERE bundle_no = ${bundleNo}
-          ORDER BY produce_time
+          ORDER BY produce_time, bundle_no
         `);
         } else {
-          const { start, end } = buildBusinessWindow(queryDate!);
+          const { start, end } = buildBusinessWindow(queryDate!, shift);
 
           rows = await prisma.$queryRaw<BundleRecord[]>(Prisma.sql`
           SELECT *
           FROM api_bundle_data_t
           WHERE ${bundleTimeSql} >= TO_TIMESTAMP(${start}, 'YYYY-MM-DD HH24:MI:SS')
             AND ${bundleTimeSql} < TO_TIMESTAMP(${end}, 'YYYY-MM-DD HH24:MI:SS')
-          ORDER BY produce_time
+          ORDER BY produce_time, bundle_no
         `);
         }
 

@@ -1438,7 +1438,7 @@ async function handleDeleteBundle() {
 
   try {
     const result = await deleteBundle(deleteKey);
-    notifyBundleDataChanged('D', deleteKey);
+    notifyBundleDataChangedLogic1('D', deleteKey);
     const remainingRows = bundleResults.value.filter(
       (row) =>
         !(

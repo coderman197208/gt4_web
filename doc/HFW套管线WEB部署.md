@@ -1,4 +1,4 @@
-# HOT Web 在麒麟 Linux 服务器上的详细生产部署方案
+GT4 Web 在麒麟 Linux 服务器上的详细生产部署方案
 
 ## 1. 部署目标
 
@@ -545,7 +545,7 @@ systemctl reload nginx
 
 ```bash
 sudo systemctl status nginx
-sudo systemctl status hot-web-backend
+sudo systemctl status gt4-web-backend
 sudo systemctl status redis
 sudo systemctl status postgresql
 ```
@@ -753,8 +753,9 @@ git clone -b develop <你的仓库地址> .
 ### 18.3 安装和构建
 
 ```bash
+cd gt4_web
 pnpm install --frozen-lockfile
-[baoadmin@PKVMGF0509 gt4_web-main]$ cd backend
+[baoadmin@PKVMGF0509 gt4_web]$ cd backend
 [baoadmin@PKVMGF0509 backend]$ pnpm prisma generate
 cd ..
 pnpm run build
@@ -768,8 +769,8 @@ pnpm run build
 
 ```bash
 ln -sfn /data/www/gt4_web/releases/$RELEASE_ID /data/www/gt4_web/current
-chown -h baoadmin:baoadmin /data/www/gt4_web/current
-sudo systemctl restart hot-web-backend
+chown -h baoadmin:baoadmin /data/www/gt4_web/current ？未执行
+sudo systemctl restart gt4-web-backend
 sudo systemctl reload nginx
 ```
 
@@ -786,7 +787,7 @@ sudo systemctl reload nginx
 
 ```bash
 ln -sfn /data/www/gt4_web/releases/<旧版本号> /data/www/gt4_web/current
-sudo systemctl restart hot-web-backend
+sudo systemctl restart gt4-web-backend
 sudo systemctl reload nginx
 ```
 

@@ -1609,7 +1609,7 @@ onUnmounted(() => {
           >
             管子详细信息
           </div>
-          <Tabs default-value="basket" class="flex h-full min-h-0 flex-row gap-3">
+          <Tabs default-value="backbuffer" class="flex h-full min-h-0 flex-row gap-3">
             <TabsList class="win-tabs-list flex h-auto flex-col justify-start gap-1 w-20 shrink-0">
               <TabsTrigger value="basket" class="win-tab-trigger w-full"> 料筐 </TabsTrigger>
               <TabsTrigger value="backbuffer" class="win-tab-trigger w-full"> 缓冲区 </TabsTrigger>

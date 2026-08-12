@@ -8,6 +8,7 @@ import type { Server as HTTPServer } from 'http';
 import type { FastifyInstance } from 'fastify';
 import type {
   AlarmResyncRequiredPayload,
+  ApiBundleDataEvent,
   SubscribeRequest,
   CmdPushMessage,
   DataPushMessage,
@@ -25,6 +26,23 @@ const ALARM_ROOM_PREFIX = 'alarm-area:';
 
 let io: SocketIOServer | null = null;
 const subscriptionManager = new SubscriptionManager();
+
+function isApiBundleDataEvent(value: unknown): value is ApiBundleDataEvent {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const event = value as Partial<ApiBundleDataEvent>;
+  return (
+    (event.flag === 'D' || event.flag === 'I' || event.flag === 'U') &&
+    typeof event.order_no === 'string' &&
+    event.order_no.trim().length > 0 &&
+    typeof event.item_no === 'string' &&
+    event.item_no.trim().length > 0 &&
+    typeof event.bundle_no === 'string' &&
+    event.bundle_no.trim().length > 0
+  );
+}
 
 function getAlarmRoomName(areaId: number) {
   return `${ALARM_ROOM_PREFIX}${areaId}`;
@@ -199,6 +217,11 @@ export function initSocketServer(fastify: FastifyInstance): SocketIOServer {
 
       if (!data.cmd_name) {
         console.error(`[SocketServer] 无效的命令格式（缺少cmd_name）:`, data);
+        return;
+      }
+
+      if (data.cmd_name === 'api_bundle_data_event' && !isApiBundleDataEvent(data.cmd_para)) {
+        console.error(`[SocketServer] 无效的管捆数据事件参数:`, data.cmd_para);
         return;
       }
 

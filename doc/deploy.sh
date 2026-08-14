@@ -41,7 +41,7 @@ pnpm run build
 echo "===> [6/6] 更新软链接并重启/重载服务..."
 
 # 注意：根据日志，克隆出来的实际代码路径在 releases/$RELEASE_ID/gt4_web
-ln -sfn "${TARGET_DIR}/gt4_web" "${BASE_DIR}/current"
+ln -sfn "${TARGET_DIR}" "${BASE_DIR}/current"
 
 # 重启后端服务与重载 Nginx
 sudo systemctl restart gt4-web-backend

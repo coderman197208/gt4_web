@@ -34,6 +34,12 @@
           <Button :disabled="isSaving" @click="handleSave">
             {{ isSaving ? '保存中...' : '保存' }}
           </Button>
+          <Label :class="'whitespace-nowrap'">张数：</Label>
+          <WinSelect
+            v-model="printCount"
+            :options="printCountOptions"
+            trigger-class="h-8 !w-16 shrink-0 shadow-none"
+          />
           <Button @click="handlePrintTag"> 标签打印 </Button>
           <Button @click="handleSendL3Insert"> L3新增电文补发 </Button>
           <Button @click="handleSendL3Delete"> L3删除电文补发 </Button>
@@ -63,9 +69,10 @@
               <TableRow
                 v-for="(row, index) in bundleResults"
                 :key="`${row.order_no}-${row.item_no}-${row.bundle_no}`"
-                :class="{ 'win-table-row--selected': selectedBundleIndex === index }"
+                :class="{ 'win-table-row--selected': selectedBundleIndices.has(index) }"
                 class="cursor-pointer"
-                @click="selectBundle(row, index)"
+                @mousedown="startBundleSelection(row, index)"
+                @mouseenter="extendBundleSelection(index)"
               >
                 <TableCell class="w-[100px]">
                   {{ row.order_no }}
@@ -636,6 +643,8 @@ const queryShiftOptions = [
   { value: 'night', label: '夜班' },
 ] as const;
 
+const printCountOptions = ['1', '2'] as const;
+
 const tableFrameTone = {
   borderColor: '#9a9a9a',
   shellBackground: '#d4d4d4',
@@ -714,6 +723,7 @@ const queryState = reactive<{
 
 const bundleResults = ref<BundleRecord[]>([]);
 const selectedBundleIndex = ref<number | null>(null);
+const selectedBundleIndices = ref(new Set<number>());
 const draftBundle = ref<BundleRecord | null>(null);
 const draftTubes = ref<TubeRecord[]>([]);
 const selectedTubeIndex = ref<number | null>(null);
@@ -727,6 +737,7 @@ const duplicateMessage = ref('');
 const isLoadingQuery = ref(false);
 const isSaving = ref(false);
 const isDeleting = ref(false);
+const printCount = ref('1');
 
 const emptyBundleDisplay: BundleRecord = {
   order_no: '',
@@ -787,6 +798,8 @@ const displayBundle = computed(() => draftBundle.value ?? emptyBundleDisplay);
 
 let duplicateTimer: number | null = null;
 let duplicateRequestId = 0;
+let bundleSelectionAnchor: number | null = null;
+let isSelectingBundles = false;
 
 function getErrorMessage(error: unknown, fallback: string) {
   if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -925,6 +938,34 @@ function resetDraftState() {
   draftUi.produceDate = '';
   draftUi.produceClock = '';
   clearDuplicateState();
+}
+
+function setBundleSelectionRange(fromIndex: number, toIndex: number) {
+  const startIndex = Math.min(fromIndex, toIndex);
+  const endIndex = Math.max(fromIndex, toIndex);
+  selectedBundleIndices.value = new Set(
+    Array.from({ length: endIndex - startIndex + 1 }, (_, index) => startIndex + index),
+  );
+}
+
+function startBundleSelection(row: BundleRecord, index: number) {
+  bundleSelectionAnchor = index;
+  isSelectingBundles = true;
+  setBundleSelectionRange(index, index);
+  void selectBundle(row, index);
+}
+
+function extendBundleSelection(index: number) {
+  if (!isSelectingBundles || bundleSelectionAnchor == null) {
+    return;
+  }
+
+  setBundleSelectionRange(bundleSelectionAnchor, index);
+}
+
+function stopBundleSelection() {
+  isSelectingBundles = false;
+  bundleSelectionAnchor = null;
 }
 
 function clearDuplicateState() {
@@ -1130,6 +1171,7 @@ async function handleQuery() {
 
     bundleResults.value = rows;
     selectedBundleIndex.value = null;
+    selectedBundleIndices.value = new Set();
 
     if (rows.length === 0) {
       resetDraftState();
@@ -1139,6 +1181,7 @@ async function handleQuery() {
     }
 
     statusMessage.value = `查询到 ${rows.length} 条管捆记录，已默认选中第一条`;
+    selectedBundleIndices.value = new Set([0]);
     await selectBundle(rows[0], 0);
   } catch (error) {
     console.error(error);
@@ -1460,6 +1503,7 @@ async function handleDeleteBundle() {
 
     const nextIndex = Math.min(selectedBundleIndex.value ?? 0, remainingRows.length - 1);
     statusMessage.value = result.message;
+    selectedBundleIndices.value = new Set([nextIndex]);
     await selectBundle(remainingRows[nextIndex], nextIndex);
   } catch (error) {
     console.error(error);
@@ -1470,24 +1514,28 @@ async function handleDeleteBundle() {
 }
 
 function handlePrintTag() {
-  const selectedRow =
-    selectedBundleIndex.value != null ? bundleResults.value[selectedBundleIndex.value] : null;
-  const currentBundle = selectedRow ?? draftBundle.value;
+  const selectedBundles = [...selectedBundleIndices.value]
+    .sort((left, right) => left - right)
+    .map((index) => bundleResults.value[index])
+    .filter((bundle): bundle is BundleRecord => bundle != null);
+  const bundlesToPrint =
+    selectedBundles.length > 0 ? selectedBundles : [draftBundle.value].filter(Boolean);
 
-  if (!currentBundle) {
+  if (bundlesToPrint.length === 0) {
     window.alert('请先选择要打印标签的管捆记录');
     return;
   }
 
-  const cmd: TagPrintEvent = {
-    order_no: currentBundle.order_no,
-    item_no: currentBundle.item_no,
-    bundle_no: currentBundle.bundle_no,
-    count: 1,
-  };
-  // 发送设置当前合同命令
-  sendUserCommand('tag_print_event', cmd);
-  console.log('tag print cmd:', cmd.order_no, cmd.item_no, cmd.bundle_no, cmd.count);
+  for (const bundle of bundlesToPrint) {
+    const cmd: TagPrintEvent = {
+      order_no: bundle.order_no,
+      item_no: bundle.item_no,
+      bundle_no: bundle.bundle_no,
+      count: Number(printCount.value),
+    };
+    sendUserCommand('tag_print_event', cmd);
+    console.log('tag print cmd:', cmd.order_no, cmd.item_no, cmd.bundle_no, cmd.count);
+  }
 }
 
 watch(
@@ -1525,5 +1573,8 @@ onBeforeUnmount(() => {
   if (duplicateTimer != null) {
     window.clearTimeout(duplicateTimer);
   }
+  window.removeEventListener('mouseup', stopBundleSelection);
 });
+
+window.addEventListener('mouseup', stopBundleSelection);
 </script>

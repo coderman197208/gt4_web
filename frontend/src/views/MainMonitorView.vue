@@ -813,6 +813,7 @@ const mainMonitorTags = [
   'BUNDLE_NUMBER',
   'LATEST_BUNDLE_NO',
   'SPRAY_STRING',
+  'SHIFT_MODE',
 ] as const;
 
 // WebSocket 是全局单例；跳转到不订阅实时数据的页面时，需要在卸载时显式清空当前订阅。
@@ -1208,6 +1209,9 @@ onUnmounted(() => {
                 <Label class="text-base w-22 text-right">支数</Label>
                 <Input
                   :model-value="String(realtimeStore.planInfo?.feed_num ?? '')"
+                  :class="{
+                    '!bg-red-500': realtimeStore.planInfo?.feed_num === 0,
+                  }"
                   class="h-7 text-center flex-1"
                   readonly
                 />
@@ -1548,6 +1552,15 @@ onUnmounted(() => {
                     class="translate-y-[2px]"
                   />
                 </div>
+
+                <SvgToggle
+                  :model-value="realtimeStore.shiftMode === 1"
+                  :width="140"
+                  :height="30"
+                  on-text="正常交班"
+                  off-text="延迟交班"
+                  @click="sendUserCommand('shift_delay_cmd', realtimeStore.shiftMode === 1 ? 0 : 1)"
+                ></SvgToggle>
               </div>
             </div>
 

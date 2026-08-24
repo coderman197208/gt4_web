@@ -6,17 +6,11 @@
 import { ref } from 'vue';
 import { io, Socket } from 'socket.io-client';
 import type {
-  AlarmResyncRequiredPayload,
-  AlarmSnapshotPayload,
-  AlarmSummaryPayload,
-  AlarmUpsertPayload,
   SubscribeRequest,
   DataPushMessage,
   CmdPushMessage,
   UserCommandPayload,
 } from '@gt4_web/shared';
-import { getAuthToken } from '@/api/auth';
-import { useAlarmCenterStore } from '@/stores/alarmCenter';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 
 // 全局单例Socket实例
@@ -36,12 +30,6 @@ let hasConnectedOnce = false;
 // 响应式状态
 const isConnected = ref(false);
 const error = ref<string | null>(null);
-
-function buildSocketAuth() {
-  return {
-    token: getAuthToken() ?? undefined,
-  };
-}
 
 function normalizeTags(tags: string[]): string[] {
   return tags.map((tag) => tag.trim()).filter(Boolean);
@@ -74,7 +62,6 @@ function looksLikeJsonLiteral(value: string): boolean {
   const firstChar = value[0];
   return firstChar === '{' || firstChar === '[' || firstChar === '"';
 }
-
 function parseDataPushValue(message: DataPushMessage): unknown {
   if (message.hasValue === false || message.value == null) {
     return undefined;
@@ -119,35 +106,6 @@ function handleInternalDataPush(message: DataPushMessage) {
   store.updateData(message.tag, parsedValue);
 }
 
-function handleAlarmSnapshot(payload: AlarmSnapshotPayload) {
-  const store = useAlarmCenterStore();
-  store.applySnapshot(payload);
-}
-
-function handleAlarmUpsert(payload: AlarmUpsertPayload) {
-  const store = useAlarmCenterStore();
-  store.applyUpsert(payload);
-}
-
-function handleAlarmSummary(payload: AlarmSummaryPayload) {
-  const store = useAlarmCenterStore();
-  store.applySummary(payload);
-}
-
-function handleAlarmResyncRequired(payload: AlarmResyncRequiredPayload) {
-  const store = useAlarmCenterStore();
-  store.markResyncRequired(payload.reason);
-}
-
-function setupAlarmHandlers() {
-  if (!socket) return;
-
-  socket.on('alarm:snapshot', handleAlarmSnapshot);
-  socket.on('alarm:upsert', handleAlarmUpsert);
-  socket.on('alarm:summary', handleAlarmSummary);
-  socket.on('alarm:resync-required', handleAlarmResyncRequired);
-}
-
 /**
  * 设置数据推送处理器，自动更新store
  */
@@ -169,13 +127,12 @@ function initSocket() {
   const serverUrl = import.meta.env.VITE_WS_URL || undefined;
 
   socket = io(serverUrl ?? '', {
-    auth: buildSocketAuth(),
-    transports: ['websocket'],
-    reconnection: true,
-    reconnectionAttempts: Infinity,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
-    timeout: 20000,
+    transports: ['websocket'], // 直接使用WebSocket，跳过long-polling避免路由切换时断连
+    reconnection: true, // 启用自动重连
+    reconnectionAttempts: Infinity, // 无限次重连尝试
+    reconnectionDelay: 1000, // 初始重连延迟1秒
+    reconnectionDelayMax: 5000, // 最大重连延迟5秒
+    timeout: 20000, // 连接超时20秒
   });
 
   // 监听连接成功事件（初次连接和每次重连都会触发）
@@ -216,9 +173,6 @@ function initSocket() {
 
   // 监听重连尝试事件
   socket.on('reconnect_attempt', (attemptNumber) => {
-    if (socket) {
-      socket.auth = buildSocketAuth();
-    }
     console.log(`[WebSocket] 尝试重连 (第 ${attemptNumber} 次)`);
   });
 
@@ -232,7 +186,6 @@ function initSocket() {
   // 仅初始化一次数据推送处理器
   if (!isInitialized) {
     setupDataPushHandler();
-    setupAlarmHandlers();
     isInitialized = true;
   }
 
@@ -327,28 +280,12 @@ export function useWebSocket() {
     console.log('[WebSocket] 已发送操作命令:', message);
   }
 
-  function refreshAuth(): void {
-    if (!socketInstance) {
-      return;
-    }
-
-    socketInstance.auth = buildSocketAuth();
-
-    if (socketInstance.connected) {
-      socketInstance.disconnect().connect();
-      return;
-    }
-
-    socketInstance.connect();
-  }
-
   return {
     isConnected,
     error,
     subscribe,
     setPersistentSubscriptions,
     sendUserCommand,
-    refreshAuth,
     onDataPush,
     offDataPush,
   };

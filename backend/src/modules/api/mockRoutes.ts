@@ -60,5 +60,32 @@ export async function registerMockRoutes(fastify: FastifyInstance) {
     return comment;
   });
 
+  // 认证路由
+  fastify.post<{ Body: { username: string; password: string } }>(
+    '/api/auth/login',
+    async (request) => {
+      const { username, password } = request.body;
+
+      if (!username || !password) {
+        throw fastify.httpErrors.badRequest('Username and password are required');
+      }
+
+      const user = mockUsers.find((u) => u.username === username);
+      if (!user) {
+        throw fastify.httpErrors.unauthorized('Invalid credentials');
+      }
+
+      return {
+        success: true,
+        token: 'mock-jwt-token-' + Date.now(),
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+        },
+      };
+    },
+  );
+
   fastify.log.info('Mock API routes registered');
 }

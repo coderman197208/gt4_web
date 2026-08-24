@@ -2,13 +2,11 @@
  * Mock数据 - 在开发环境中使用
  */
 
-import type { AlarmManagementUserDirectoryItem, UserRole } from '@gt4_web/shared';
-
 export interface User {
   id: number;
   username: string;
   email: string;
-  role: UserRole;
+  role: string;
 }
 
 export interface Post {
@@ -33,21 +31,6 @@ export const mockUsers: User[] = [
   { id: 2, username: 'user1', email: 'user1@example.com', role: 'user' },
   { id: 3, username: 'user2', email: 'user2@example.com', role: 'user' },
 ];
-
-export function findMockUserById(userId: number): User | null {
-  return mockUsers.find((user) => user.id === userId) ?? null;
-}
-
-export function listAlarmManagementUsers(): AlarmManagementUserDirectoryItem[] {
-  return mockUsers
-    .filter((user) => user.role === 'user')
-    .map((user) => ({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: 'user',
-    }));
-}
 
 // Mock 文章数据
 export const mockPosts: Post[] = [

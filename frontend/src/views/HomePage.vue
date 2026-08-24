@@ -6,24 +6,14 @@
     class="h-screen w-full"
   >
     <div class="app-container flex h-full w-full flex-col overflow-hidden">
-      <AppHeader
-        :alarm-unacked-count="alarmCenterStore.totalUnacked"
-        :shift-name="realtimeDataStore.shiftName"
-        @toggle-sidebar="toggleSidebar"
-        @toggle-alarm-center="toggleAlarmCenter"
-      />
+      <AppHeader :shift-name="realtimeDataStore.shiftName" @toggle-sidebar="toggleSidebar" />
 
-      <div class="app-body relative flex min-h-0 flex-1 overflow-hidden bg-[#d8d8d8]">
+      <div class="app-body relative flex min-h-0 flex-1 overflow-hidden">
         <AppSidebar :is-open="isSidebarOpen" @close="isSidebarOpen = false" />
 
-        <main
-          class="relative min-h-0 flex-1 overflow-hidden p-0 transition-shadow duration-150"
-          :class="isAlarmCenterOpen ? 'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.28)]' : ''"
-        >
+        <main class="relative min-h-0 flex-1 overflow-hidden p-0">
           <router-view />
         </main>
-
-        <AlarmCenterPanel :open="isAlarmCenterOpen" @close="isAlarmCenterOpen = false" />
       </div>
 
       <footer class="app-footer h-[72px] shrink-0 px-3 py-2">
@@ -65,27 +55,23 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { getCurrentUser, isAuthenticated } from '@/api';
+import { getCurrentUser } from '@/api';
 import {
   FOOTER_NAV_SLOT_COUNT,
   footerNavigationItems,
   isNavigationItemActive,
   type AppNavigationItem,
 } from '@/lib/appNavigation';
-import { useAlarmCenterStore } from '@/stores/alarmCenter';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 import { useWebSocket } from '@/services/websocket';
 import { useRoute, useRouter } from 'vue-router';
-import AlarmCenterPanel from '../components/AlarmCenterPanel.vue';
 import HmiViewport from '../components/HmiViewport.vue';
 import AppHeader from '../components/AppHeader.vue';
 import AppSidebar from '../components/AppSidebar.vue';
 
 const isSidebarOpen = ref(false);
-const isAlarmCenterOpen = ref(false);
 const route = useRoute();
 const router = useRouter();
-const alarmCenterStore = useAlarmCenterStore();
 const realtimeDataStore = useRealtimeDataStore();
 const { setPersistentSubscriptions } = useWebSocket();
 const footerNavigationSlotMap = new Map(
@@ -145,14 +131,6 @@ function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value;
 }
 
-function toggleAlarmCenter() {
-  if (!isAuthenticated()) {
-    return;
-  }
-
-  isAlarmCenterOpen.value = !isAlarmCenterOpen.value;
-}
-
 function handleFooterNavigate(item: AppNavigationItem) {
   if (item.requiresAdmin && !isAdmin.value) {
     return;
@@ -164,13 +142,6 @@ function handleFooterNavigate(item: AppNavigationItem) {
 
 onMounted(() => {
   setPersistentSubscriptions(['SHIFT_NAME']);
-
-  if (isAuthenticated()) {
-    void alarmCenterStore.initialize();
-    return;
-  }
-
-  alarmCenterStore.reset();
 });
 </script>
 

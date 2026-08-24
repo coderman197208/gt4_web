@@ -13,15 +13,6 @@ export const FOOTER_NAV_SLOT_COUNT = 10;
 
 export const appNavigationItems: AppNavigationItem[] = [
   {
-    key: 'alarm-management',
-    label: '报警管理',
-    path: '/alarm-management',
-    requiresAdmin: true,
-    showInFooter: true,
-    sidebarOrder: 10,
-    footerSlot: 5,
-  },
-  {
     key: 'health-check',
     label: '健康检查',
     path: '/health-check',

@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { getCurrentUser, isAuthenticated } from '@/api';
 
 const HomePage = () => import('../views/HomePage.vue');
-const AdminAlarmManagementView = () => import('../views/AdminAlarmManagementView.vue');
 const LoginView = () => import('../views/LoginView.vue');
 const HealthCheckView = () => import('../views/HealthCheckView.vue');
 const ApiDemoView = () => import('../views/ApiDemoView.vue');
@@ -20,7 +18,6 @@ declare module 'vue-router' {
       designWidth?: number;
       designHeight?: number;
     };
-    requiresAdmin?: boolean;
   }
 }
 
@@ -35,18 +32,6 @@ const router = createRouter({
           path: '',
           name: 'home',
           redirect: '/main-monitor',
-        },
-        {
-          path: 'alarm-management',
-          name: 'alarm-management',
-          component: AdminAlarmManagementView,
-          meta: {
-            requiresAdmin: true,
-            hmiScale: {
-              designWidth: 1920,
-              designHeight: 1080,
-            },
-          },
         },
         {
           path: 'health-check',
@@ -135,30 +120,6 @@ const router = createRouter({
       redirect: '/',
     },
   ],
-});
-
-router.beforeEach((to) => {
-  if (!to.meta.requiresAdmin) {
-    return true;
-  }
-
-  if (!isAuthenticated()) {
-    return {
-      name: 'login',
-      query: {
-        redirect: to.fullPath,
-      },
-    };
-  }
-
-  const currentUser = getCurrentUser();
-  if (currentUser?.role !== 'admin') {
-    return {
-      name: 'main-monitor',
-    };
-  }
-
-  return true;
 });
 
 export default router;

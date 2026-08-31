@@ -80,3 +80,6 @@ export {
   checkBundleDuplicate,
   saveBundleDraft,
 } from './bundleData';
+
+// 导出报警相关API
+export { getLatestAlarms, getAlarms, acknowledgeAlarm, acknowledgeAlarms } from './alarm';

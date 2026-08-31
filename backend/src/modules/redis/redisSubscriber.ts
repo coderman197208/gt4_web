@@ -1,9 +1,9 @@
 /**
  * Redis 订阅模块
- * 订阅 'RealDataChanged' 主题，收到消息后读取 tag 值并通过 WebSocket 推送给前端
+ * 订阅实时数据与报警变更主题，并通过 WebSocket 推送给前端
  */
 
-import type { DataPushMessage } from '@gt4_web/shared';
+import type { AlarmChangeNotification, DataPushMessage } from '@gt4_web/shared';
 import { getRedisDataClient, getRedisSubClient } from './redisClient.js';
 import { normalizeRealtimeTagValue } from './realtimeValueNormalizer.js';
 import { getSocketServer, getSubscriptionManager } from '../websocket/socketServer.js';
@@ -15,17 +15,27 @@ export function startRedisSubscriber(): void {
   const redisSubClient = getRedisSubClient();
   const redisDataClient = getRedisDataClient();
 
-  // 订阅 RealDataChanged 主题
-  redisSubClient.subscribe('RealDataChanged', (err, count) => {
+  redisSubClient.subscribe('RealDataChanged', 'AlarmChanged', (err, count) => {
     if (err) {
-      console.error('[RedisSubscriber] 订阅 RealDataChanged 失败:', err.message);
+      console.error('[RedisSubscriber] 订阅主题失败:', err.message);
       return;
     }
-    console.log(`[RedisSubscriber] 已订阅 RealDataChanged 主题（当前订阅数: ${count}）`);
+    console.log(`[RedisSubscriber] 已订阅 Redis 主题（当前订阅数: ${count}）`);
   });
 
   // 监听消息
   redisSubClient.on('message', async (channel, tagName) => {
+    if (channel === 'AlarmChanged') {
+      if (!/^(?:0|[1-9]\d*)$/.test(tagName)) {
+        console.warn(`[RedisSubscriber] 忽略无效的 AlarmChanged 消息: ${tagName}`);
+        return;
+      }
+
+      const message: AlarmChangeNotification = { id: tagName };
+      getSocketServer().emit('alarm:changed', message);
+      return;
+    }
+
     if (channel !== 'RealDataChanged') return;
 
     // 检查是否有前端订阅了这个 tag

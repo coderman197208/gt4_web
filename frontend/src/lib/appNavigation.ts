@@ -81,6 +81,15 @@ export const appNavigationItems: AppNavigationItem[] = [
     sidebarOrder: 90,
     footerSlot: 3,
   },
+  {
+    key: 'alarms',
+    label: '报警查询',
+    path: '/alarms',
+    requiresAdmin: false,
+    showInFooter: true,
+    sidebarOrder: 100,
+    footerSlot: 5,
+  },
 ];
 
 export const sidebarNavigationItems = [...appNavigationItems].sort(

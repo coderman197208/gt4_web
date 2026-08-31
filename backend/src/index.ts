@@ -9,6 +9,7 @@ import { registerMockRoutes } from './modules/api/mockRoutes.js';
 import { registerParameterSetRoutes } from './modules/api/parameterSetRoutes.js';
 import { registerOrderDataRoutes } from './modules/api/orderDataRoutes.js';
 import { registerBundleDataRoutes } from './modules/api/bundleDataRoutes.js';
+import { registerAlarmRoutes, verifyAlarmTable } from './modules/api/alarmRoutes.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -41,11 +42,15 @@ fastify.register(registerOrderDataRoutes);
 // 注册管捆数据 API 路由
 fastify.register(registerBundleDataRoutes);
 
+// 注册报警 API 路由
+fastify.register(registerAlarmRoutes);
+
 const port = Number(process.env.PORT || 5001);
 const host = '0.0.0.0';
 
 const start = async () => {
   try {
+    await verifyAlarmTable();
     const address = await fastify.listen({ port, host });
     fastify.log.info(`server listening at ${address}`);
 

@@ -10,6 +10,7 @@ import type {
   DataPushMessage,
   CmdPushMessage,
   UserCommandPayload,
+  AlarmChangeNotification,
 } from '@gt4_web/shared';
 import { useRealtimeDataStore } from '@/stores/realtimeData';
 
@@ -23,6 +24,8 @@ let persistentTags: string[] = [];
 
 // 仅跟踪外部注册的 data:push 监听器，避免误删内部处理器
 const externalDataPushListeners = new Set<(data: DataPushMessage) => void>();
+const alarmChangedListeners = new Set<(data: AlarmChangeNotification) => void>();
+const connectedListeners = new Set<() => void>();
 
 // 是否已经完成过首次连接（用于区分"首次连接"和"重连"）
 let hasConnectedOnce = false;
@@ -151,6 +154,9 @@ function initSocket() {
     }
 
     hasConnectedOnce = true;
+    for (const listener of connectedListeners) {
+      listener();
+    }
   });
 
   // 监听断开连接事件
@@ -256,6 +262,25 @@ export function useWebSocket() {
     }
   }
 
+  function onAlarmChanged(callback: (data: AlarmChangeNotification) => void): void {
+    if (alarmChangedListeners.has(callback)) return;
+    alarmChangedListeners.add(callback);
+    socketInstance.on('alarm:changed', callback);
+  }
+
+  function offAlarmChanged(callback: (data: AlarmChangeNotification) => void): void {
+    alarmChangedListeners.delete(callback);
+    socketInstance.off('alarm:changed', callback);
+  }
+
+  function onConnected(callback: () => void): void {
+    connectedListeners.add(callback);
+  }
+
+  function offConnected(callback: () => void): void {
+    connectedListeners.delete(callback);
+  }
+
   /**
    * 发送操作命令到后端（通过WebSocket转发至Redis）
    * @param cmdName 命令名称
@@ -288,5 +313,9 @@ export function useWebSocket() {
     sendUserCommand,
     onDataPush,
     offDataPush,
+    onAlarmChanged,
+    offAlarmChanged,
+    onConnected,
+    offConnected,
   };
 }

@@ -19,8 +19,10 @@
       </svg>
     </Button>
 
-    <!-- 中间：系统标题 -->
-    <h1 class="text-lg font-semibold">管体4号线L2过程机系统</h1>
+    <div class="flex min-w-0 flex-1 items-center justify-center gap-4 px-4">
+      <h1 class="shrink-0 text-base font-semibold">管体4号线L2过程机系统</h1>
+      <AlarmSummary />
+    </div>
 
     <!-- 右侧：班号 + 全屏按钮 + 实时时钟 -->
     <div class="flex items-center gap-2">
@@ -40,6 +42,7 @@
 import { Button } from '@/components/ui/button';
 import LiveClock from './LiveClock.vue';
 import FullscreenToggle from './FullscreenToggle.vue';
+import AlarmSummary from './AlarmSummary.vue';
 
 withDefaults(
   defineProps<{

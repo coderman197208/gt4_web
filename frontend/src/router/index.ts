@@ -11,6 +11,7 @@ const ContractEditingView = () => import('../views/ContractEditingView.vue');
 const MainMonitorView = () => import('../views/MainMonitorView.vue');
 const ParameterSettingView = () => import('../views/ParameterSettingView.vue');
 const ModeSettingView = () => import('../views/ModeSettingView.vue');
+const AlarmView = () => import('../views/AlarmView.vue');
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -101,6 +102,17 @@ const router = createRouter({
           path: 'mode-setting',
           name: 'mode-setting',
           component: ModeSettingView,
+          meta: {
+            hmiScale: {
+              designWidth: 1920,
+              designHeight: 1080,
+            },
+          },
+        },
+        {
+          path: 'alarms',
+          name: 'alarms',
+          component: AlarmView,
           meta: {
             hmiScale: {
               designWidth: 1920,

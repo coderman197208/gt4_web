@@ -4,7 +4,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
  * 创建axios实例
  */
 const apiClient: AxiosInstance = axios.create({
-  baseURL: '/api', // Vite会将/api代理到JSON Server
+  baseURL: '/api', //  Vite 会将 /api 代理到后端 API
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

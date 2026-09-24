@@ -1188,7 +1188,15 @@ onUnmounted(() => {
                   上料
                 </Button>
               </div>
-              <Button size="sm" variant="outline" class="mt-2 w-full" disabled> 测长 </Button>
+              <!-- <Button size="sm" variant="outline" class="mt-2 w-full" disabled> 测长 </Button> -->
+              <div class="flex items-center mt-3 gap-2">
+                <Label class="text-base w-20 text-right">下一管号</Label>
+                <Input
+                  :model-value="realtimeStore.planInfo?.tube_no"
+                  class="h-7 text-center flex-1"
+                  readonly
+                />
+              </div>
             </div>
           </div>
 
